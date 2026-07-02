@@ -23,10 +23,15 @@
                         StrokeShape="RoundRectangle 20"
                         HorizontalOptions="Start"
                         VerticalOptions="Center">
-                    <Label Text="👤"
-                           FontSize="18"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
+                    <Path Data="M12,4 A4,4 0 1,0 12,12 A4,4 0 1,0 12,4 Z M4,20 C4,15.5 7.5,13 12,13 C16.5,13 20,15.5 20,20"
+                          Stroke="White"
+                          StrokeThickness="2"
+                          StrokeLineCap="Round"
+                          Fill="Transparent"
+                          Aspect="Uniform"
+                          WidthRequest="20" HeightRequest="20"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center" />
                 </Border>
 
                 <!-- Title -->
@@ -48,11 +53,14 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnHamburgerTapped" />
                     </Border.GestureRecognizers>
-                    <Label Text="☰"
-                           TextColor="White"
-                           FontSize="24"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
+                    <Path Data="M4,7 H20 M4,12 H20 M4,17 H20"
+                          Stroke="White"
+                          StrokeThickness="2.5"
+                          StrokeLineCap="Round"
+                          Aspect="Uniform"
+                          WidthRequest="20" HeightRequest="20"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center" />
                 </Border>
             </Grid>
 
@@ -113,12 +121,12 @@
                                 <DataTrigger TargetType="Border"
                                              Binding="{Binding IsToday}"
                                              Value="True">
-                                    <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                     <Setter Property="BackgroundColor" Value="#5B2A9E" />
                                 </DataTrigger>
                                 <DataTrigger TargetType="Border"
                                              Binding="{Binding IsToday}"
                                              Value="False">
-                                    <Setter Property="BackgroundColor" Value="#E4E4E8" />
+                                     <Setter Property="BackgroundColor" Value="#E4E4E8" />
                                 </DataTrigger>
                             </Border.Triggers>
                             <VerticalStackLayout VerticalOptions="Center"
@@ -224,11 +232,14 @@
                                TextColor="White"
                                FontFamily="SyneBold"
                                FontSize="16" />
-                        <!-- Dumbbell placeholder -->
-                        <Label Text="🏋️"
-                               FontSize="40"
-                               HorizontalOptions="Center"
-                               Margin="0,12,0,0" />
+                        <!-- Dumbbell SVG path -->
+                        <Path Data="M5,6 H7 V18 H5 Z M8,8 H10 V16 H8 Z M10,11 H22 V13 H10 Z M22,8 H24 V16 H22 Z M25,6 H27 V18 H25 Z"
+                              Fill="White"
+                              Aspect="Uniform"
+                              WidthRequest="40"
+                              HeightRequest="40"
+                              HorizontalOptions="Center"
+                              Margin="0,16,0,0" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -237,8 +248,7 @@
                         StrokeThickness="0"
                         StrokeShape="RoundRectangle 20"
                         Padding="16"
-                        HorizontalOptions="End"
-                        WidthRequest="200">
+                        HorizontalOptions="Fill">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#6A2FB0" Offset="0.0" />

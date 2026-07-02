@@ -22,15 +22,16 @@
 
                 <!-- Body part cards -->
                 <CollectionView ItemsSource="{Binding BodyParts}"
-                                Margin="20,8,20,0">
+                                Margin="20,8,20,0"> <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" 
+                                        ItemSpacing="12" /> </CollectionView.ItemsLayout>
+                    
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:BodyPartItem">
                             <Border StrokeThickness="0"
                                     BackgroundColor="{Binding CardColor}"
                                     StrokeShape="RoundRectangle 20"
-                                    Padding="24,20"
-                                    Margin="0,6"
-                                    HeightRequest="70">
+                                    Padding="24,18">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer
                                         Command="{Binding BindingContext.NavigateToBodyPartCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"

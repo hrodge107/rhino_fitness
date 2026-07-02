@@ -37,15 +37,18 @@
                 <!-- Exercise cards -->
                 <CollectionView ItemsSource="{Binding Exercises}"
                                 Margin="20,8,20,0">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical"
+                                           ItemSpacing="12" />
+                    </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:Exercise">
                             <Border StrokeThickness="0"
                                     BackgroundColor="#2A2A2E"
                                     StrokeShape="RoundRectangle 20"
                                     Padding="0"
-                                    Margin="0,6"
-                                    HorizontalOptions="Center"
-                                    WidthRequest="320">
+                                    Margin="0"
+                                    HorizontalOptions="Fill">
                                 <VerticalStackLayout Spacing="0">
                                     <!-- Exercise GIF -->
                                     <Border StrokeThickness="0"
@@ -68,7 +71,7 @@
                                            TextColor="White"
                                            FontFamily="SyneBold"
                                            FontSize="15"
-                                           Padding="16,12"
+                                           Padding="20,16"
                                            LineBreakMode="TailTruncation"
                                            MaxLines="2" />
                                 </VerticalStackLayout>

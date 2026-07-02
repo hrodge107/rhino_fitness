@@ -52,7 +52,7 @@
 
         <!-- ═══ Rhino Logo Footer ═══ -->
         <Image Grid.Row="2"
-               Source="logo.svg"
+               Source="logo_purple.png"
                HeightRequest="60"
                WidthRequest="60"
                HorizontalOptions="Center"
