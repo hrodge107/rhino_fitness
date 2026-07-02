@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             x:DataType="viewmodels:LoginViewModel"
+             x:Class="FitnessApp.Views.LoginPage"
+             Shell.NavBarIsVisible="False"
+             Title="Login">
+    
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#7c4ef6" Offset="0.0" />
+                <GradientStop Color="#2c1464" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <VerticalStackLayout VerticalOptions="Center"
+                             Spacing="20"
+                             Padding="40,0">
+            
+            <!-- Logo -->
+            <Image Source="logo.png"
+                   HeightRequest="200"
+                   WidthRequest="200"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,40" />
+
+            <!-- Username Field -->
+            <Border StrokeThickness="0"
+                    BackgroundColor="#D6D6D6"
+                    HeightRequest="56"
+                    StrokeShape="RoundRectangle 28">
+                <Entry Placeholder="Username"
+                       PlaceholderColor="#555555"
+                       TextColor="#000000"
+                       FontAttributes="Italic"
+                       FontFamily="OpenSansRegular"
+                       HorizontalTextAlignment="Center"
+                       VerticalOptions="Center"
+                       Keyboard="Text" />
+            </Border>
+
+            <!-- Password Field -->
+            <Border StrokeThickness="0"
+                    BackgroundColor="#D6D6D6"
+                    HeightRequest="56"
+                    StrokeShape="RoundRectangle 28">
+                <Entry Placeholder="Password"
+                       PlaceholderColor="#555555"
+                       TextColor="#000000"
+                       FontAttributes="Italic"
+                       FontFamily="OpenSansRegular"
+                       HorizontalTextAlignment="Center"
+                       VerticalOptions="Center"
+                       IsPassword="True" />
+            </Border>
+
+            <!-- Sign In Button -->
+            <Border StrokeThickness="0"
+                    BackgroundColor="#28272C"
+                    HeightRequest="56"
+                    StrokeShape="RoundRectangle 28"
+                    Margin="0,10,0,0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SignInCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="Sign In"
+                       TextColor="#D6D6D6"
+                       FontAttributes="Italic"
+                       FontFamily="OpenSansSemibold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Border>
+
+            <!-- Forgot Password -->
+            <Label Text="Forgot Password?"
+                   TextColor="#D6D6D6"
+                   FontAttributes="Italic"
+                   FontFamily="OpenSansRegular"
+                   HorizontalOptions="Center"
+                   Margin="0,15,0,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FitnessApp.Views.PageTemplate"
+             x:Name="TemplateRoot">
+
+    <Grid RowDefinitions="56,*,Auto"
+          BackgroundColor="#1B1B1F">
+
+        <!-- ═══ Top Bar ═══ -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="48,*,48"
+              Padding="12,0"
+              VerticalOptions="Center">
+
+            <!-- Back arrow -->
+            <Border Grid.Column="0"
+                    StrokeThickness="0"
+                    BackgroundColor="Transparent"
+                    WidthRequest="40" HeightRequest="40"
+                    IsVisible="{Binding ShowBackArrow, Source={x:Reference TemplateRoot}}"
+                    HorizontalOptions="Start"
+                    VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Border.GestureRecognizers>
+                <!-- Chevron-left SVG path -->
+                <Path Data="M15,4 L7,12 L15,20"
+                      Stroke="White"
+                      StrokeThickness="2.5"
+                      StrokeLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Fill="Transparent"
+                      WidthRequest="24" HeightRequest="24"
+                      HorizontalOptions="Center"
+                      VerticalOptions="Center" />
+            </Border>
+
+            <!-- Page title -->
+            <Label Grid.Column="1"
+                   Text="{Binding PageTitle, Source={x:Reference TemplateRoot}}"
+                   TextColor="White"
+                   FontFamily="SyneBold"
+                   FontSize="18"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+        </Grid>
+
+        <!-- ═══ Content Slot ═══ -->
+        <ContentView Grid.Row="1"
+                     Content="{Binding PageContent, Source={x:Reference TemplateRoot}}" />
+
+        <!-- ═══ Rhino Logo Footer ═══ -->
+        <Image Grid.Row="2"
+               Source="logo.svg"
+               HeightRequest="60"
+               WidthRequest="60"
+               HorizontalOptions="Center"
+               Margin="0,20,0,10"
+               Opacity="0.85" />
+    </Grid>
+</ContentView>

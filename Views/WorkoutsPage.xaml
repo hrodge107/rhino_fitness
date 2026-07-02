@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:FitnessApp.Views"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             xmlns:models="clr-namespace:FitnessApp.Models"
+             x:DataType="viewmodels:WorkoutViewModel"
+             x:Class="FitnessApp.Views.WorkoutsPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1B1B1F"
+             Title="Workouts">
+
+    <views:PageTemplate PageTitle="Workouts" ShowBackArrow="True">
+        <views:PageTemplate.PageContent>
+            <Grid>
+                <!-- Loading indicator -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="#9B7FD4"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Center" />
+
+                <!-- Body part cards -->
+                <CollectionView ItemsSource="{Binding BodyParts}"
+                                Margin="20,8,20,0">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:BodyPartItem">
+                            <Border StrokeThickness="0"
+                                    BackgroundColor="{Binding CardColor}"
+                                    StrokeShape="RoundRectangle 20"
+                                    Padding="24,20"
+                                    Margin="0,6"
+                                    HeightRequest="70">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding BindingContext.NavigateToBodyPartCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{Binding DisplayName}"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="20"
+                                       VerticalOptions="Center" />
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </views:PageTemplate.PageContent>
+    </views:PageTemplate>
+</ContentPage>

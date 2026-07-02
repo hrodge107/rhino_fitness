@@ -1,0 +1,33 @@
+# AI Agents & Tools
+.agents/
+.codegraph/
+graphify-out/
+
+# Build artifacts
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+# User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+# Mono / Xamarin / MAUI specific
+.vs/
+.idea/
+.vscode/
+*.suo
+*.userprefs
+*.pydevproject
+.metadata/
+*~
+*.swp
+*.bak
+
+# OS-specific
+.DS_Store
+Thumbs.db
+nul
+docs/nul
+

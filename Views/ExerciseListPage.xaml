@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:FitnessApp.Views"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             xmlns:models="clr-namespace:FitnessApp.Models"
+             x:DataType="viewmodels:ExerciseListViewModel"
+             x:Class="FitnessApp.Views.ExerciseListPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1B1B1F"
+             Title="{Binding PageTitle}"
+             xmlns:converters="clr-namespace:FitnessApp.Converters">
+
+    <ContentPage.Resources>
+        <converters:NullEmptyToBoolConverter x:Key="NullEmptyToBool" />
+    </ContentPage.Resources>
+
+    <views:PageTemplate PageTitle="{Binding PageTitle}" ShowBackArrow="True">
+        <views:PageTemplate.PageContent>
+            <Grid>
+                <!-- Loading -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="#9B7FD4"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Center" />
+
+                <!-- Empty state -->
+                <Label Text="{Binding EmptyMessage}"
+                       IsVisible="{Binding EmptyMessage, Converter={StaticResource NullEmptyToBool}}"
+                       TextColor="#D0D0D5"
+                       FontFamily="OpenSansRegular"
+                       FontSize="16"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+
+                <!-- Exercise cards -->
+                <CollectionView ItemsSource="{Binding Exercises}"
+                                Margin="20,8,20,0">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Exercise">
+                            <Border StrokeThickness="0"
+                                    BackgroundColor="#2A2A2E"
+                                    StrokeShape="RoundRectangle 20"
+                                    Padding="0"
+                                    Margin="0,6"
+                                    HorizontalOptions="Center"
+                                    WidthRequest="320">
+                                <VerticalStackLayout Spacing="0">
+                                    <!-- Exercise GIF -->
+                                    <Border StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 20,20,0,0"
+                                            BackgroundColor="#222226"
+                                            HeightRequest="200"
+                                            Padding="0">
+                                        <Image Aspect="AspectFill"
+                                               HeightRequest="200"
+                                               IsAnimationPlaying="True">
+                                            <Image.Source>
+                                                <UriImageSource Uri="{Binding GifUrl}"
+                                                                CacheValidity="7.00:00:00"
+                                                                CachingEnabled="True" />
+                                            </Image.Source>
+                                        </Image>
+                                    </Border>
+                                    <!-- Exercise name -->
+                                    <Label Text="{Binding Name}"
+                                           TextColor="White"
+                                           FontFamily="SyneBold"
+                                           FontSize="15"
+                                           Padding="16,12"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="2" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </views:PageTemplate.PageContent>
+    </views:PageTemplate>
+</ContentPage>

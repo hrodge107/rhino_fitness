@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             xmlns:models="clr-namespace:FitnessApp.Models"
+             x:DataType="viewmodels:HomeViewModel"
+             x:Class="FitnessApp.Views.HomePage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1B1B1F"
+             Title="Home">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="20,16">
+
+            <!-- ═══ Top Bar ═══ -->
+            <Grid ColumnDefinitions="48,*,48" HeightRequest="48">
+                <!-- Profile icon placeholder -->
+                <Border Grid.Column="0"
+                        StrokeThickness="1"
+                        Stroke="#555555"
+                        BackgroundColor="#2A2A2E"
+                        WidthRequest="40" HeightRequest="40"
+                        StrokeShape="RoundRectangle 20"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Center">
+                    <Label Text="👤"
+                           FontSize="18"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+
+                <!-- Title -->
+                <Label Grid.Column="1"
+                       Text="Home"
+                       TextColor="White"
+                       FontFamily="SyneBold"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+
+                <!-- Hamburger — opens Shell flyout -->
+                <Border Grid.Column="2"
+                        StrokeThickness="0"
+                        BackgroundColor="Transparent"
+                        WidthRequest="40" HeightRequest="40"
+                        HorizontalOptions="End"
+                        VerticalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnHamburgerTapped" />
+                    </Border.GestureRecognizers>
+                    <Label Text="☰"
+                           TextColor="White"
+                           FontSize="24"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <!-- ═══ Greeting ═══ -->
+            <VerticalStackLayout Spacing="2" Padding="0,8,0,0">
+                <Label FontSize="28"
+                       FontFamily="SyneBold"
+                       TextColor="White">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Hi, " FontAttributes="Bold" />
+                            <Span Text="{Binding UserName}" FontAttributes="Bold" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Label Text="{Binding CurrentDateText}"
+                       TextColor="#D0D0D5"
+                       FontSize="14"
+                       FontFamily="OpenSansRegular" />
+            </VerticalStackLayout>
+
+            <!-- ═══ Hero / Progress Card ═══ -->
+            <Border StrokeThickness="0"
+                    BackgroundColor="#2A2A2E"
+                    HeightRequest="160"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="0">
+                <Grid>
+                    <!-- Progress label overlay -->
+                    <Label Text="Progress"
+                           TextColor="White"
+                           FontFamily="SyneBold"
+                           FontSize="16"
+                           Margin="16,12,0,0"
+                           VerticalOptions="Start"
+                           HorizontalOptions="Start" />
+                    <!-- Hero image — falls back to grey card when missing -->
+                    <Image Source="hero_card.png"
+                           Aspect="AspectFill"
+                           Opacity="0.7" />
+                </Grid>
+            </Border>
+
+            <!-- ═══ Calendar Week Strip ═══ -->
+            <CollectionView ItemsSource="{Binding WeekDays}"
+                            ItemsLayout="HorizontalList"
+                            HeightRequest="70"
+                            HorizontalOptions="Center">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:DayModel">
+                        <Border StrokeThickness="0"
+                                WidthRequest="46"
+                                HeightRequest="60"
+                                Margin="3,0"
+                                StrokeShape="RoundRectangle 14"
+                                Padding="0">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding IsToday}"
+                                             Value="True">
+                                    <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding IsToday}"
+                                             Value="False">
+                                    <Setter Property="BackgroundColor" Value="#E4E4E8" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <VerticalStackLayout VerticalOptions="Center"
+                                                 HorizontalOptions="Center"
+                                                 Spacing="2">
+                                <Label Text="{Binding DayName}"
+                                       FontSize="11"
+                                       FontFamily="OpenSansRegular"
+                                       HorizontalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsToday}"
+                                                     Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsToday}"
+                                                     Value="False">
+                                            <Setter Property="TextColor" Value="#333333" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{Binding DayNumber}"
+                                       FontSize="16"
+                                       FontFamily="OpenSansSemibold"
+                                       HorizontalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsToday}"
+                                                     Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsToday}"
+                                                     Value="False">
+                                            <Setter Property="TextColor" Value="#333333" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- ═══ Navigation Cards ═══ -->
+            <Grid ColumnDefinitions="*,*"
+                  RowDefinitions="140,100"
+                  ColumnSpacing="12"
+                  RowSpacing="12"
+                  Padding="0,8,0,0">
+
+                <!-- Planner Card -->
+                <Border Grid.Row="0" Grid.Column="0"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="16">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#5B2A9E" Offset="0.0" />
+                            <GradientStop Color="#6A2FB0" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToPlannerCommand}" />
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Planner"
+                               TextColor="White"
+                               FontFamily="SyneBold"
+                               FontSize="16" />
+                        <!-- Placeholder grid icon -->
+                        <Grid RowDefinitions="20,20,20"
+                              ColumnDefinitions="20,20,20"
+                              RowSpacing="4" ColumnSpacing="4"
+                              Margin="0,8,0,0"
+                              HorizontalOptions="Start">
+                            <BoxView Grid.Row="0" Grid.Column="0" Color="#9B7FD4" CornerRadius="4" />
+                            <BoxView Grid.Row="0" Grid.Column="1" Color="#9B7FD4" CornerRadius="4" />
+                            <BoxView Grid.Row="0" Grid.Column="2" Color="#9B7FD4" CornerRadius="4" />
+                            <BoxView Grid.Row="1" Grid.Column="0" Color="#9B7FD4" CornerRadius="4" />
+                            <BoxView Grid.Row="1" Grid.Column="1" Color="#9B7FD4" CornerRadius="4" />
+                            <BoxView Grid.Row="1" Grid.Column="2" Color="#9B7FD4" CornerRadius="4" />
+                            <BoxView Grid.Row="2" Grid.Column="0" Color="#9B7FD4" CornerRadius="4" />
+                            <BoxView Grid.Row="2" Grid.Column="1" Color="#9B7FD4" CornerRadius="4" />
+                            <BoxView Grid.Row="2" Grid.Column="2" Color="#9B7FD4" CornerRadius="4" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Workouts Card -->
+                <Border Grid.Row="0" Grid.Column="1"
+                        StrokeThickness="0"
+                        BackgroundColor="#9B7FD4"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="16">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToWorkoutsCommand}" />
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="8"
+                                         VerticalOptions="Start">
+                        <Label Text="Workouts"
+                               TextColor="White"
+                               FontFamily="SyneBold"
+                               FontSize="16" />
+                        <!-- Dumbbell placeholder -->
+                        <Label Text="🏋️"
+                               FontSize="40"
+                               HorizontalOptions="Center"
+                               Margin="0,12,0,0" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Nutrition Card — spans full width -->
+                <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="16"
+                        HorizontalOptions="End"
+                        WidthRequest="200">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#6A2FB0" Offset="0.0" />
+                            <GradientStop Color="#9B7FD4" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToNutritionCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Nutrition"
+                           TextColor="White"
+                           FontFamily="SyneBold"
+                           FontSize="18"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <!-- ═══ Logo Footer ═══ -->
+            <Image Source="logo.svg"
+                   HeightRequest="60"
+                   WidthRequest="60"
+                   HorizontalOptions="Center"
+                   Margin="0,20,0,10"
+                   Opacity="0.85" />
+            <!-- ponytail: logo tint #7448DF not universally supported via Image;
+                 swap to a pre-tinted SVG when brand asset is available -->
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
+
+    <Color x:Key="Primary">#512BD4</Color>
+    <Color x:Key="PrimaryDark">#ac99ea</Color>
+    <Color x:Key="PrimaryDarkText">#242424</Color>
+    <Color x:Key="Secondary">#DFD8F7</Color>
+    <Color x:Key="SecondaryDarkText">#9880e5</Color>
+    <Color x:Key="Tertiary">#2B0B98</Color>
+
+    <Color x:Key="White">White</Color>
+    <Color x:Key="Black">Black</Color>
+    <Color x:Key="Magenta">#D600AA</Color>
+    <Color x:Key="MidnightBlue">#190649</Color>
+    <Color x:Key="OffBlack">#1f1f1f</Color>
+
+    <Color x:Key="Gray100">#E1E1E1</Color>
+    <Color x:Key="Gray200">#C8C8C8</Color>
+    <Color x:Key="Gray300">#ACACAC</Color>
+    <Color x:Key="Gray400">#919191</Color>
+    <Color x:Key="Gray500">#6E6E6E</Color>
+    <Color x:Key="Gray600">#404040</Color>
+    <Color x:Key="Gray900">#212121</Color>
+    <Color x:Key="Gray950">#141414</Color>
+
+    <!-- Dark-theme palette for Exercise Catalog -->
+    <Color x:Key="DarkBackground">#0B0E14</Color>
+    <Color x:Key="DarkCardBackground">#1A1F2C</Color>
+    <Color x:Key="DarkCardStroke">#2A3240</Color>
+    <Color x:Key="AccentBlue">#0A84FF</Color>
+    <Color x:Key="AccentCyan">#00D4FF</Color>
+    <Color x:Key="HeaderBg">#121620</Color>
+    <Color x:Key="SubtitleText">#8E9AA8</Color>
+
+    <!-- Badge backgrounds / text -->
+    <Color x:Key="BadgeStrengthBg">#121620</Color>
+    <Color x:Key="BadgeStrengthText">#0A84FF</Color>
+    <Color x:Key="BadgeTypeBg">#1A1F2C</Color>
+    <Color x:Key="BadgeTypeText">#8E9AA8</Color>
+    <Color x:Key="BadgeMuscleBg">#1A1F2C</Color>
+    <Color x:Key="BadgeMuscleText">#8E9AA8</Color>
+    <Color x:Key="BadgeDifficultyBg">#1A1F2C</Color>
+    <Color x:Key="BadgeDifficultyText">#8E9AA8</Color>
+    <Color x:Key="BadgeEquipmentBg">#1A1F2C</Color>
+    <Color x:Key="BadgeEquipmentText">#0A84FF</Color>
+
+    <!-- Filter pill states -->
+    <Color x:Key="FilterPillNormalBg">#1A1F2C</Color>
+    <Color x:Key="FilterPillNormalText">#8E9AA8</Color>
+    <Color x:Key="FilterPillSelectedBg">#0A84FF</Color>
+    <Color x:Key="FilterPillSelectedText">#FFFFFF</Color>
+
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
+    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
+    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
+
+    <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}"/>
+    <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}"/>
+    <SolidColorBrush x:Key="Gray300Brush" Color="{StaticResource Gray300}"/>
+    <SolidColorBrush x:Key="Gray400Brush" Color="{StaticResource Gray400}"/>
+    <SolidColorBrush x:Key="Gray500Brush" Color="{StaticResource Gray500}"/>
+    <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
+    <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
+    <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
+    <!-- Dark-theme brushes -->
+    <SolidColorBrush x:Key="DarkBackgroundBrush" Color="{StaticResource DarkBackground}"/>
+    <SolidColorBrush x:Key="DarkCardBackgroundBrush" Color="{StaticResource DarkCardBackground}"/>
+    <SolidColorBrush x:Key="DarkCardStrokeBrush" Color="{StaticResource DarkCardStroke}"/>
+    <SolidColorBrush x:Key="AccentBlueBrush" Color="{StaticResource AccentBlue}"/>
+    <SolidColorBrush x:Key="AccentCyanBrush" Color="{StaticResource AccentCyan}"/>
+    <SolidColorBrush x:Key="HeaderBgBrush" Color="{StaticResource HeaderBg}"/>
+    <SolidColorBrush x:Key="SubtitleTextBrush" Color="{StaticResource SubtitleText}"/>
+    <SolidColorBrush x:Key="BadgeStrengthBgBrush" Color="{StaticResource BadgeStrengthBg}"/>
+    <SolidColorBrush x:Key="BadgeStrengthTextBrush" Color="{StaticResource BadgeStrengthText}"/>
+    <SolidColorBrush x:Key="BadgeTypeBgBrush" Color="{StaticResource BadgeTypeBg}"/>
+    <SolidColorBrush x:Key="BadgeTypeTextBrush" Color="{StaticResource BadgeTypeText}"/>
+    <SolidColorBrush x:Key="BadgeMuscleBgBrush" Color="{StaticResource BadgeMuscleBg}"/>
+    <SolidColorBrush x:Key="BadgeMuscleTextBrush" Color="{StaticResource BadgeMuscleText}"/>
+    <SolidColorBrush x:Key="BadgeDifficultyBgBrush" Color="{StaticResource BadgeDifficultyBg}"/>
+    <SolidColorBrush x:Key="BadgeDifficultyTextBrush" Color="{StaticResource BadgeDifficultyText}"/>
+    <SolidColorBrush x:Key="BadgeEquipmentBgBrush" Color="{StaticResource BadgeEquipmentBg}"/>
+    <SolidColorBrush x:Key="BadgeEquipmentTextBrush" Color="{StaticResource BadgeEquipmentText}"/>
+    <SolidColorBrush x:Key="FilterPillNormalBgBrush" Color="{StaticResource FilterPillNormalBg}"/>
+    <SolidColorBrush x:Key="FilterPillNormalTextBrush" Color="{StaticResource FilterPillNormalText}"/>
+    <SolidColorBrush x:Key="FilterPillSelectedBgBrush" Color="{StaticResource FilterPillSelectedBg}"/>
+    <SolidColorBrush x:Key="FilterPillSelectedTextBrush" Color="{StaticResource FilterPillSelectedText}"/>
+</ResourceDictionary>

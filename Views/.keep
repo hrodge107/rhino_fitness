@@ -1,0 +1,3 @@
+// Views layer placeholder. Populate with XAML ContentPages bound to ViewModels
+// (DashboardPage, RoutineBuilderPage, ActiveWorkoutPage, HistoryPage) in
+// subsequent phases. See .agents/skills/maui-mvvm-standards/SKILL.md.

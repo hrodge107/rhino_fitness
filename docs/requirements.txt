@@ -1,0 +1,142 @@
+                                                                                              Module 1 Assessment
+                                                                  IT191-2P ­ Integrative Programming
+
+                                                                                                   and Technologies
+                                                                                                                June 2026
+
+A Final Project integrating the following core concepts:
+
+        a. Cross-Platform Mobile Application Development using .NET MAUI
+        b. Data Exchange using RESTful APIs, JSON, XML, and Web Services
+        c. Integrative Coding Principles using OOP, MVVM Architecture, Design
+
+             Patterns, and Local Data Storage
+
+    General Instructions: Design and develop a system that provides an integrative
+    programming solution to a specific problem and/or scenario. The programming
+    solution shall meet the following requirements:
+
+The project can be developed by a TEAM of 2-4 members.
+
+       Target Problem/Scenario/Project
+
+              An approved dummy topic/scenario/Project that will be used as basis of the
+              identified transactions, processes, and functionalities involved in
+              developing .Net Maui based mobile application
+
+       Examples:
+
+       a. Any Mini Game Application that involves the use of essential widgets and
+              packages such as Image Views, Text Views, Randomization, Timing, Event-
+              based functions, etc. The Game must be able to handle XML/Json data
+              parsing, and/or use of database via RESTful Approach in extracting and
+              storing data.
+
+       b. Any Basic Information System or Business Application that handles
+              transactions that combine any applicable basic functions on a CRUD-level.
+              This must heavily use RESTful Approach in handling data (e.g.: Health App that
+              captures and manage vitals data, Sales App, Inventory App, and Student
+              Record App)
+
+        Applicable Database Object of persistent storage (MySQL)
+        Dedicated RESTful API that will bridge and integrate Mobile
+
+              Application, Web Application (if included only), and database
+              object
+        Applicable Integrative Coding style such as the use of OOP
+              Concepts in developing mobile application
+        Multiple Screens/Activities and use of Essential Widgets and
+              Intents
+                                                                                         Module 1 Assessment
+                                                             IT191-2P ­ Integrative Programming
+
+                                                                                              and Technologies
+                                                                                                           June 2026
+
+*Requirements:
+
+    a.) Actual presentation of the project, including the complete execution and
+        provision of applicable codes. Each member shall take part in the
+        discussion.
+
+    b.) Zipped Copy of the Project File
+    c.) PDF Copy of the Project Description, Progress Reports and Screenshots of
+
+        the Activities
+
+*Submission bin will be provided for these requirements. Note also that a
+presentation date will be announced for this Course Assessment
+
+Criteria                                       POINTS
+
+Execution          40 pts        25-39 pts       20-24 pts       11-19 pts     0-10 pts
+Cycle and                     System is able   System is        System is    System was
+Transactions  System is       to provide a     able to          able to      not able to
+              able to         complete cycle   provide partial  provide at   provide any
+Integrative   provide a       of required      required         least one    working
+Coding Style  complete        transactions     transactions     valid        transactions
+              cycle of        but with                          transaction
+              required        incurred issues     9-14 pts                      0-7 pts
+              transactions    and problems     The system          6-8 pts   The system
+              with minimal                     was              The system   has codes
+              errors and         15-19 pts     developed        was          but does
+              proper          The system       with some        developed    not follow
+              validation      was developed    portions         with coding  proper
+                              following a      following a      style and    coding
+                   20 pts     coding style     coding style     design       style and
+                              and design       and design       pattern but  design
+              The system      pattern but      pattern          are          pattern,
+              was             requires                          misaligned
+              developed       realignments                      or very
+              following       and                               limited in
+              applicable      transformation                    general
+              coding style
+              and proper
+              design pattern
+                                                                         Module 1 Assessment
+                                              IT191-2P ­ Integrative Programming
+
+                                                                              and Technologies
+                                                                                           June 2026
+
+Design,              15 pts         11-14 pts         8-10 pts         5-7 pts       0-4 pts
+Screen                           The design        The design
+Navigation,     The design       and navigation    and              The design    The design
+Intents         and              of the            navigation of    and           and
+                navigation of    system is fair    the system is    navigation    navigation
+Complexity      the system is    enough but        provided with    of the        is not
+and             pleasing,        requires          basic            system        suitable is
+Uniqueness      suitable to its  improvements      requirements     requires      misaligned
+                purpose, and                       but              major
+Involvement     easy to follow      11-14 pts      is lacking       changes
+and Individual                                     elements
+Presentation         15 pts      The system is                      5-7 pts       0-4 pts
+                                 fairly complex       8-10 pts
+                The system is    and unique for    The system       The system    The system
+                complex,         a Final Project.  provides just    provides few  provides
+                unique and       There are few     basic and        basic         little to no
+                tight enough     heavy             common           transactions  complexity
+                for a Final      transactions      transactions                   and is not
+                Project with     and additional    that can easily                enough for
+                heavy use of     features but      be integrated                  a Final
+                db               common                                           Project
+                transactions,    processes are          6 pts
+                computation      involved          The member
+                (if any), data                     has issues in
+                exchange (if         7-9 pts       presenting       3-5 pts       0-2 pts
+                applicable),                       his/part but
+                and other        The member        with fair        The member    The
+                additional                         involvement      has minor     member
+                features         presented         and              involvement   has no
+                                                   knowledge        and displays  involvement
+                     10 pts      his/part          about the        limited       and
+                                                   project          knowledge     displays
+                The member       with fair                                        lack of
+                is capable of                                       of the        knowledge
+                presenting       involvement                                      about the
+                his/her part                                        project       project
+                and displays     in        the
+                substantial
+                involvement      project
+                in the project
+
