@@ -48,32 +48,57 @@
                                     StrokeShape="RoundRectangle 20"
                                     Padding="0"
                                     Margin="0"
-                                    HorizontalOptions="Fill">
+                                    HorizontalOptions="Center"
+                                    MaximumWidthRequest="500">
                                 <VerticalStackLayout Spacing="0">
                                     <!-- Exercise GIF -->
                                     <Border StrokeThickness="0"
                                             StrokeShape="RoundRectangle 20,20,0,0"
-                                            BackgroundColor="#222226"
-                                            HeightRequest="200"
+                                            BackgroundColor="#ffffff"
+                                            HeightRequest="250"
                                             Padding="0">
-                                        <Image Aspect="AspectFill"
-                                               HeightRequest="200"
-                                               IsAnimationPlaying="True">
-                                            <Image.Source>
-                                                <UriImageSource Uri="{Binding GifUrl}"
-                                                                CacheValidity="7.00:00:00"
-                                                                CachingEnabled="True" />
-                                            </Image.Source>
-                                        </Image>
+                                        <Grid>
+                                            <Image Source="{Binding GifUrl}"
+                                                   Aspect="AspectFit"
+                                                   HeightRequest="250"
+                                                   IsAnimationPlaying="True" />
+                                            
+                                            <!-- Muscle Badge -->
+                                            <Border BackgroundColor="#5B2A9E"
+                                                    StrokeThickness="0"
+                                                    StrokeShape="RoundRectangle 4"
+                                                    HorizontalOptions="Start"
+                                                    VerticalOptions="End"
+                                                    Margin="16"
+                                                    Padding="8,4">
+                                                <Label Text="{Binding Muscle}"
+                                                       TextColor="White"
+                                                       FontFamily="OpenSansSemibold"
+                                                       TextTransform="Uppercase"
+                                                       FontSize="12" />
+                                            </Border>
+                                        </Grid>
                                     </Border>
-                                    <!-- Exercise name -->
-                                    <Label Text="{Binding Name}"
-                                           TextColor="White"
-                                           FontFamily="SyneBold"
-                                           FontSize="15"
-                                           Padding="20,16"
-                                           LineBreakMode="TailTruncation"
-                                           MaxLines="2" />
+                                    
+                                    <!-- Details -->
+                                    <VerticalStackLayout Padding="20,16,20,20" Spacing="8">
+                                        <!-- Exercise name -->
+                                        <Label Text="{Binding Name}"
+                                               TextColor="White"
+                                               FontFamily="SyneBold"
+                                               FontAttributes="Bold,Italic"
+                                               FontSize="20"
+                                               TextTransform="Uppercase"
+                                               LineBreakMode="TailTruncation"
+                                               MaxLines="2" />
+                                        <!-- Instructions -->
+                                        <Label Text="{Binding Instructions}"
+                                               TextColor="#D0D0D5"
+                                               FontFamily="OpenSansRegular"
+                                               FontSize="14"
+                                               LineBreakMode="TailTruncation"
+                                               MaxLines="2" />
+                                    </VerticalStackLayout>
                                 </VerticalStackLayout>
                             </Border>
                         </DataTemplate>

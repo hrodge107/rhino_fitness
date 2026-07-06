@@ -3,14 +3,6 @@ using System.Text.Json.Serialization;
 
 namespace FitnessApp.Models
 {
-    /// <summary>
-    /// Offline-first exercise catalog entity.
-    /// Seeded once from the packaged Resources/Raw/exercises.json asset and
-    /// thereafter read from the embedded SQLite store. Mirrors the six payload
-    /// fields of the api-ninjas exercise record plus the sync-tracking columns
-    /// (<see cref="IsSynced"/>, <see cref="UpdatedAt"/>) required by the
-    /// Phase-2 cloud-sync contract (see offline-data-standards).
-    /// </summary>
     [Table("exercises")]
     public class Exercise
     {

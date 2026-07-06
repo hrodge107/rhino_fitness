@@ -29,5 +29,5 @@ graphify-out/
 .DS_Store
 Thumbs.db
 nul
-docs/nul
-
+docs/
+scripts/

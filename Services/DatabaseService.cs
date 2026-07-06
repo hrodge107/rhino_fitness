@@ -53,14 +53,8 @@ namespace FitnessApp.Services
             var db = Connection;
             await db.CreateTableAsync<Exercise>().ConfigureAwait(false);
 
-            // Idempotency guard: never re-insert the catalog on subsequent launches.
-            var existing = await db.Table<Exercise>().CountAsync().ConfigureAwait(false);
-            if (existing > 0)
-            {
-                IsSeedComplete = true;
-                OnSeedCompleted?.Invoke(this, EventArgs.Empty);
-                return;
-            }
+            // ponytail: clear existing to force re-seed from updated JSON resource
+            await db.DeleteAllAsync<Exercise>().ConfigureAwait(false);
 
             // Open the packaged MauiAsset and deserialize on a background thread.
             // LogicalName resolves to the relative path ("exercises.json") per the csproj ItemGroup.
