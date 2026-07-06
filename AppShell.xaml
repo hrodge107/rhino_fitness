@@ -32,6 +32,10 @@
         <ShellContent ContentTemplate="{DataTemplate views:NutritionPage}" />
     </FlyoutItem>
 
+    <FlyoutItem Title="Profile" Route="ProfilePage">
+        <ShellContent ContentTemplate="{DataTemplate views:ProfilePage}" />
+    </FlyoutItem>
+
     <Shell.FlyoutHeader>
         <VerticalStackLayout Padding="20,40,20,20">
             <Label Text="Rhino Fitness"

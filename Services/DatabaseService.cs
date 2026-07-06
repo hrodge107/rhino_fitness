@@ -65,7 +65,13 @@ namespace FitnessApp.Services
                     Email = "adam@fitnessapp.com",
                     Password = "test123",
                     IsSynced = true,
-                    UpdatedAt = DateTime.UtcNow
+                    UpdatedAt = DateTime.UtcNow,
+                    Gender = "Male",
+                    Age = 25,
+                    HeightValue = 69,
+                    HeightUnit = "ft/in",
+                    WeightValue = 75.0,
+                    WeightUnit = "kg"
                 }).ConfigureAwait(false);
             }
 

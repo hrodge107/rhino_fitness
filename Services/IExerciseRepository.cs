@@ -26,5 +26,8 @@ namespace FitnessApp.Services
 
         /// <summary>Combined filter pushing search, muscle, and body part criteria directly to SQLite.</summary>
         Task<List<Exercise>> GetFilteredExercisesAsync(string? searchQuery, string? muscle, string? bodyPart, CancellationToken cancellationToken = default);
+
+        /// <summary>Fetches an exercise by its unique string ExerciseId.</summary>
+        Task<Exercise?> GetByExerciseIdAsync(string exerciseId);
     }
 }

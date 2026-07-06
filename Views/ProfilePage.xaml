@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:FitnessApp.Views"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             x:DataType="viewmodels:ProfileViewModel"
+             x:Class="FitnessApp.Views.ProfilePage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1B1B1F"
+             Title="Profile">
+
+    <views:PageTemplate PageTitle="Profile" ShowBackArrow="True">
+        <views:PageTemplate.PageContent>
+            <ScrollView>
+                <VerticalStackLayout Spacing="20" Padding="20,10">
+
+                    <!-- ═══ Hero / User Info Section ═══ -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#222226"
+                            StrokeShape="RoundRectangle 24"
+                            Padding="20">
+                        <VerticalStackLayout Spacing="16">
+                            
+                            <!-- Header & Edit Toggle Button -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Personal Details"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="18"
+                                       VerticalOptions="Center" />
+                                <Button Grid.Column="1"
+                                         Text="Edit info"
+                                         Command="{Binding ToggleEditCommand}"
+                                         TextColor="White"
+                                         BackgroundColor="#5B2A9E"
+                                         FontFamily="OpenSansSemibold"
+                                         CornerRadius="12"
+                                         HeightRequest="36"
+                                         Padding="14,0"
+                                         IsVisible="{Binding IsNotEditing}" />
+                            </Grid>
+
+                            <!-- Read-only Mode -->
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="20" IsVisible="{Binding IsNotEditing}">
+                                <!-- Circular Initials Avatar with Gradient Ring -->
+                                <Border Grid.Column="0"
+                                        WidthRequest="72"
+                                        HeightRequest="72"
+                                        StrokeThickness="3"
+                                        StrokeShape="RoundRectangle 36"
+                                        VerticalOptions="Center">
+                                    <Border.Stroke>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#9B7FD4" Offset="0.0" />
+                                            <GradientStop Color="#5B2A9E" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </Border.Stroke>
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#3E1F6B" Offset="0.0" />
+                                            <GradientStop Color="#222226" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Label Text="{Binding Initials}"
+                                           TextColor="White"
+                                           FontFamily="SyneBold"
+                                           FontSize="26"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}"
+                                           TextColor="White"
+                                           FontFamily="SyneBold"
+                                           FontSize="24"
+                                           LineBreakMode="TailTruncation" />
+                                    <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                                        <Label Text="{Binding Gender}"
+                                               TextColor="#D0D0D5"
+                                               FontFamily="OpenSansRegular"
+                                               FontSize="14" />
+                                        <Label Text="•" TextColor="#9B7FD4" VerticalOptions="Center" />
+                                        <Label Text="{Binding Age, StringFormat='{0} years old'}"
+                                               TextColor="#D0D0D5"
+                                               FontFamily="OpenSansRegular"
+                                               FontSize="14" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <!-- Edit Mode -->
+                            <VerticalStackLayout Spacing="12" IsVisible="{Binding IsEditing}">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Name" TextColor="#D0D0D5" FontSize="12" FontFamily="OpenSansSemibold" />
+                                    <Entry Text="{Binding EditName}"
+                                           TextColor="White"
+                                           BackgroundColor="#2A2A2E"
+                                           Placeholder="Name"
+                                           MaxLength="50" />
+                                </VerticalStackLayout>
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                        <Label Text="Gender" TextColor="#D0D0D5" FontSize="12" FontFamily="OpenSansSemibold" />
+                                        <Picker SelectedItem="{Binding EditGender}"
+                                                ItemsSource="{Binding GenderOptions}"
+                                                TextColor="White"
+                                                TitleColor="#D0D0D5"
+                                                BackgroundColor="#2A2A2E" />
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                        <Label Text="Age" TextColor="#D0D0D5" FontSize="12" FontFamily="OpenSansSemibold" />
+                                        <Entry Text="{Binding EditAgeText}"
+                                               TextColor="White"
+                                               BackgroundColor="#2A2A2E"
+                                               Placeholder="Age"
+                                               Keyboard="Numeric" />
+                                    </VerticalStackLayout>
+                                </Grid>
+
+                                <!-- Validation Error Message -->
+                                <Label Text="{Binding ValidationError}"
+                                       TextColor="#E53935"
+                                       FontSize="13"
+                                       FontFamily="OpenSansRegular"
+                                       IsVisible="{Binding ValidationError, Converter={StaticResource Key=NullEmptyToBoolConverter}, ConverterParameter=True}" />
+
+                                <!-- Edit Actions -->
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,8,0,0">
+                                    <Button Grid.Column="0"
+                                            Text="Cancel"
+                                            Command="{Binding ToggleEditCommand}"
+                                            TextColor="White"
+                                            BackgroundColor="#444448"
+                                            CornerRadius="14" />
+                                    <Button Grid.Column="1"
+                                            Text="Save"
+                                            Command="{Binding SaveProfileCommand}"
+                                            TextColor="White"
+                                            BackgroundColor="#5B2A9E"
+                                            CornerRadius="14" />
+                                </Grid>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ═══ Metrics Cards Section ═══ -->
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Body Metrics"
+                                   TextColor="White"
+                                   FontFamily="SyneBold"
+                                   FontSize="18"
+                                   VerticalOptions="Center" />
+                            <Border Grid.Column="1"
+                                    StrokeThickness="0"
+                                    BackgroundColor="#2A2A2E"
+                                    WidthRequest="36" HeightRequest="36"
+                                    StrokeShape="RoundRectangle 18"
+                                    HorizontalOptions="End"
+                                    VerticalOptions="Center">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding NavigateToEditMetricsCommand}" />
+                                </Border.GestureRecognizers>
+                                <!-- Pencil Edit Path -->
+                                <Path Data="M3,17.25 V21 H6.75 L17.81,9.94 L14.06,6.19 Z M20.71,7.04 L17.96,4.29 L16.13,6.12 L18.88,8.87 Z"
+                                      Fill="White"
+                                      Aspect="Uniform"
+                                      WidthRequest="16" HeightRequest="16"
+                                      HorizontalOptions="Center"
+                                      VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" HeightRequest="120">
+                            <!-- Height Card -->
+                            <Border Grid.Column="0"
+                                    StrokeThickness="0"
+                                    BackgroundColor="#5B2A9E"
+                                    StrokeShape="RoundRectangle 20"
+                                    Padding="10">
+                                <VerticalStackLayout VerticalOptions="Center" Spacing="4">
+                                    <!-- Ruler Icon -->
+                                    <Path Data="M2,2 H10 V22 H2 Z M6,6 H10 M6,10 H10 M6,14 H10 M6,18 H10"
+                                          Fill="Transparent"
+                                          Stroke="White"
+                                          StrokeThickness="2"
+                                          Aspect="Uniform"
+                                          WidthRequest="16" HeightRequest="16"
+                                          HorizontalOptions="Center" />
+                                    <Label Text="Height" TextColor="#E4E4E8" FontSize="11" FontFamily="OpenSansRegular" HorizontalOptions="Center" />
+                                    <Label Text="{Binding HeightText}" TextColor="White" FontSize="16" FontFamily="SyneBold" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <!-- Weight Card -->
+                            <Border Grid.Column="1"
+                                    StrokeThickness="0"
+                                    BackgroundColor="#5B2A9E"
+                                    StrokeShape="RoundRectangle 20"
+                                    Padding="10">
+                                <VerticalStackLayout VerticalOptions="Center" Spacing="4">
+                                    <!-- Weight scale Icon -->
+                                    <Path Data="M12,3A9,9 0 0,0 3,12A9,9 0 0,0 12,21A9,9 0 0,0 21,12A9,9 0 0,0 12,3M12,6A6,6 0 0,1 18,12C18,14.24 16.77,16.19 15,17.16V14.5A3,3 0 0,0 12,11.5A3,3 0 0,0 9,14.5V17.16C7.23,16.19 6,14.24 6,12A6,6 0 0,1 12,6"
+                                          Fill="Transparent"
+                                          Stroke="White"
+                                          StrokeThickness="2"
+                                          Aspect="Uniform"
+                                          WidthRequest="16" HeightRequest="16"
+                                          HorizontalOptions="Center" />
+                                    <Label Text="Weight" TextColor="#E4E4E8" FontSize="11" FontFamily="OpenSansRegular" HorizontalOptions="Center" />
+                                    <Label Text="{Binding WeightText}" TextColor="White" FontSize="16" FontFamily="SyneBold" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <!-- BMI Card -->
+                            <Border Grid.Column="2"
+                                    StrokeThickness="0"
+                                    BackgroundColor="{Binding BmiBgColor}"
+                                    StrokeShape="RoundRectangle 20"
+                                    Padding="8">
+                                <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                                    <!-- Heartbeat Pulse Icon -->
+                                    <Path Data="M3,12 H7 L9,7 L13,17 L15,10 L17,12 H21"
+                                          Fill="Transparent"
+                                          Stroke="White"
+                                          StrokeThickness="2"
+                                          Aspect="Uniform"
+                                          WidthRequest="16" HeightRequest="16"
+                                          HorizontalOptions="Center" />
+                                    <Label Text="BMI" TextColor="#E4E4E8" FontSize="11" FontFamily="OpenSansRegular" HorizontalOptions="Center" />
+                                    <Label Text="{Binding BmiText}" TextColor="White" FontSize="16" FontFamily="SyneBold" HorizontalOptions="Center" />
+                                    <Label Text="{Binding BmiStatus}" TextColor="White" FontSize="9" FontFamily="OpenSansSemibold" HorizontalOptions="Center" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- ═══ Activity Log Section ═══ -->
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Completed Activity"
+                               TextColor="White"
+                               FontFamily="SyneBold"
+                               FontSize="18" />
+
+                        <!-- Empty State -->
+                        <Border StrokeThickness="0"
+                                BackgroundColor="#222226"
+                                StrokeShape="RoundRectangle 20"
+                                Padding="30"
+                                IsVisible="{Binding HasNoCompletedExercises}">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="No workouts completed recently"
+                                       TextColor="#D0D0D5"
+                                       FontSize="14"
+                                       FontFamily="OpenSansRegular"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Complete scheduled workouts in your planner to log activity!"
+                                       TextColor="#88888C"
+                                       FontSize="12"
+                                       FontFamily="OpenSansRegular"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Log List -->
+                        <CollectionView ItemsSource="{Binding CompletedExercises}"
+                                        IsVisible="{Binding HasCompletedExercises}">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="0" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="viewmodels:CompletedExerciseItem">
+                                    <Grid ColumnDefinitions="30,*" ColumnSpacing="0">
+                                        <!-- Timeline Indicator -->
+                                        <Grid Grid.Column="0">
+                                            <!-- Connected Vertical Line -->
+                                            <BoxView WidthRequest="2"
+                                                     BackgroundColor="#444448"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Fill" />
+                                            <!-- Bullet Dot -->
+                                            <Border WidthRequest="12" HeightRequest="12"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="#9B7FD4"
+                                                    StrokeShape="RoundRectangle 6"
+                                                    HorizontalOptions="Center"
+                                                    VerticalOptions="Center" />
+                                        </Grid>
+
+                                        <!-- Content Card -->
+                                        <Border Grid.Column="1"
+                                                StrokeThickness="0"
+                                                BackgroundColor="#2A2A2E"
+                                                StrokeShape="RoundRectangle 16"
+                                                Padding="16,12"
+                                                Margin="0,0,0,10">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <VerticalStackLayout Spacing="2">
+                                                    <Label Text="{Binding Name}"
+                                                           TextColor="White"
+                                                           FontFamily="OpenSansSemibold"
+                                                           FontSize="15" />
+                                                    <Label Text="{Binding Category}"
+                                                           TextColor="#9B7FD4"
+                                                           FontFamily="OpenSansRegular"
+                                                           FontSize="12" />
+                                                </VerticalStackLayout>
+                                                <Label Grid.Column="1"
+                                                       Text="{Binding DateText}"
+                                                       TextColor="#D0D0D5"
+                                                       FontFamily="OpenSansRegular"
+                                                       FontSize="11"
+                                                       VerticalOptions="Center" />
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <!-- Load More Button -->
+                        <Button Text="Load More"
+                                Command="{Binding LoadMoreCommand}"
+                                IsVisible="{Binding LoadMoreVisible}"
+                                TextColor="White"
+                                BackgroundColor="#222226"
+                                FontFamily="OpenSansSemibold"
+                                CornerRadius="16"
+                                HeightRequest="44"
+                                Margin="0,8,0,20" />
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </views:PageTemplate.PageContent>
+    </views:PageTemplate>
+</ContentPage>

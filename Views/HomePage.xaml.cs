@@ -10,6 +10,16 @@ namespace FitnessApp.Views
             BindingContext = vm;
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            if (BindingContext is HomeViewModel vm)
+            {
+                vm.UpdateUserName();
+                _ = vm.LoadTodayProgressAsync();
+            }
+        }
+
         private void OnHamburgerTapped(object? sender, TappedEventArgs e)
         {
             Shell.Current.FlyoutIsPresented = true;

@@ -25,5 +25,23 @@ namespace FitnessApp.Models
 
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        [Column("gender")]
+        public string Gender { get; set; } = string.Empty;
+
+        [Column("age")]
+        public int Age { get; set; }
+
+        [Column("height_value")]
+        public double HeightValue { get; set; }
+
+        [Column("height_unit")]
+        public string HeightUnit { get; set; } = "ft/in";
+
+        [Column("weight_value")]
+        public double WeightValue { get; set; }
+
+        [Column("weight_unit")]
+        public string WeightUnit { get; set; } = "kg";
     }
 }

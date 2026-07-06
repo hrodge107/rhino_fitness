@@ -74,5 +74,16 @@ namespace FitnessApp.Services
             }
             return missed.Count;
         }
+
+        public async Task<List<ScheduledExercise>> GetCompletedExercisesAsync(int userId, DateTime startDate, DateTime endDate)
+        {
+            var start = startDate.Date;
+            var end = endDate.Date;
+            return await _connection.Table<ScheduledExercise>()
+                .Where(se => se.UserId == userId && se.Status == "COMPLETED" && se.ScheduledDate >= start && se.ScheduledDate <= end)
+                .OrderBy(se => se.ScheduledDate)
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
     }
 }

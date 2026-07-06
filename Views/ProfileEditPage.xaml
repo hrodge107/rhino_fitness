@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:FitnessApp.Views"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             x:DataType="viewmodels:ProfileEditViewModel"
+             x:Class="FitnessApp.Views.ProfileEditPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1B1B1F"
+             Title="Edit Metrics">
+
+    <views:PageTemplate PageTitle="Edit Metrics" ShowBackArrow="True">
+        <views:PageTemplate.PageContent>
+            <ScrollView>
+                <VerticalStackLayout Spacing="24" Padding="20,10">
+
+                    <!-- ═══ Height Editing Card ═══ -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#222226"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="20">
+                        <VerticalStackLayout Spacing="12">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Height"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="18"
+                                       VerticalOptions="Center" />
+                                
+                                <!-- Unit Toggle Button -->
+                                <Button Grid.Column="1"
+                                        Text="{Binding HeightUnit}"
+                                        Command="{Binding ToggleHeightUnitCommand}"
+                                        TextColor="White"
+                                        BackgroundColor="#5B2A9E"
+                                        FontFamily="OpenSansSemibold"
+                                        CornerRadius="10"
+                                        HeightRequest="32"
+                                        Padding="12,0" />
+                            </Grid>
+
+                            <!-- Imperial Inputs (Feet & Inches) -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" IsVisible="{Binding IsHeightFtIn}">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Label Text="Feet" TextColor="#D0D0D5" FontSize="12" FontFamily="OpenSansSemibold" />
+                                    <Entry Text="{Binding HeightFeetText}"
+                                           TextColor="White"
+                                           BackgroundColor="#2A2A2E"
+                                           Placeholder="Feet"
+                                           Keyboard="Numeric"
+                                           TextChanged="OnHeightTextChanged" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Label Text="Inches" TextColor="#D0D0D5" FontSize="12" FontFamily="OpenSansSemibold" />
+                                    <Entry Text="{Binding HeightInchesText}"
+                                           TextColor="White"
+                                           BackgroundColor="#2A2A2E"
+                                           Placeholder="Inches"
+                                           Keyboard="Numeric"
+                                           TextChanged="OnHeightTextChanged" />
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <!-- Metric Input (cm) -->
+                            <VerticalStackLayout Spacing="4" IsVisible="{Binding IsHeightCm}">
+                                <Label Text="Centimeters" TextColor="#D0D0D5" FontSize="12" FontFamily="OpenSansSemibold" />
+                                <Entry Text="{Binding HeightCmText}"
+                                       TextColor="White"
+                                       BackgroundColor="#2A2A2E"
+                                       Placeholder="cm"
+                                       Keyboard="Numeric"
+                                       TextChanged="OnHeightTextChanged" />
+                            </VerticalStackLayout>
+
+                            <!-- Cognitive Mirroring Preview -->
+                            <Label Text="{Binding HeightMirrorText}"
+                                   TextColor="#9B7FD4"
+                                   FontSize="14"
+                                   FontFamily="OpenSansRegular"
+                                   Margin="0,4,0,0" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ═══ Weight Editing Card ═══ -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#222226"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="20">
+                        <VerticalStackLayout Spacing="12">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Weight"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="18"
+                                       VerticalOptions="Center" />
+                                
+                                <!-- Unit Toggle Button -->
+                                <Button Grid.Column="1"
+                                        Text="{Binding WeightUnit}"
+                                        Command="{Binding ToggleWeightUnitCommand}"
+                                        TextColor="White"
+                                        BackgroundColor="#5B2A9E"
+                                        FontFamily="OpenSansSemibold"
+                                        CornerRadius="10"
+                                        HeightRequest="32"
+                                        Padding="12,0" />
+                            </Grid>
+
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Weight Value" TextColor="#D0D0D5" FontSize="12" FontFamily="OpenSansSemibold" />
+                                <Entry Text="{Binding WeightValueText}"
+                                       TextColor="White"
+                                       BackgroundColor="#2A2A2E"
+                                       Placeholder="Weight"
+                                       Keyboard="Numeric"
+                                       TextChanged="OnWeightTextChanged" />
+                            </VerticalStackLayout>
+
+                            <!-- Cognitive Mirroring Preview -->
+                            <Label Text="{Binding WeightMirrorText}"
+                                   TextColor="#9B7FD4"
+                                   FontSize="14"
+                                   FontFamily="OpenSansRegular"
+                                   Margin="0,4,0,0" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Validation Error -->
+                    <Label Text="{Binding ValidationError}"
+                           TextColor="#E53935"
+                           FontSize="14"
+                           FontFamily="OpenSansRegular"
+                           HorizontalOptions="Center"
+                           IsVisible="{Binding ValidationError, Converter={StaticResource Key=NullEmptyToBoolConverter}, ConverterParameter=True}" />
+
+                    <!-- Save & Cancel Actions -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,8,0,20">
+                        <Button Grid.Column="0"
+                                Text="Cancel"
+                                Command="{Binding CancelCommand}"
+                                TextColor="White"
+                                BackgroundColor="#444448"
+                                CornerRadius="16"
+                                HeightRequest="48"
+                                FontFamily="OpenSansSemibold" />
+                        <Button Grid.Column="1"
+                                Text="Save Changes"
+                                Command="{Binding SaveMetricsCommand}"
+                                TextColor="White"
+                                BackgroundColor="#5B2A9E"
+                                CornerRadius="16"
+                                HeightRequest="48"
+                                FontFamily="OpenSansSemibold" />
+                    </Grid>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </views:PageTemplate.PageContent>
+    </views:PageTemplate>
+</ContentPage>

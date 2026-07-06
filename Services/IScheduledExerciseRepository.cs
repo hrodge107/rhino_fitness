@@ -8,5 +8,6 @@ namespace FitnessApp.Services
         Task<bool> AddScheduledExercisesAsync(IEnumerable<ScheduledExercise> exercises);
         Task<bool> DeleteScheduledExerciseAsync(int id);
         Task<int> UpdateMissedExercisesAsync(int userId, DateTime today);
+        Task<List<ScheduledExercise>> GetCompletedExercisesAsync(int userId, DateTime startDate, DateTime endDate);
     }
 }

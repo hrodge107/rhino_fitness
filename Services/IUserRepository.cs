@@ -9,5 +9,6 @@ namespace FitnessApp.Services
         Task<User?> GetByNameAsync(string name);
         Task<User?> ValidateUserAsync(string usernameOrEmail, string password);
         Task<bool> CreateUserAsync(User user);
+        Task<bool> UpdateUserAsync(User user);
     }
 }

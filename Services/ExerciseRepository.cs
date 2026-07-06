@@ -116,5 +116,14 @@ namespace FitnessApp.Services
             cancellationToken.ThrowIfCancellationRequested();
             return results;
         }
+
+        /// <inheritdoc />
+        public async Task<Exercise?> GetByExerciseIdAsync(string exerciseId)
+        {
+            return await _connection.Table<Exercise>()
+                .Where(e => e.ExerciseId == exerciseId)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+        }
     }
 }

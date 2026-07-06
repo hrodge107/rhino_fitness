@@ -66,5 +66,14 @@ namespace FitnessApp.Services
             var result = await _connection.InsertAsync(user).ConfigureAwait(false);
             return result > 0;
         }
+
+        public async Task<bool> UpdateUserAsync(User user)
+        {
+            user.IsSynced = false;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            var result = await _connection.UpdateAsync(user).ConfigureAwait(false);
+            return result > 0;
+        }
     }
 }

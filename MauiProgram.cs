@@ -44,6 +44,9 @@ namespace FitnessApp
             builder.Services.AddTransient<WorkoutViewModel>();
             builder.Services.AddTransient<HistoryViewModel>();
             builder.Services.AddTransient<ProfileViewModel>();
+            builder.Services.AddTransient<ProfilePage>();
+            builder.Services.AddTransient<ProfileEditPage>();
+            builder.Services.AddTransient<ProfileEditViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();
