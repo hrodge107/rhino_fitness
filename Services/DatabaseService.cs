@@ -52,6 +52,22 @@ namespace FitnessApp.Services
         {
             var db = Connection;
             await db.CreateTableAsync<Exercise>().ConfigureAwait(false);
+            await db.CreateTableAsync<User>().ConfigureAwait(false);
+            await db.CreateTableAsync<ScheduledExercise>().ConfigureAwait(false);
+
+            // Seed default user Adam if not present
+            var existingAdam = await db.Table<User>().Where(u => u.Name == "Adam").FirstOrDefaultAsync().ConfigureAwait(false);
+            if (existingAdam == null)
+            {
+                await db.InsertAsync(new User
+                {
+                    Name = "Adam",
+                    Email = "adam@fitnessapp.com",
+                    Password = "test123",
+                    IsSynced = true,
+                    UpdatedAt = DateTime.UtcNow
+                }).ConfigureAwait(false);
+            }
 
             // ponytail: clear existing to force re-seed from updated JSON resource
             await db.DeleteAllAsync<Exercise>().ConfigureAwait(false);

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:FitnessApp.Views"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             x:Class="FitnessApp.Views.ExercisePage"
+             x:DataType="viewmodels:ExercisePageViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1B1B1F"
+             Title="Workout Session">
+
+    <views:PageTemplate PageTitle="Workout Session" ShowBackArrow="True" ShowFooter="False">
+        <views:PageTemplate.PageContent>
+            <Grid RowDefinitions="*, Auto">
+                <!-- ═══ Top Area: Scrollable Details ═══ -->
+                <ScrollView Grid.Row="0" Padding="16,12">
+                    <VerticalStackLayout Spacing="18">
+                        <!-- Exercise GIF/Image (white bg, rounded, aspect fit, purple border) -->
+                        <Border Stroke="#5B2A9E"
+                                StrokeThickness="1.5"
+                                StrokeShape="RoundRectangle 20"
+                                BackgroundColor="#FFFFFF"
+                                HeightRequest="240"
+                                Padding="8"
+                                HorizontalOptions="Fill">
+                            <Image Source="{Binding Exercise.GifUrl}"
+                                   Aspect="AspectFit"
+                                   IsAnimationPlaying="True"
+                                   HeightRequest="220" />
+                        </Border>
+
+                        <!-- Title & Badges -->
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="{Binding Exercise.Name}"
+                                   TextColor="White"
+                                   FontFamily="SyneBold"
+                                   FontSize="24"
+                                   TextTransform="Uppercase" />
+
+                            <HorizontalStackLayout Spacing="8">
+                                <Border Stroke="#9B7FD4" StrokeThickness="1" BackgroundColor="#1E162B" Padding="10,4" StrokeShape="RoundRectangle 8">
+                                    <Label Text="{Binding Exercise.BodyPart}" TextColor="#9B7FD4" FontSize="12" FontFamily="OpenSansSemibold" />
+                                </Border>
+                                <Border Stroke="#3E3E42" StrokeThickness="1" BackgroundColor="#2A2A2E" Padding="10,4" StrokeShape="RoundRectangle 8">
+                                    <Label Text="{Binding Exercise.Muscle}" TextColor="#A0A0A0" FontSize="12" FontFamily="OpenSansSemibold" />
+                                </Border>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+
+                        <!-- Instructions Container -->
+                        <Border Stroke="#2C2C30"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 16"
+                                BackgroundColor="#222226"
+                                Padding="16"
+                                Margin="0,4,0,16">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="INSTRUCTIONS"
+                                       TextColor="#9B7FD4"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       CharacterSpacing="1.5" />
+                                <Label FormattedText="{Binding FormattedInstructions}"
+                                       LineBreakMode="WordWrap"
+                                       FontSize="14"
+                                       LineHeight="1.3" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <!-- ═══ Bottom Panel: Pre-allocated Console Card ═══ -->
+                <Border Grid.Row="1"
+                        Stroke="#3E3E42"
+                        StrokeThickness="1"
+                        BackgroundColor="#2A2A2E"
+                        StrokeShape="RoundRectangle 24,24,0,0"
+                        Padding="20,16"
+                        HeightRequest="270"
+                        VerticalOptions="End">
+                    <Grid>
+                        <!-- STATE 1: Start Workout Overlay -->
+                        <Grid IsVisible="{Binding IsSessionInactive}"
+                               RowDefinitions="*, Auto"
+                               RowSpacing="12"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Fill">
+                            <Label Grid.Row="0"
+                                   Text="Ready to start tracking your sets?"
+                                   TextColor="#888888"
+                                   FontFamily="OpenSansRegular"
+                                   FontSize="14"
+                                   HorizontalOptions="Center" />
+                            
+                            <Border Grid.Row="1"
+                                    StrokeThickness="0"
+                                    HeightRequest="52"
+                                    StrokeShape="RoundRectangle 26"
+                                    HorizontalOptions="Fill">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#5B2A9E" Offset="0.0" />
+                                        <GradientStop Color="#9B7FD4" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding StartWorkoutCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="Start Workout"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="16"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+
+                        <!-- STATE 2: Active Workout Console -->
+                        <Grid IsVisible="{Binding IsSessionActive}"
+                               RowDefinitions="*, Auto"
+                               RowSpacing="12">
+                            
+                            <!-- Timers and Sets controls -->
+                            <Grid Grid.Row="0" ColumnDefinitions="*, *" ColumnSpacing="16">
+                                
+                                <!-- LEFT COLUMN: Sets & Duration nested card -->
+                                <Border Grid.Column="0"
+                                        Stroke="#5B2A9E"
+                                        StrokeThickness="1.5"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="#1B1B1F"
+                                        Padding="12"
+                                        VerticalOptions="FillAndExpand">
+                                    <VerticalStackLayout Spacing="8" VerticalOptions="Center">
+                                        <!-- Sets Completed Tracker -->
+                                        <Label Text="SETS COMPLETED" TextColor="#888888" FontSize="10" FontFamily="OpenSansSemibold" CharacterSpacing="0.5" HorizontalOptions="Center" />
+                                        <Grid ColumnDefinitions="32, *, 32" HeightRequest="32" VerticalOptions="Center">
+                                            <Border Grid.Column="0"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="#2A2A2E"
+                                                    WidthRequest="32"
+                                                    HeightRequest="32"
+                                                    StrokeShape="RoundRectangle 16"
+                                                    HorizontalOptions="Center"
+                                                    VerticalOptions="Center">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding DecrementSetCommand}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="-"
+                                                       TextColor="White"
+                                                       FontSize="16"
+                                                       FontFamily="OpenSansSemibold"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center" />
+                                            </Border>
+                                            
+                                            <Label Grid.Column="1" Text="{Binding CompletedSets}" TextColor="White" FontSize="18" FontFamily="OpenSansSemibold" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                            
+                                            <Border Grid.Column="2"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="#5B2A9E"
+                                                    WidthRequest="32"
+                                                    HeightRequest="32"
+                                                    StrokeShape="RoundRectangle 16"
+                                                    HorizontalOptions="Center"
+                                                    VerticalOptions="Center">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding IncrementSetCommand}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="+"
+                                                       TextColor="White"
+                                                       FontSize="16"
+                                                       FontFamily="OpenSansSemibold"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center" />
+                                            </Border>
+                                        </Grid>
+                                        
+                                        <!-- Elapsed Workout Time -->
+                                        <HorizontalStackLayout Spacing="6" HorizontalOptions="Center" Margin="0,4,0,0">
+                                            <Label Text="Elapsed:" TextColor="#888888" FontSize="12" FontFamily="OpenSansRegular" />
+                                            <Label Text="{Binding ElapsedTimerText}" TextColor="White" FontSize="12" FontFamily="OpenSansSemibold" />
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- RIGHT COLUMN: Rest countdown timer nested card -->
+                                <Border Grid.Column="1"
+                                        Stroke="#5B2A9E"
+                                        StrokeThickness="1.5"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="#1B1B1F"
+                                        Padding="12"
+                                        VerticalOptions="FillAndExpand">
+                                    <VerticalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <Label Text="REST COUNTDOWN" TextColor="#888888" FontSize="10" FontFamily="OpenSansSemibold" CharacterSpacing="0.5" HorizontalOptions="Center" />
+                                        
+                                        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="6" VerticalOptions="Center">
+                                            <Label Grid.Column="0" 
+                                                   Text="{Binding RestTimerText}" 
+                                                   TextColor="White"
+                                                   FontSize="20" 
+                                                   FontFamily="OpenSansSemibold" 
+                                                   VerticalOptions="Center"
+                                                   HorizontalOptions="Center">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsResting}" Value="True">
+                                                        <Setter Property="TextColor" Value="#FF6B6B" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                            
+                                            <Border Grid.Column="1" 
+                                                    BackgroundColor="#5B2A9E"
+                                                    HeightRequest="28" 
+                                                    WidthRequest="56"
+                                                    StrokeShape="RoundRectangle 14"
+                                                    StrokeThickness="0"
+                                                    VerticalOptions="Center"
+                                                    HorizontalOptions="End">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding StartRestCommand}" />
+                                                </Border.GestureRecognizers>
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsResting}" Value="True">
+                                                        <Setter Property="BackgroundColor" Value="#3A1C1C" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Label Text="Start"
+                                                       TextColor="White"
+                                                       FontSize="10" 
+                                                       FontFamily="OpenSansSemibold"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding IsResting}" Value="True">
+                                                            <Setter Property="Text" Value="Pause" />
+                                                            <Setter Property="TextColor" Value="#FF6B6B" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Border>
+                                        </Grid>
+
+                                        <!-- Quick Presets -->
+                                        <Grid ColumnDefinitions="*, *, *" ColumnSpacing="6" Margin="0,2,0,0">
+                                            <Border Grid.Column="0" StrokeThickness="0" BackgroundColor="#2A2A2E" HeightRequest="24" StrokeShape="RoundRectangle 12">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SetRestPresetCommand}" CommandParameter="30" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="30s" TextColor="White" FontSize="10" FontFamily="OpenSansSemibold" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+                                            <Border Grid.Column="1" StrokeThickness="0" BackgroundColor="#2A2A2E" HeightRequest="24" StrokeShape="RoundRectangle 12">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SetRestPresetCommand}" CommandParameter="60" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="60s" TextColor="White" FontSize="10" FontFamily="OpenSansSemibold" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+                                            <Border Grid.Column="2" StrokeThickness="0" BackgroundColor="#2A2A2E" HeightRequest="24" StrokeShape="RoundRectangle 12">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SetRestPresetCommand}" CommandParameter="90" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="90s" TextColor="White" FontSize="10" FontFamily="OpenSansSemibold" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+                                        </Grid>
+
+                                        <!-- Manual adjustments -->
+                                        <Grid ColumnDefinitions="*, *" ColumnSpacing="6" Margin="0,2,0,0">
+                                            <Border Grid.Column="0" StrokeThickness="0" BackgroundColor="#2A2A2E" HeightRequest="24" StrokeShape="RoundRectangle 12">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding ChangeRestDurationCommand}" CommandParameter="-10" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="-10s" TextColor="White" FontSize="10" FontFamily="OpenSansSemibold" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+                                            <Border Grid.Column="1" StrokeThickness="0" BackgroundColor="#2A2A2E" HeightRequest="24" StrokeShape="RoundRectangle 12">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding ChangeRestDurationCommand}" CommandParameter="10" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="+10s" TextColor="White" FontSize="10" FontFamily="OpenSansSemibold" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+                            
+                            <!-- Action buttons -->
+                            <Grid Grid.Row="1" ColumnDefinitions="*, *" ColumnSpacing="12" Margin="0,4,0,0">
+                                <Button Grid.Column="0"
+                                        Text="Reset"
+                                        TextColor="White"
+                                        BackgroundColor="Transparent"
+                                        BorderColor="#555555"
+                                        BorderWidth="1"
+                                        HeightRequest="44"
+                                        CornerRadius="22"
+                                        FontFamily="OpenSansSemibold"
+                                        FontSize="14"
+                                        Command="{Binding ResetSessionCommand}" />
+                                
+                                <Button Grid.Column="1"
+                                        Text="Finish"
+                                        TextColor="White"
+                                        BackgroundColor="#5B2A9E"
+                                        HeightRequest="44"
+                                        CornerRadius="22"
+                                        FontFamily="OpenSansSemibold"
+                                        FontSize="14"
+                                        Command="{Binding FinishSessionCommand}" />
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </views:PageTemplate.PageContent>
+    </views:PageTemplate>
+</ContentPage>

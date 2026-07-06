@@ -31,7 +31,8 @@
                     BackgroundColor="#D6D6D6"
                     HeightRequest="56"
                     StrokeShape="RoundRectangle 28">
-                <Entry Placeholder="Username"
+                <Entry Text="{Binding Username}"
+                       Placeholder="Username"
                        PlaceholderColor="#555555"
                        TextColor="#000000"
                        FontAttributes="Italic"
@@ -46,7 +47,8 @@
                     BackgroundColor="#D6D6D6"
                     HeightRequest="56"
                     StrokeShape="RoundRectangle 28">
-                <Entry Placeholder="Password"
+                <Entry Text="{Binding Password}"
+                       Placeholder="Password"
                        PlaceholderColor="#555555"
                        TextColor="#000000"
                        FontAttributes="Italic"

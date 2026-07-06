@@ -12,6 +12,7 @@ namespace FitnessApp
             Routing.RegisterRoute("WorkoutsPage", typeof(Views.WorkoutsPage));
             Routing.RegisterRoute("NutritionPage", typeof(Views.NutritionPage));
             Routing.RegisterRoute("ExerciseListPage", typeof(Views.ExerciseListPage));
+            Routing.RegisterRoute("ExercisePage", typeof(Views.ExercisePage));
         }
     }
 }

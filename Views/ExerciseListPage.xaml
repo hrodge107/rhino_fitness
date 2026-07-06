@@ -17,16 +17,19 @@
 
     <views:PageTemplate PageTitle="{Binding PageTitle}" ShowBackArrow="True">
         <views:PageTemplate.PageContent>
-            <Grid>
+            <Grid RowDefinitions="*, Auto">
+                
                 <!-- Loading -->
-                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                <ActivityIndicator Grid.Row="0"
+                                   IsRunning="{Binding IsBusy}"
                                    IsVisible="{Binding IsBusy}"
                                    Color="#9B7FD4"
                                    VerticalOptions="Center"
                                    HorizontalOptions="Center" />
 
                 <!-- Empty state -->
-                <Label Text="{Binding EmptyMessage}"
+                <Label Grid.Row="0"
+                       Text="{Binding EmptyMessage}"
                        IsVisible="{Binding EmptyMessage, Converter={StaticResource NullEmptyToBool}}"
                        TextColor="#D0D0D5"
                        FontFamily="OpenSansRegular"
@@ -35,14 +38,15 @@
                        VerticalOptions="Center" />
 
                 <!-- Exercise cards -->
-                <CollectionView ItemsSource="{Binding Exercises}"
-                                Margin="20,8,20,0">
+                <CollectionView Grid.Row="0"
+                                ItemsSource="{Binding Exercises}"
+                                Margin="20,8,20,8">
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout Orientation="Vertical"
                                            ItemSpacing="12" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:Exercise">
+                        <DataTemplate x:DataType="viewmodels:SelectableExercise">
                             <Border StrokeThickness="0"
                                     BackgroundColor="#2A2A2E"
                                     StrokeShape="RoundRectangle 20"
@@ -58,7 +62,7 @@
                                             HeightRequest="250"
                                             Padding="0">
                                         <Grid>
-                                            <Image Source="{Binding GifUrl}"
+                                            <Image Source="{Binding Exercise.GifUrl}"
                                                    Aspect="AspectFit"
                                                    HeightRequest="250"
                                                    IsAnimationPlaying="True" />
@@ -71,7 +75,7 @@
                                                     VerticalOptions="End"
                                                     Margin="16"
                                                     Padding="8,4">
-                                                <Label Text="{Binding Muscle}"
+                                                <Label Text="{Binding Exercise.Muscle}"
                                                        TextColor="White"
                                                        FontFamily="OpenSansSemibold"
                                                        TextTransform="Uppercase"
@@ -82,17 +86,26 @@
                                     
                                     <!-- Details -->
                                     <VerticalStackLayout Padding="20,16,20,20" Spacing="8">
-                                        <!-- Exercise name -->
-                                        <Label Text="{Binding Name}"
-                                               TextColor="White"
-                                               FontFamily="SyneBold"
-                                               FontAttributes="Bold,Italic"
-                                               FontSize="20"
-                                               TextTransform="Uppercase"
-                                               LineBreakMode="TailTruncation"
-                                               MaxLines="2" />
+                                        <!-- Exercise name & selection -->
+                                        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="12">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Exercise.Name}"
+                                                   TextColor="White"
+                                                   FontFamily="SyneBold"
+                                                   FontAttributes="Bold,Italic"
+                                                   FontSize="20"
+                                                   TextTransform="Uppercase"
+                                                   LineBreakMode="TailTruncation"
+                                                   MaxLines="2"
+                                                   VerticalOptions="Center" />
+                                            <CheckBox Grid.Column="1"
+                                                      IsChecked="{Binding IsSelected}"
+                                                      Color="#9B7FD4"
+                                                      VerticalOptions="Center" />
+                                        </Grid>
+                                        
                                         <!-- Instructions -->
-                                        <Label Text="{Binding Instructions}"
+                                        <Label Text="{Binding Exercise.Instructions}"
                                                TextColor="#D0D0D5"
                                                FontFamily="OpenSansRegular"
                                                FontSize="14"
@@ -104,6 +117,31 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+
+                <!-- Floating/Overlay Add Selected Button -->
+                <Border Grid.Row="1"
+                        StrokeThickness="0"
+                        HeightRequest="52"
+                        StrokeShape="RoundRectangle 26"
+                        Margin="20,8,20,16"
+                        IsVisible="{Binding HasSelectedExercises}"
+                        VerticalOptions="End">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#5B2A9E" Offset="0.0" />
+                            <GradientStop Color="#9B7FD4" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AddSelectedCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Add Selected Exercises"
+                           TextColor="White"
+                           FontFamily="SyneBold"
+                           FontSize="16"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
             </Grid>
         </views:PageTemplate.PageContent>
     </views:PageTemplate>

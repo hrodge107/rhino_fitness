@@ -1,0 +1,12 @@
+using FitnessApp.Models;
+
+namespace FitnessApp.Services
+{
+    public interface IScheduledExerciseRepository
+    {
+        Task<List<ScheduledExercise>> GetScheduledExercisesForDateAsync(int userId, DateTime date);
+        Task<bool> AddScheduledExercisesAsync(IEnumerable<ScheduledExercise> exercises);
+        Task<bool> DeleteScheduledExerciseAsync(int id);
+        Task<int> UpdateMissedExercisesAsync(int userId, DateTime today);
+    }
+}

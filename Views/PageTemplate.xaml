@@ -57,6 +57,7 @@
                WidthRequest="60"
                HorizontalOptions="Center"
                Margin="0,20,0,10"
-               Opacity="0.85" />
+               Opacity="0.85"
+               IsVisible="{Binding ShowFooter, Source={x:Reference TemplateRoot}}" />
     </Grid>
 </ContentView>

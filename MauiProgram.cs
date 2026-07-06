@@ -22,6 +22,9 @@ namespace FitnessApp
             // Infrastructure singletons — one connection, one catalog, app lifetime.
             builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
             builder.Services.AddSingleton<IExerciseRepository, ExerciseRepository>();
+            builder.Services.AddSingleton<IUserRepository, UserRepository>();
+            builder.Services.AddSingleton<IScheduledExerciseRepository, ScheduledExerciseRepository>();
+            builder.Services.AddSingleton<IPlannerStateService, PlannerStateService>();
             builder.Services.AddSingleton<INavigationService, NavigationService>();
 
             // Views and ViewModels
@@ -30,10 +33,13 @@ namespace FitnessApp
             builder.Services.AddTransient<HomePage>();
             builder.Services.AddTransient<HomeViewModel>();
             builder.Services.AddTransient<PlannerPage>();
+            builder.Services.AddTransient<PlannerViewModel>();
             builder.Services.AddTransient<WorkoutsPage>();
             builder.Services.AddTransient<NutritionPage>();
             builder.Services.AddTransient<ExerciseListPage>();
             builder.Services.AddTransient<ExerciseListViewModel>();
+            builder.Services.AddTransient<ExercisePage>();
+            builder.Services.AddTransient<ExercisePageViewModel>();
             builder.Services.AddTransient<ExerciseCatalogViewModel>();
             builder.Services.AddTransient<WorkoutViewModel>();
             builder.Services.AddTransient<HistoryViewModel>();

@@ -8,6 +8,9 @@ namespace FitnessApp.Views
         public static readonly BindableProperty ShowBackArrowProperty =
             BindableProperty.Create(nameof(ShowBackArrow), typeof(bool), typeof(PageTemplate), true);
 
+        public static readonly BindableProperty ShowFooterProperty =
+            BindableProperty.Create(nameof(ShowFooter), typeof(bool), typeof(PageTemplate), true);
+
         public static readonly BindableProperty PageContentProperty =
             BindableProperty.Create(nameof(PageContent), typeof(View), typeof(PageTemplate));
 
@@ -21,6 +24,12 @@ namespace FitnessApp.Views
         {
             get => (bool)GetValue(ShowBackArrowProperty);
             set => SetValue(ShowBackArrowProperty, value);
+        }
+
+        public bool ShowFooter
+        {
+            get => (bool)GetValue(ShowFooterProperty);
+            set => SetValue(ShowFooterProperty, value);
         }
 
         public View PageContent
