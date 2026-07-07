@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:FitnessApp.Views"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             xmlns:models="clr-namespace:FitnessApp.Models"
+             x:DataType="viewmodels:MealCategoryViewModel"
+             x:Class="FitnessApp.Views.MealCategoryPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1B1B1F"
+             Title="Meal Logs">
+
+    <views:PageTemplate PageTitle="{Binding CategoryTitle}" ShowBackArrow="True" IsBusy="{Binding IsBusy}">
+        <views:PageTemplate.PageContent>
+            <Grid RowDefinitions="Auto,*,Auto" Padding="20,10" RowSpacing="20">
+                
+                <!-- ═══ Add Food Form Card ═══ -->
+                <Border Grid.Row="0"
+                        StrokeThickness="0"
+                        BackgroundColor="#222226"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Log New Item"
+                               TextColor="White"
+                               FontFamily="SyneBold"
+                               FontSize="16" />
+                        
+                        <Grid ColumnDefinitions="*,100" ColumnSpacing="12">
+                            <!-- Food Name Input -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Food Name" TextColor="#D0D0D5" FontSize="11" FontFamily="OpenSansSemibold" />
+                                <Entry Text="{Binding NewFoodName}"
+                                       TextColor="White"
+                                       BackgroundColor="#2A2A2E"
+                                       Placeholder="e.g. Rice, Oats, Chicken"
+                                       HeightRequest="40" />
+                            </VerticalStackLayout>
+
+                            <!-- Calories Input -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Label Text="Calories (kcal)" TextColor="#D0D0D5" FontSize="11" FontFamily="OpenSansSemibold" />
+                                <Entry Text="{Binding NewCaloriesText}"
+                                       TextColor="White"
+                                       BackgroundColor="#2A2A2E"
+                                       Placeholder="kcal"
+                                       Keyboard="Numeric"
+                                       HeightRequest="40" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Validation Message -->
+                        <Label Text="{Binding ValidationError}"
+                               TextColor="#FF4D4D"
+                               FontSize="12"
+                               FontFamily="OpenSansRegular"
+                               IsVisible="{Binding ValidationError, Converter={StaticResource StringNotEmptyToBoolConverter}}" />
+
+                        <!-- Add Button -->
+                        <Button Text="Add to Meal Log"
+                                Command="{Binding AddLogCommand}"
+                                TextColor="White"
+                                BackgroundColor="#5B2A9E"
+                                FontFamily="OpenSansSemibold"
+                                CornerRadius="12"
+                                HeightRequest="40" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ═══ Food List ═══ -->
+                <Grid Grid.Row="1" RowDefinitions="Auto,*">
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+                        <Label Text="Logged Items"
+                               TextColor="White"
+                               FontFamily="SyneBold"
+                               FontSize="18"
+                               VerticalOptions="Center" />
+                        <HorizontalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                            <Label Text="{Binding CategoryCaloriesTotal, StringFormat='{0:N0}'}" TextColor="#9B7FD4" FontFamily="SyneBold" FontSize="18" />
+                            <Label Text="kcal total" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="12" VerticalOptions="End" Margin="0,0,0,2" />
+                        </HorizontalStackLayout>
+                    </Grid>
+
+                    <CollectionView Grid.Row="1" ItemsSource="{Binding MealLogs}">
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Margin="0,40,0,0">
+                                <Label Text="No food items logged yet."
+                                       TextColor="#D0D0D5"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="14"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Use the form above to log meals."
+                                       TextColor="#9B7FD4"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="12"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:MealLog">
+                                <Border StrokeThickness="0" BackgroundColor="#222226" StrokeShape="RoundRectangle 16" Padding="14" Margin="0,0,0,10">
+                                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="16">
+                                        
+                                        <!-- Food Details -->
+                                        <VerticalStackLayout VerticalOptions="Center">
+                                            <Label Text="{Binding FoodName}" TextColor="White" FontFamily="OpenSansSemibold" FontSize="15" />
+                                            <Label Text="{Binding LogDate}" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="11" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Calories -->
+                                        <HorizontalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                            <Label Text="{Binding Calories, StringFormat='{0:N0}'}" TextColor="#9B7FD4" FontFamily="SyneBold" FontSize="16" />
+                                            <Label Text="kcal" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="11" VerticalOptions="End" Margin="0,0,0,1" />
+                                        </HorizontalStackLayout>
+
+                                        <!-- Delete Button -->
+                                        <Button Grid.Column="2"
+                                                Text="✕"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MealCategoryViewModel}}, Path=DeleteLogCommand}"
+                                                CommandParameter="{Binding .}"
+                                                TextColor="#FF4D4D"
+                                                BackgroundColor="Transparent"
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="16"
+                                                WidthRequest="36"
+                                                HeightRequest="36"
+                                                Padding="0" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+                
+            </Grid>
+        </views:PageTemplate.PageContent>
+    </views:PageTemplate>
+</ContentPage>

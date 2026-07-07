@@ -9,7 +9,7 @@
              BackgroundColor="#1B1B1F"
              Title="Edit Metrics">
 
-    <views:PageTemplate PageTitle="Edit Metrics" ShowBackArrow="True">
+    <views:PageTemplate PageTitle="Edit Metrics" ShowBackArrow="True" IsBusy="{Binding IsBusy}">
         <views:PageTemplate.PageContent>
             <ScrollView>
                 <VerticalStackLayout Spacing="24" Padding="20,10">

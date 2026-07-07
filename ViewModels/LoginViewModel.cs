@@ -8,6 +8,7 @@ namespace FitnessApp.ViewModels
     {
         private readonly IUserRepository _userRepository;
         private readonly IPlannerStateService _plannerStateService;
+        private readonly SessionService _sessionService;
 
         [ObservableProperty]
         private string _username = string.Empty;
@@ -15,16 +16,17 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private string _password = string.Empty;
 
-        [ObservableProperty]
-        private bool _isBusy;
+
 
         public LoginViewModel(
             INavigationService navigationService,
             IUserRepository userRepository,
-            IPlannerStateService plannerStateService) : base(navigationService)
+            IPlannerStateService plannerStateService,
+            SessionService sessionService) : base(navigationService)
         {
             _userRepository = userRepository;
             _plannerStateService = plannerStateService;
+            _sessionService = sessionService;
         }
 
         [RelayCommand]
@@ -39,7 +41,7 @@ namespace FitnessApp.ViewModels
             IsBusy = true;
             try
             {
-                var user = await _userRepository.ValidateUserAsync(Username, Password);
+                var user = await _userRepository.LoginAsync(Username, Password);
                 if (user != null)
                 {
                     _plannerStateService.CurrentUser = user;
@@ -48,7 +50,7 @@ namespace FitnessApp.ViewModels
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Error", "Invalid username or password.", "OK");
+                    await Shell.Current.DisplayAlert("Error", "Invalid email or password.", "OK");
                 }
             }
             catch (Exception ex)
@@ -61,11 +63,27 @@ namespace FitnessApp.ViewModels
             }
         }
 
+        public async Task CheckActiveSessionAsync()
+        {
+            var activeUser = await _sessionService.GetActiveUserAsync();
+            if (activeUser != null)
+            {
+                _plannerStateService.CurrentUser = activeUser;
+                await NavigationService.GoToAsync("//HomePage");
+            }
+        }
+
         [RelayCommand]
         private Task ForgotPassword()
         {
             // ponytail: mock forgot password action
             return Task.CompletedTask;
+        }
+
+        [RelayCommand]
+        private async Task NavigateToSignUp()
+        {
+            await NavigationService.GoToAsync("SignupPage");
         }
     }
 }

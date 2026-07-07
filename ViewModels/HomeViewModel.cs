@@ -68,7 +68,7 @@ namespace FitnessApp.ViewModels
 
         public void UpdateUserName()
         {
-            UserName = _plannerStateService.CurrentUser?.Name ?? "Adam";
+            UserName = _plannerStateService.CurrentUser?.Name ?? "Guest";
         }
 
         public async Task LoadTodayProgressAsync()

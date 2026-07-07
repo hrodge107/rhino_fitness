@@ -32,8 +32,7 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private bool _isSessionInactive = true;
 
-        [ObservableProperty]
-        private bool _isBusy;
+
 
         [ObservableProperty]
         private string _elapsedTimerText = "00:00";
@@ -142,11 +141,8 @@ namespace FitnessApp.ViewModels
                 // Search specifically for this scheduled exercise id
                 // But wait: GetScheduledExercisesForDateAsync returns for target date. Let's just find the scheduled exercise in database.
                 // Since our repository only has GetScheduledExercisesForDateAsync, we can query it for all time or check all.
-                // ponytail: simple direct load using IDatabaseService table query
-                var dbService = Application.Current!.Handler!.MauiContext!.Services.GetService<IDatabaseService>();
-                _scheduledExercise = await dbService.Connection.Table<ScheduledExercise>()
-                    .Where(se => se.Id == _scheduledExerciseId)
-                    .FirstOrDefaultAsync();
+                // ponytail: load via repository to support sync
+                _scheduledExercise = await _scheduledExerciseRepository.GetByIdAsync(_scheduledExerciseId);
 
                 if (_scheduledExercise != null)
                 {
@@ -280,11 +276,11 @@ namespace FitnessApp.ViewModels
                 IsBusy = true;
                 try
                 {
-                    var dbService = Application.Current!.Handler!.MauiContext!.Services.GetService<IDatabaseService>();
                     _scheduledExercise.Status = "COMPLETED";
+                    _scheduledExercise.Sets = CompletedSets;
+                    _scheduledExercise.DurationSeconds = _elapsedSeconds;
                     _scheduledExercise.UpdatedAt = DateTime.UtcNow;
-                    _scheduledExercise.IsSynced = false;
-                    await dbService.Connection.UpdateAsync(_scheduledExercise);
+                    await _scheduledExerciseRepository.UpdateScheduledExerciseAsync(_scheduledExercise);
                 }
                 catch (Exception ex)
                 {

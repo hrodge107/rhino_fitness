@@ -20,6 +20,15 @@ namespace FitnessApp.Models
         [NotNull]
         public string Password { get; set; } = string.Empty;
 
+        [Column("sync_id")]
+        public string SyncId { get; set; } = Guid.NewGuid().ToString();
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Column("is_active")]
+        public bool IsActive { get; set; } = false;
+
         [Column("is_synced")]
         public bool IsSynced { get; set; } = false;
 
@@ -43,5 +52,8 @@ namespace FitnessApp.Models
 
         [Column("weight_unit")]
         public string WeightUnit { get; set; } = "kg";
+
+        [Column("calorie_limit")]
+        public double CalorieLimit { get; set; } = 2000;
     }
 }

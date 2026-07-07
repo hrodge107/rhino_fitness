@@ -1,4 +1,4 @@
-# AI Agents & Tools
+
 .agents/
 .codegraph/
 graphify-out/
@@ -31,3 +31,5 @@ Thumbs.db
 nul
 docs/
 scripts/
+
+Services/SupabaseConfig.cs

@@ -9,5 +9,14 @@ namespace FitnessApp.Views
             InitializeComponent();
             BindingContext = viewModel;
         }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            if (BindingContext is LoginViewModel viewModel)
+            {
+                await viewModel.CheckActiveSessionAsync();
+            }
+        }
     }
 }

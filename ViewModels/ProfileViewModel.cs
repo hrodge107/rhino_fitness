@@ -12,6 +12,7 @@ namespace FitnessApp.ViewModels
         private readonly IScheduledExerciseRepository _scheduledExerciseRepository;
         private readonly IExerciseRepository _exerciseRepository;
         private readonly IPlannerStateService _plannerStateService;
+        private readonly SessionService _sessionService;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Initials))]
@@ -79,6 +80,11 @@ namespace FitnessApp.ViewModels
         public bool HasCompletedExercises => !HasNoCompletedExercises;
 
         [ObservableProperty]
+        private bool _isOffline;
+
+        public bool IsOnline => !IsOffline;
+
+        [ObservableProperty]
         private bool _loadMoreVisible;
 
         public List<string> GenderOptions { get; } = new()
@@ -91,41 +97,39 @@ namespace FitnessApp.ViewModels
 
         public ObservableCollection<CompletedExerciseItem> CompletedExercises { get; } = new();
 
-        private int _loadedDays = 7;
+        private int _limit = 5;
 
         public ProfileViewModel(
             INavigationService navigationService,
             IUserRepository userRepository,
             IScheduledExerciseRepository scheduledExerciseRepository,
             IExerciseRepository exerciseRepository,
-            IPlannerStateService plannerStateService) : base(navigationService)
+            IPlannerStateService plannerStateService,
+            SessionService sessionService) : base(navigationService)
         {
             _userRepository = userRepository;
             _scheduledExerciseRepository = scheduledExerciseRepository;
             _exerciseRepository = exerciseRepository;
             _plannerStateService = plannerStateService;
+            _sessionService = sessionService;
             ActiveTab = "Profile";
         }
 
         [RelayCommand]
         public async Task LoadProfileAsync()
         {
-            var user = _plannerStateService.CurrentUser;
-            if (user == null)
+            IsBusy = true;
+            try
             {
-                // Fallback to Adam if no active user in session
-                user = await _userRepository.GetByNameAsync("Adam");
-                if (user != null)
-                {
-                    _plannerStateService.CurrentUser = user;
-                }
-            }
+                IsOffline = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet;
+                OnPropertyChanged(nameof(IsOnline));
+            var user = _plannerStateService.CurrentUser;
 
             if (user != null)
             {
                 Name = user.Name;
-                Gender = string.IsNullOrWhiteSpace(user.Gender) ? "Male" : user.Gender;
-                Age = user.Age > 0 ? user.Age : 25;
+                Gender = string.IsNullOrWhiteSpace(user.Gender) ? string.Empty : user.Gender;
+                Age = user.Age;
 
                 // Format height display
                 if (user.HeightUnit == "cm")
@@ -210,6 +214,11 @@ namespace FitnessApp.ViewModels
                 // Load completed exercises
                 await LoadCompletedExercisesAsync();
             }
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         private async Task LoadCompletedExercisesAsync()
@@ -218,12 +227,18 @@ namespace FitnessApp.ViewModels
             if (user == null) return;
 
             DateTime endDate = DateTime.Today;
-            DateTime startDate = DateTime.Today.AddDays(-_loadedDays + 1);
+            DateTime startDate = DateTime.Today.AddYears(-10);
 
             var completed = await _scheduledExerciseRepository.GetCompletedExercisesAsync(user.Id, startDate, endDate);
             
+            // Sort descending: most recent first
+            var sortedCompleted = completed
+                .OrderByDescending(se => se.ScheduledDate)
+                .ThenByDescending(se => se.Id)
+                .ToList();
+
             CompletedExercises.Clear();
-            foreach (var se in completed)
+            foreach (var se in sortedCompleted.Take(_limit))
             {
                 var exercise = await _exerciseRepository.GetByExerciseIdAsync(se.ExerciseId);
                 CompletedExercises.Add(new CompletedExerciseItem
@@ -231,33 +246,21 @@ namespace FitnessApp.ViewModels
                     Name = exercise?.Name ?? "Exercise",
                     Category = exercise?.BodyPart ?? "Workout",
                     Muscle = exercise?.Muscle ?? "",
-                    DateText = se.ScheduledDate.ToString("MMMM d, yyyy")
+                    DateText = se.ScheduledDate.ToString("MMMM d, yyyy"),
+                    Sets = se.Sets,
+                    DurationSeconds = se.DurationSeconds
                 });
             }
 
             HasNoCompletedExercises = CompletedExercises.Count == 0;
 
-            // Check if there are older completed exercises to show "Load More"
-            // ponytail: simple DB check for historical records before startDate
-            var dbService = App.Current?.Handler?.MauiContext?.Services?.GetService(typeof(IDatabaseService)) as IDatabaseService;
-            if (dbService != null)
+            bool olderExists = sortedCompleted.Count > _limit;
+            
+            // Marshal back to UI thread
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                var conn = dbService.Connection;
-                var older = await conn.Table<ScheduledExercise>()
-                    .Where(se => se.UserId == user.Id && se.Status == "COMPLETED" && se.ScheduledDate < startDate)
-                    .FirstOrDefaultAsync()
-                    .ConfigureAwait(false);
-                
-                // Marshal back to UI thread
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    LoadMoreVisible = older != null;
-                });
-            }
-            else
-            {
-                LoadMoreVisible = false;
-            }
+                LoadMoreVisible = olderExists;
+            });
         }
 
         [RelayCommand]
@@ -282,6 +285,13 @@ namespace FitnessApp.ViewModels
         {
             ValidationError = string.Empty;
 
+            IsOffline = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet;
+            if (IsOffline)
+            {
+                ValidationError = "Cannot save profile changes while offline.";
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(EditName))
             {
                 ValidationError = "Name cannot be empty.";
@@ -303,21 +313,29 @@ namespace FitnessApp.ViewModels
             var user = _plannerStateService.CurrentUser;
             if (user != null)
             {
-                user.Name = EditName.Trim();
-                user.Gender = EditGender;
-                user.Age = ageVal;
+                IsBusy = true;
+                try
+                {
+                    user.Name = EditName.Trim();
+                    user.Gender = EditGender;
+                    user.Age = ageVal;
 
-                var success = await _userRepository.UpdateUserAsync(user);
-                if (success)
-                {
-                    Name = user.Name;
-                    Gender = user.Gender;
-                    Age = user.Age;
-                    IsEditing = false;
+                    var success = await _userRepository.UpdateUserAsync(user);
+                    if (success)
+                    {
+                        Name = user.Name;
+                        Gender = user.Gender;
+                        Age = user.Age;
+                        IsEditing = false;
+                    }
+                    else
+                    {
+                        ValidationError = "Failed to update profile in database.";
+                    }
                 }
-                else
+                finally
                 {
-                    ValidationError = "Failed to update profile in database.";
+                    IsBusy = false;
                 }
             }
         }
@@ -331,8 +349,27 @@ namespace FitnessApp.ViewModels
         [RelayCommand]
         private async Task LoadMore()
         {
-            _loadedDays += 7;
-            await LoadCompletedExercisesAsync();
+            IsBusy = true;
+            try
+            {
+                _limit += 5;
+                await LoadCompletedExercisesAsync();
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        [RelayCommand]
+        private async Task Logout()
+        {
+            bool confirm = await Shell.Current.DisplayAlert("Logout", "Are you sure you want to log out?", "Yes", "No");
+            if (!confirm) return;
+
+            await _sessionService.ClearSessionAsync();
+            _plannerStateService.CurrentUser = null;
+            await NavigationService.GoToAsync("//LoginPage");
         }
     }
 
@@ -342,5 +379,17 @@ namespace FitnessApp.ViewModels
         public string Category { get; set; } = string.Empty;
         public string DateText { get; set; } = string.Empty;
         public string Muscle { get; set; } = string.Empty;
+        public int Sets { get; set; }
+        public int DurationSeconds { get; set; }
+        public string DurationText
+        {
+            get
+            {
+                int minutes = DurationSeconds / 60;
+                int seconds = DurationSeconds % 60;
+                return $"{minutes:D2}:{seconds:D2}";
+            }
+        }
+        public string DetailsText => $"{Sets} sets • {DurationText}";
     }
 }

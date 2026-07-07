@@ -2,11 +2,11 @@ using FitnessApp.ViewModels;
 
 namespace FitnessApp.Views
 {
-    public partial class NutritionPage : ContentPage
+    public partial class MealCategoryPage : ContentPage
     {
-        private readonly NutritionViewModel _vm;
+        private readonly MealCategoryViewModel _vm;
 
-        public NutritionPage(NutritionViewModel vm)
+        public MealCategoryPage(MealCategoryViewModel vm)
         {
             InitializeComponent();
             BindingContext = _vm = vm;
@@ -15,7 +15,7 @@ namespace FitnessApp.Views
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await _vm.LoadDataAsync();
+            await _vm.LoadLogsAsync();
         }
     }
 }

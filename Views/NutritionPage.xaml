@@ -2,19 +2,252 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:FitnessApp.Views"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             x:DataType="viewmodels:NutritionViewModel"
              x:Class="FitnessApp.Views.NutritionPage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#1B1B1F"
              Title="Nutrition">
 
-    <views:PageTemplate PageTitle="Nutrition" ShowBackArrow="True">
+    <views:PageTemplate PageTitle="Nutrition" ShowBackArrow="True" IsBusy="{Binding IsBusy}">
         <views:PageTemplate.PageContent>
-            <Label Text="Nutrition"
-                   TextColor="White"
-                   FontFamily="SyneBold"
-                   FontSize="28"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center" />
+            <ScrollView>
+                <VerticalStackLayout Spacing="16" Padding="16,10">
+                    
+                    <!-- ═══ SECTION 1: Top Calorie Progress Card ═══ -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#3A3153"
+                            StrokeShape="RoundRectangle 24"
+                            Padding="20"
+                            HeightRequest="170">
+                        <Grid ColumnDefinitions="*, Auto" RowDefinitions="*">
+                            <!-- Left: Date & Target Calorie Badge -->
+                            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="4">
+                                <Label Text="{Binding CurrentDateText}"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="18" />
+                                
+                                <Border BackgroundColor="#8B72D1"
+                                        StrokeShape="RoundRectangle 18"
+                                        Padding="14,8"
+                                        Margin="0,12,0,0"
+                                        HorizontalOptions="Start"
+                                        StrokeThickness="0">
+                                    <VerticalStackLayout Spacing="1">
+                                        <Label Text="Target"
+                                               TextColor="White"
+                                               FontFamily="OpenSansSemibold"
+                                               FontSize="11"
+                                               HorizontalOptions="Center"
+                                               Opacity="0.9" />
+                                        <Label Text="{Binding CalorieLimit, StringFormat='{0:N0} kcal'}"
+                                               TextColor="White"
+                                               FontFamily="SyneBold"
+                                               FontSize="14"
+                                               HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Right: Graphics Circular Arc & Overlay Text -->
+                            <Grid Grid.Column="1" WidthRequest="130" HeightRequest="130" HorizontalOptions="End" VerticalOptions="Center">
+                                <GraphicsView Drawable="{Binding ProgressDrawable}" 
+                                              HeightRequest="130" 
+                                              WidthRequest="130" />
+                                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding CurrentCalories, StringFormat='{0:N0} kcal'}"
+                                           TextColor="White"
+                                           FontFamily="SyneBold"
+                                           FontSize="15"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="Consumed"
+                                           TextColor="#D0D0D5"
+                                           FontFamily="OpenSansRegular"
+                                           FontSize="10"
+                                           HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <!-- Edit Pencil Icon overlay -->
+                            <Border Grid.Column="1"
+                                    VerticalOptions="End" 
+                                    HorizontalOptions="End"
+                                    Margin="0,0,0,-4"
+                                    Padding="6"
+                                    BackgroundColor="Transparent"
+                                    StrokeThickness="0"
+                                    HeightRequest="32" 
+                                    WidthRequest="32">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding EditLimitCommand}" />
+                                </Border.GestureRecognizers>
+                                <Path Data="M14.06,9.02L14.98,9.94L5.92,19H5V18.08L14.06,9.02M17.66,3C17.41,3 17.15,3.1 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18.17,3.09 17.92,3 17.66,3M14.06,6.19L3,17.25V21H6.75L17.81,9.94L14.06,6.19Z"
+                                      Fill="White"
+                                      Aspect="Uniform"
+                                      WidthRequest="16" 
+                                      HeightRequest="16" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Limit Inline Editor (Visible when editing) -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#3A3153"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="20"
+                            IsVisible="{Binding IsEditingLimit}">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Daily Calorie Budget Limit (kcal)"
+                                   TextColor="White"
+                                   FontFamily="OpenSansSemibold"
+                                   FontSize="14" />
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                                <Entry Text="{Binding NewCalorieLimitText}"
+                                       TextColor="White"
+                                       BackgroundColor="#2E2545"
+                                       Keyboard="Numeric"
+                                       HeightRequest="44"
+                                       FontSize="16" />
+                                <Button Grid.Column="1"
+                                        Text="Save"
+                                        Command="{Binding SaveLimitCommand}"
+                                        TextColor="White"
+                                        BackgroundColor="#5B2A9E"
+                                        FontFamily="OpenSansSemibold"
+                                        CornerRadius="12"
+                                        HeightRequest="44"
+                                        Padding="14,0" />
+                                <Button Grid.Column="2"
+                                        Text="Cancel"
+                                        Command="{Binding CancelEditLimitCommand}"
+                                        TextColor="White"
+                                        BackgroundColor="#3A3A3E"
+                                        FontFamily="OpenSansSemibold"
+                                        CornerRadius="12"
+                                        HeightRequest="44"
+                                        Padding="14,0" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ═══ SECTION 2: Bottom Two-Column Dashboard ═══ -->
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="16" Margin="0,4,0,16">
+                        
+                        <!-- Left Column: Meal Cards -->
+                        <VerticalStackLayout Grid.Column="0" Spacing="12">
+                            <!-- Breakfast Card -->
+                            <Border StrokeThickness="0" BackgroundColor="#3A3153" StrokeShape="RoundRectangle 20" Padding="16" HeightRequest="100">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding NavigateToCategoryCommand}" CommandParameter="Breakfast" />
+                                </Border.GestureRecognizers>
+                                <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="Breakfast" TextColor="White" FontFamily="SyneBold" FontSize="15" VerticalOptions="Start" />
+                                    <Label Grid.Row="0" Grid.Column="1" Text="+" TextColor="White" FontFamily="OpenSansSemibold" FontSize="20" HorizontalOptions="End" VerticalOptions="Start" />
+                                    <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4" VerticalOptions="End">
+                                        <Label Text="{Binding BreakfastCalories, StringFormat='{0:N0}'}" TextColor="#9B7FD4" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="kcal" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="11" VerticalOptions="End" Margin="0,0,0,1" />
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Border>
+
+                            <!-- Lunch Card -->
+                            <Border StrokeThickness="0" BackgroundColor="#3A3153" StrokeShape="RoundRectangle 20" Padding="16" HeightRequest="100">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding NavigateToCategoryCommand}" CommandParameter="Lunch" />
+                                </Border.GestureRecognizers>
+                                <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="Lunch" TextColor="White" FontFamily="SyneBold" FontSize="15" VerticalOptions="Start" />
+                                    <Label Grid.Row="0" Grid.Column="1" Text="+" TextColor="White" FontFamily="OpenSansSemibold" FontSize="20" HorizontalOptions="End" VerticalOptions="Start" />
+                                    <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4" VerticalOptions="End">
+                                        <Label Text="{Binding LunchCalories, StringFormat='{0:N0}'}" TextColor="#9B7FD4" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="kcal" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="11" VerticalOptions="End" Margin="0,0,0,1" />
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Border>
+
+                            <!-- Dinner Card -->
+                            <Border StrokeThickness="0" BackgroundColor="#3A3153" StrokeShape="RoundRectangle 20" Padding="16" HeightRequest="100">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding NavigateToCategoryCommand}" CommandParameter="Dinner" />
+                                </Border.GestureRecognizers>
+                                <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="Dinner" TextColor="White" FontFamily="SyneBold" FontSize="15" VerticalOptions="Start" />
+                                    <Label Grid.Row="0" Grid.Column="1" Text="+" TextColor="White" FontFamily="OpenSansSemibold" FontSize="20" HorizontalOptions="End" VerticalOptions="Start" />
+                                    <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4" VerticalOptions="End">
+                                        <Label Text="{Binding DinnerCalories, StringFormat='{0:N0}'}" TextColor="#9B7FD4" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="kcal" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="11" VerticalOptions="End" Margin="0,0,0,1" />
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Border>
+
+                            <!-- Snack Card -->
+                            <Border StrokeThickness="0" BackgroundColor="#3A3153" StrokeShape="RoundRectangle 20" Padding="16" HeightRequest="100">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding NavigateToCategoryCommand}" CommandParameter="Snack" />
+                                </Border.GestureRecognizers>
+                                <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="Snacks" TextColor="White" FontFamily="SyneBold" FontSize="15" VerticalOptions="Start" />
+                                    <Label Grid.Row="0" Grid.Column="1" Text="+" TextColor="White" FontFamily="OpenSansSemibold" FontSize="20" HorizontalOptions="End" VerticalOptions="Start" />
+                                    <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4" VerticalOptions="End">
+                                        <Label Text="{Binding SnackCalories, StringFormat='{0:N0}'}" TextColor="#9B7FD4" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="kcal" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="11" VerticalOptions="End" Margin="0,0,0,1" />
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Right Column: Daily Hydration Card -->
+                        <Border Grid.Column="1"
+                                StrokeThickness="0"
+                                BackgroundColor="#3A3153"
+                                StrokeShape="RoundRectangle 24"
+                                Padding="16"
+                                VerticalOptions="Fill">
+                            <VerticalStackLayout Spacing="16" VerticalOptions="CenterAndExpand">
+                                <Label Text="Daily Hydration" 
+                                       TextColor="White" 
+                                       FontFamily="OpenSansSemibold" 
+                                       FontSize="14" 
+                                       HorizontalOptions="Center" />
+                                
+                                <Grid ColumnDefinitions="Auto, *" ColumnSpacing="6" HorizontalOptions="Center">
+                                    <!-- Water Drop Path -->
+                                    <Path Data="M12,2.69C12,2.69 19,10.23 19,14.5A7,7 0 0,1 12,21.5A7,7 0 0,1 5,14.5C5,10.23 12,2.69 12,2.69Z"
+                                          Stroke="#4DA3FF"
+                                          StrokeThickness="2"
+                                          Fill="Transparent"
+                                          WidthRequest="22" 
+                                          HeightRequest="22"
+                                          Aspect="Uniform"
+                                          VerticalOptions="Center" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding DailyHydrationAmount, StringFormat='{0:N2} L'}" 
+                                           TextColor="White" 
+                                           FontFamily="SyneBold" 
+                                           FontSize="16" 
+                                           VerticalOptions="Center" />
+                                </Grid>
+
+                                <!-- Capsule Vertical Progress Bar -->
+                                <Border BackgroundColor="#483E63" 
+                                        StrokeShape="RoundRectangle 12" 
+                                        WidthRequest="24" 
+                                        HeightRequest="180" 
+                                        HorizontalOptions="Center"
+                                        StrokeThickness="0">
+                                    <Grid VerticalOptions="Fill">
+                                        <BoxView BackgroundColor="#4DA3FF" 
+                                                 VerticalOptions="End" 
+                                                 HeightRequest="{Binding HydrationFillHeight}" 
+                                                 WidthRequest="24" />
+                                    </Grid>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+            </ScrollView>
         </views:PageTemplate.PageContent>
     </views:PageTemplate>
 </ContentPage>

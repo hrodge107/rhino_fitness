@@ -24,10 +24,19 @@ namespace FitnessApp.Models
         [NotNull]
         public string Status { get; set; } = "PENDING"; // PENDING, COMPLETED, MISSED
 
+        [Column("sets")]
+        public int Sets { get; set; } = 0;
+
+        [Column("duration_seconds")]
+        public int DurationSeconds { get; set; } = 0;
+
         [Column("is_synced")]
         public bool IsSynced { get; set; } = false;
 
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

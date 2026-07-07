@@ -93,29 +93,31 @@ namespace FitnessApp.ViewModels
 
         private async Task BuildCalendarAsync()
         {
-            CalendarDays.Clear();
-            CurrentMonthYearText = CurrentMonth.ToString("MMMM yyyy");
-
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            System.Diagnostics.Debug.WriteLine("[DEBUG] BuildCalendarAsync started");
+            
+            // Query for the visible range (6 weeks = 42 days)
             var firstDayOfMonth = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
             int offset = (int)firstDayOfMonth.DayOfWeek; // Sunday = 0
             var startDate = firstDayOfMonth.AddDays(-offset);
-
-            // Fetch scheduled exercises for the user to mark days with workouts.
-            int userId = _plannerStateService.CurrentUser?.Id ?? 1;
-            
-            // Query for the visible range (6 weeks = 42 days)
             var endDate = startDate.AddDays(42);
-            var allExercises = await _exerciseRepository.GetAllAsync();
+
+            // Fetch scheduled exercises for the user in a single range query
+            int userId = _plannerStateService.CurrentUser?.Id ?? 1;
+            var scheduledForRange = await _scheduledExerciseRepository.GetScheduledExercisesForRangeAsync(userId, startDate, endDate);
             
+            var tempDays = new List<CalendarDayModel>();
+
             // Build the list of days
             for (int i = 0; i < 42; i++)
             {
                 var day = startDate.AddDays(i);
+                var dayDate = day.Date;
                 var hasWorkouts = false;
 
-                // ponytail: quick check if day has exercises
-                var scheduledForDay = await _scheduledExerciseRepository.GetScheduledExercisesForDateAsync(userId, day);
-                if (day.Date < DateTime.Today)
+                // Check in the local list instead of making a database/network call per iteration
+                var scheduledForDay = scheduledForRange.Where(se => se.ScheduledDate.Date == dayDate).ToList();
+                if (dayDate < DateTime.Today)
                 {
                     hasWorkouts = scheduledForDay.Any(se => se.Status == "MISSED" || se.Status == "PENDING");
                 }
@@ -124,29 +126,52 @@ namespace FitnessApp.ViewModels
                     hasWorkouts = scheduledForDay.Any(se => se.Status == "PENDING");
                 }
 
-                CalendarDays.Add(new CalendarDayModel
+                tempDays.Add(new CalendarDayModel
                 {
                     Date = day,
-                    IsSelected = day.Date == SelectedDate.Date,
+                    IsSelected = dayDate == SelectedDate.Date,
                     IsCurrentMonth = day.Month == CurrentMonth.Month,
                     HasExercises = hasWorkouts
                 });
             }
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                CalendarDays.Clear();
+                foreach (var d in tempDays)
+                {
+                    CalendarDays.Add(d);
+                }
+                CurrentMonthYearText = CurrentMonth.ToString("MMMM yyyy");
+            });
+
+            stopwatch.Stop();
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] BuildCalendarAsync took {stopwatch.ElapsedMilliseconds} ms");
         }
 
         private async Task LoadScheduledExercisesAsync()
         {
-            ScheduledExercises.Clear();
             int userId = _plannerStateService.CurrentUser?.Id ?? 1;
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] LoadScheduledExercisesAsync: userId={userId}, SelectedDate={SelectedDate.ToShortDateString()}");
 
-            var scheduled = (await _scheduledExerciseRepository.GetScheduledExercisesForDateAsync(userId, SelectedDate))
+            var rawScheduled = await _scheduledExerciseRepository.GetScheduledExercisesForDateAsync(userId, SelectedDate);
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] LoadScheduledExercisesAsync: rawScheduled.Count={rawScheduled.Count}");
+            foreach (var r in rawScheduled)
+            {
+                System.Diagnostics.Debug.WriteLine($"  -> Raw Item: Date={r.ScheduledDate.ToShortDateString()}, Status={r.Status}");
+            }
+
+            var scheduled = rawScheduled
                             .Where(se => SelectedDate.Date < DateTime.Today
                                 ? (se.Status == "MISSED" || se.Status == "PENDING")
                                 : se.Status == "PENDING")
                             .ToList();
-            var catalog = await _exerciseRepository.GetAllAsync();
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] LoadScheduledExercisesAsync: filtered scheduled.Count={scheduled.Count}");
 
-            var joined = from s in scheduled
+            var catalog = await _exerciseRepository.GetAllAsync();
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] LoadScheduledExercisesAsync: catalog.Count={catalog.Count}");
+
+            var joined = (from s in scheduled
                          join c in catalog on s.ExerciseId equals c.ExerciseId
                          select new PlannedWorkoutItem
                          {
@@ -157,22 +182,34 @@ namespace FitnessApp.ViewModels
                              BodyPart = c.BodyPart,
                              Muscle = c.Muscle,
                              Status = s.Status
-                         };
+                         }).ToList();
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] LoadScheduledExercisesAsync: joined.Count={joined.Count}");
 
-            foreach (var item in joined)
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                ScheduledExercises.Add(item);
-            }
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] MainThread: clearing and adding {joined.Count} items to ScheduledExercises");
+                ScheduledExercises.Clear();
+                foreach (var item in joined)
+                {
+                    ScheduledExercises.Add(item);
+                }
 
-            HasNoExercises = ScheduledExercises.Count == 0;
-            HasExercises = ScheduledExercises.Count > 0;
+                HasNoExercises = ScheduledExercises.Count == 0;
+                HasExercises = ScheduledExercises.Count > 0;
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] MainThread: HasExercises={HasExercises}, HasNoExercises={HasNoExercises}");
+            });
         }
 
         [RelayCommand]
         private async Task SelectDay(CalendarDayModel day)
         {
-            if (day == null) return;
+            if (day == null)
+            {
+                System.Diagnostics.Debug.WriteLine("[DEBUG] SelectDay called with NULL day");
+                return;
+            }
 
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] SelectDay called for date: {day.Date.ToShortDateString()}, IsSelected={day.IsSelected}");
             SelectedDate = day.Date;
             _plannerStateService.SelectedDate = SelectedDate;
             IsNormalMode = SelectedDate.Date >= DateTime.Today;
@@ -188,14 +225,18 @@ namespace FitnessApp.ViewModels
                 calDay.IsSelected = calDay.Date.Date == SelectedDate.Date;
             }
 
-            // Trigger visual refresh of collection
+            // Trigger visual refresh of collection on Main UI Thread
             var temp = CalendarDays.ToList();
-            CalendarDays.Clear();
-            foreach (var d in temp)
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                CalendarDays.Add(d);
-            }
+                CalendarDays.Clear();
+                foreach (var d in temp)
+                {
+                    CalendarDays.Add(d);
+                }
+            });
 
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] SelectedDate updated to: {SelectedDate.ToShortDateString()}. Reloading exercises...");
             await LoadScheduledExercisesAsync();
         }
 

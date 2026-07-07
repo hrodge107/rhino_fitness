@@ -9,6 +9,7 @@ namespace FitnessApp.ViewModels
     public partial class WorkoutViewModel : BaseViewModel
     {
         private readonly IExerciseRepository _repository;
+        private readonly IDatabaseService _database;
 
         [ObservableProperty]
         private ObservableCollection<BodyPartItem> _bodyParts = new();
@@ -18,15 +19,36 @@ namespace FitnessApp.ViewModels
 
         public WorkoutViewModel(
             INavigationService navigationService,
-            IExerciseRepository repository) : base(navigationService)
+            IExerciseRepository repository,
+            IDatabaseService database) : base(navigationService)
         {
             _repository = repository;
+            _database = database;
             ActiveTab = "Workout";
+
+            // ponytail: wait for seed to complete
+            if (!_database.IsSeedComplete)
+            {
+                IsBusy = true;
+                _database.OnSeedCompleted += Database_OnSeedCompleted;
+            }
+        }
+
+        private void Database_OnSeedCompleted(object? sender, EventArgs e)
+        {
+            _database.OnSeedCompleted -= Database_OnSeedCompleted;
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await LoadBodyPartsAsync();
+            });
         }
 
         [RelayCommand]
         public async Task LoadBodyPartsAsync()
         {
+            // ponytail: guard clause for incomplete seed
+            if (!_database.IsSeedComplete) return;
+
             if (IsBusy || BodyParts.Count > 0) return;
 
             try

@@ -38,14 +38,62 @@ namespace FitnessApp.Views
             set => SetValue(PageContentProperty, value);
         }
 
+        public static readonly BindableProperty OfflineBannerVisibleProperty =
+            BindableProperty.Create(nameof(OfflineBannerVisible), typeof(bool), typeof(PageTemplate), false);
+
+        public bool OfflineBannerVisible
+        {
+            get => (bool)GetValue(OfflineBannerVisibleProperty);
+            set => SetValue(OfflineBannerVisibleProperty, value);
+        }
+
+        public static readonly BindableProperty IsBusyProperty =
+            BindableProperty.Create(nameof(IsBusy), typeof(bool), typeof(PageTemplate), false);
+
+        public bool IsBusy
+        {
+            get => (bool)GetValue(IsBusyProperty);
+            set => SetValue(IsBusyProperty, value);
+        }
+
         public PageTemplate()
         {
             InitializeComponent();
+            Loaded += PageTemplate_Loaded;
+            Unloaded += PageTemplate_Unloaded;
+        }
+
+        private void PageTemplate_Loaded(object? sender, EventArgs e)
+        {
+            Microsoft.Maui.Networking.Connectivity.Current.ConnectivityChanged += OnConnectivityChanged;
+            UpdateConnectivity();
+        }
+
+        private void PageTemplate_Unloaded(object? sender, EventArgs e)
+        {
+            Microsoft.Maui.Networking.Connectivity.Current.ConnectivityChanged -= OnConnectivityChanged;
+        }
+
+        private void OnConnectivityChanged(object? sender, Microsoft.Maui.Networking.ConnectivityChangedEventArgs e)
+        {
+            UpdateConnectivity();
+        }
+
+        private void UpdateConnectivity()
+        {
+            OfflineBannerVisible = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet;
         }
 
         private async void OnBackTapped(object? sender, TappedEventArgs e)
         {
-            await Shell.Current.GoToAsync("..");
+            if (Shell.Current.Navigation.NavigationStack.Count > 1)
+            {
+                await Shell.Current.GoToAsync("..");
+            }
+            else
+            {
+                await Shell.Current.GoToAsync("//HomePage");
+            }
         }
     }
 }

@@ -17,7 +17,11 @@ namespace FitnessApp.Services
 
         public Task GoBackAsync()
         {
-            return Shell.Current.GoToAsync("..");
+            if (Shell.Current.Navigation.NavigationStack.Count > 1)
+            {
+                return Shell.Current.GoToAsync("..");
+            }
+            return Shell.Current.GoToAsync("//HomePage");
         }
     }
 }

@@ -2,90 +2,107 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             xmlns:views="clr-namespace:FitnessApp.Views"
              x:DataType="viewmodels:LoginViewModel"
              x:Class="FitnessApp.Views.LoginPage"
              Shell.NavBarIsVisible="False"
-             Title="Login">
-    
-    <Grid>
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#7c4ef6" Offset="0.0" />
-                <GradientStop Color="#2c1464" Offset="1.0" />
-            </LinearGradientBrush>
-        </Grid.Background>
+             Shell.FlyoutBehavior="Disabled"
+             BackgroundColor="#7c4ef6">
 
-        <VerticalStackLayout VerticalOptions="Center"
-                             Spacing="20"
-                             Padding="40,0">
-            
-            <!-- Logo -->
-            <Image Source="logo.png"
-                   HeightRequest="200"
-                   WidthRequest="200"
-                   HorizontalOptions="Center"
-                   Margin="0,0,0,40" />
+    <views:PageTemplate ShowBackArrow="False" ShowFooter="False" IsBusy="{Binding IsBusy}">
+        <views:PageTemplate.PageContent>
+            <Grid>
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#7c4ef6" Offset="0.0" />
+                        <GradientStop Color="#2c1464" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Grid.Background>
 
-            <!-- Username Field -->
-            <Border StrokeThickness="0"
-                    BackgroundColor="#D6D6D6"
-                    HeightRequest="56"
-                    StrokeShape="RoundRectangle 28">
-                <Entry Text="{Binding Username}"
-                       Placeholder="Username"
-                       PlaceholderColor="#555555"
-                       TextColor="#000000"
-                       FontAttributes="Italic"
-                       FontFamily="OpenSansRegular"
-                       HorizontalTextAlignment="Center"
-                       VerticalOptions="Center"
-                       Keyboard="Text" />
-            </Border>
+                <VerticalStackLayout VerticalOptions="Center"
+                                     Spacing="20"
+                                     Padding="40,0">
+                    
+                    <!-- Logo -->
+                    <Image Source="logo.png"
+                           HeightRequest="200"
+                           WidthRequest="200"
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,40" />
 
-            <!-- Password Field -->
-            <Border StrokeThickness="0"
-                    BackgroundColor="#D6D6D6"
-                    HeightRequest="56"
-                    StrokeShape="RoundRectangle 28">
-                <Entry Text="{Binding Password}"
-                       Placeholder="Password"
-                       PlaceholderColor="#555555"
-                       TextColor="#000000"
-                       FontAttributes="Italic"
-                       FontFamily="OpenSansRegular"
-                       HorizontalTextAlignment="Center"
-                       VerticalOptions="Center"
-                       IsPassword="True" />
-            </Border>
+                    <!-- Username Field -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#D6D6D6"
+                            HeightRequest="56"
+                            StrokeShape="RoundRectangle 28">
+                        <Entry Text="{Binding Username}"
+                               Placeholder="Email"
+                               PlaceholderColor="#555555"
+                               TextColor="#000000"
+                               
+                               FontFamily="OpenSansRegular"
+                               HorizontalTextAlignment="Center"
+                               VerticalOptions="Center"
+                               Keyboard="Text" />
+                    </Border>
 
-            <!-- Sign In Button -->
-            <Border StrokeThickness="0"
-                    BackgroundColor="#28272C"
-                    HeightRequest="56"
-                    StrokeShape="RoundRectangle 28"
-                    Margin="0,10,0,0">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding SignInCommand}" />
-                </Border.GestureRecognizers>
-                <Label Text="Sign In"
-                       TextColor="#D6D6D6"
-                       FontAttributes="Italic"
-                       FontFamily="OpenSansSemibold"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" />
-            </Border>
+                    <!-- Password Field -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#D6D6D6"
+                            HeightRequest="56"
+                            StrokeShape="RoundRectangle 28">
+                        <Entry Text="{Binding Password}"
+                               Placeholder="Password"
+                               PlaceholderColor="#555555"
+                               TextColor="#000000"
+                               
+                               FontFamily="OpenSansRegular"
+                               HorizontalTextAlignment="Center"
+                               VerticalOptions="Center"
+                               IsPassword="True" />
+                    </Border>
 
-            <!-- Forgot Password -->
-            <Label Text="Forgot Password?"
-                   TextColor="#D6D6D6"
-                   FontAttributes="Italic"
-                   FontFamily="OpenSansRegular"
-                   HorizontalOptions="Center"
-                   Margin="0,15,0,0">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
-                </Label.GestureRecognizers>
-            </Label>
-        </VerticalStackLayout>
-    </Grid>
+                    <!-- Sign In Button -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#28272C"
+                            HeightRequest="56"
+                            StrokeShape="RoundRectangle 28"
+                            Margin="0,10,0,0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SignInCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Sign In"
+                               TextColor="#D6D6D6"
+                               
+                               FontFamily="OpenSansSemibold"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                    <!-- Forgot Password -->
+                    <Label Text="Forgot Password?"
+                           TextColor="#D6D6D6"
+                           
+                           FontFamily="OpenSansRegular"
+                           HorizontalOptions="Center"
+                           Margin="0,15,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                    <!-- Sign Up Navigation -->
+                    <Label Text="Don't have an account? Sign Up"
+                           TextColor="#9B7FD4"
+                           FontFamily="OpenSansSemibold"
+                           HorizontalOptions="Center"
+                           Margin="0,10,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigateToSignUpCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </VerticalStackLayout>
+            </Grid>
+        </views:PageTemplate.PageContent>
+    </views:PageTemplate>
 </ContentPage>

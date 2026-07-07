@@ -11,317 +11,340 @@
 
     <views:PageTemplate PageTitle="Planner" ShowBackArrow="True" ShowFooter="False">
         <views:PageTemplate.PageContent>
-            <Grid RowDefinitions="Auto, *, Auto" Padding="16,8">
-                
-                <!-- ═══ SECTION 1: Calendar View ═══ -->
-                <Border Grid.Row="0"
-                        StrokeThickness="1"
-                        Stroke="#FFFFFF"
-                        StrokeShape="RoundRectangle 24"
-                        Padding="16"
-                        Margin="0,0,0,16">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#5B2A9E" Offset="0.0" />
-                            <GradientStop Color="#9B7FD4" Offset="1.0" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                    <VerticalStackLayout Spacing="16">
-                        
-                        <!-- Month Selector Header -->
-                        <Grid ColumnDefinitions="Auto, *, Auto" VerticalOptions="Center">
-                            <!-- Previous button -->
-                            <Button Grid.Column="0" 
-                                    Text="&lt;" 
-                                    TextColor="White" 
-                                    BackgroundColor="Transparent" 
-                                    FontFamily="OpenSansSemibold"
-                                    FontSize="20"
-                                    WidthRequest="40"
-                                    HeightRequest="40"
-                                    CornerRadius="20"
-                                    Padding="0"
-                                    Command="{Binding PreviousMonthCommand}" />
-                            
-                            <!-- Dropdown-like display selectors -->
-                            <HorizontalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="8">
-                                <!-- Month Box -->
-                                <Border StrokeThickness="0"
-                                        BackgroundColor="#5A38A2"
-                                        StrokeShape="RoundRectangle 12"
-                                        Padding="14,8"
-                                        VerticalOptions="Center">
-                                    <HorizontalStackLayout Spacing="8">
-                                        <Label Text="{Binding CurrentMonthName}" 
-                                               TextColor="White" 
-                                               FontFamily="OpenSansSemibold" 
-                                               FontSize="16" 
-                                               VerticalOptions="Center" />
-                                        <Path Data="M0,0 L4,4 L8,0"
-                                              Stroke="White"
-                                              StrokeThickness="2"
-                                              Fill="Transparent"
-                                              VerticalOptions="Center"
-                                              Margin="0,2,0,0" />
-                                    </HorizontalStackLayout>
-                                </Border>
-
-                                <!-- Year Box -->
-                                <Border StrokeThickness="0"
-                                        BackgroundColor="#5A38A2"
-                                        StrokeShape="RoundRectangle 12"
-                                        Padding="14,8"
-                                        VerticalOptions="Center">
-                                    <HorizontalStackLayout Spacing="8">
-                                        <Label Text="{Binding CurrentYearText}" 
-                                               TextColor="White" 
-                                               FontFamily="OpenSansSemibold" 
-                                               FontSize="16" 
-                                               VerticalOptions="Center" />
-                                        <Path Data="M0,0 L4,4 L8,0"
-                                              Stroke="White"
-                                              StrokeThickness="2"
-                                              Fill="Transparent"
-                                              VerticalOptions="Center"
-                                              Margin="0,2,0,0" />
-                                    </HorizontalStackLayout>
-                                </Border>
-                            </HorizontalStackLayout>
-                            
-                            <!-- Next button -->
-                            <Button Grid.Column="2" 
-                                    Text="&gt;" 
-                                    TextColor="White" 
-                                    BackgroundColor="Transparent" 
-                                    FontFamily="OpenSansSemibold"
-                                    FontSize="20"
-                                    WidthRequest="40"
-                                    HeightRequest="40"
-                                    CornerRadius="20"
-                                    Padding="0"
-                                    Command="{Binding NextMonthCommand}" />
-                        </Grid>
-
-                        <!-- Weekdays Row -->
-                        <Grid ColumnDefinitions="*,*,*,*,*,*,*" Margin="0,4,0,2">
-                            <Label Grid.Column="0" Text="Su" TextColor="#E2DDF7" HorizontalTextAlignment="Center" FontFamily="OpenSansSemibold" FontSize="13" />
-                            <Label Grid.Column="1" Text="Mo" TextColor="#E2DDF7" HorizontalTextAlignment="Center" FontFamily="OpenSansSemibold" FontSize="13" />
-                            <Label Grid.Column="2" Text="Tu" TextColor="#E2DDF7" HorizontalTextAlignment="Center" FontFamily="OpenSansSemibold" FontSize="13" />
-                            <Label Grid.Column="3" Text="We" TextColor="#E2DDF7" HorizontalTextAlignment="Center" FontSize="13" FontFamily="OpenSansSemibold" />
-                            <Label Grid.Column="4" Text="Th" TextColor="#E2DDF7" HorizontalTextAlignment="Center" FontSize="13" FontFamily="OpenSansSemibold" />
-                            <Label Grid.Column="5" Text="Fr" TextColor="#E2DDF7" HorizontalTextAlignment="Center" FontSize="13" FontFamily="OpenSansSemibold" />
-                            <Label Grid.Column="6" Text="Sa" TextColor="#E2DDF7" HorizontalTextAlignment="Center" FontSize="13" FontFamily="OpenSansSemibold" />
-                        </Grid>
-
-                        <!-- Calendar Grid -->
-                        <CollectionView ItemsSource="{Binding CalendarDays}" HeightRequest="220">
-                            <CollectionView.ItemsLayout>
-                                <GridItemsLayout Orientation="Vertical" Span="7" VerticalItemSpacing="6" HorizontalItemSpacing="6" />
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="viewmodels:CalendarDayModel">
-                                    <Border StrokeThickness="0"
-                                            HeightRequest="36"
-                                            WidthRequest="36"
-                                            StrokeShape="RoundRectangle 10"
-                                            Padding="0"
-                                            HorizontalOptions="Center"
-                                            VerticalOptions="Center">
-                                        <Border.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:PlannerViewModel}}, Path=SelectDayCommand}" CommandParameter="{Binding .}" />
-                                        </Border.GestureRecognizers>
-                                        <Border.Triggers>
-                                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                                <Setter Property="BackgroundColor" Value="#5A38A2" />
-                                            </DataTrigger>
-                                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
-                                                <Setter Property="BackgroundColor" Value="Transparent" />
-                                            </DataTrigger>
-                                        </Border.Triggers>
-                                        
-                                        <Grid RowDefinitions="*, Auto" Padding="2">
-                                            <!-- Day Number -->
-                                            <Label Grid.Row="0"
-                                                   Text="{Binding DayNumber}"
-                                                   FontSize="14"
-                                                   HorizontalOptions="Center"
-                                                   VerticalOptions="Center">
-                                                <Label.Triggers>
-                                                    <!-- Current Month Active Day -->
-                                                    <MultiTrigger TargetType="Label">
-                                                        <MultiTrigger.Conditions>
-                                                            <BindingCondition Binding="{Binding IsCurrentMonth}" Value="True" />
-                                                            <BindingCondition Binding="{Binding IsSelected}" Value="True" />
-                                                        </MultiTrigger.Conditions>
-                                                        <Setter Property="TextColor" Value="White" />
-                                                        <Setter Property="FontFamily" Value="OpenSansSemibold" />
-                                                    </MultiTrigger>
-                                                    <MultiTrigger TargetType="Label">
-                                                        <MultiTrigger.Conditions>
-                                                            <BindingCondition Binding="{Binding IsCurrentMonth}" Value="True" />
-                                                            <BindingCondition Binding="{Binding IsSelected}" Value="False" />
-                                                        </MultiTrigger.Conditions>
-                                                        <Setter Property="TextColor" Value="White" />
-                                                        <Setter Property="FontFamily" Value="OpenSansRegular" />
-                                                    </MultiTrigger>
-                                                    <!-- Other Month Day -->
-                                                    <MultiTrigger TargetType="Label">
-                                                        <MultiTrigger.Conditions>
-                                                            <BindingCondition Binding="{Binding IsCurrentMonth}" Value="False" />
-                                                        </MultiTrigger.Conditions>
-                                                        <Setter Property="TextColor" Value="#C3B6ED" />
-                                                        <Setter Property="FontFamily" Value="OpenSansRegular" />
-                                                    </MultiTrigger>
-                                                    <!-- Today Highlight -->
-                                                    <MultiTrigger TargetType="Label">
-                                                        <MultiTrigger.Conditions>
-                                                            <BindingCondition Binding="{Binding IsToday}" Value="True" />
-                                                            <BindingCondition Binding="{Binding IsSelected}" Value="False" />
-                                                        </MultiTrigger.Conditions>
-                                                        <Setter Property="TextColor" Value="#E2DDF7" />
-                                                        <Setter Property="FontFamily" Value="OpenSansSemibold" />
-                                                    </MultiTrigger>
-                                                </Label.Triggers>
-                                            </Label>
-                                            
-                                            <!-- Dot Indicator for Exercises -->
-                                            <BoxView Grid.Row="1"
-                                                     HeightRequest="4" WidthRequest="4"
-                                                     CornerRadius="2"
-                                                     Color="#E2DDF7"
-                                                     HorizontalOptions="Center"
-                                                     VerticalOptions="End"
-                                                     IsVisible="{Binding HasExercises}" />
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- ═══ SECTION 2: Scheduled Exercises List ═══ -->
-                <Grid Grid.Row="1" RowDefinitions="Auto, *">
+            <ScrollView>
+                <VerticalStackLayout Padding="16,8" Spacing="16">
                     
-                    <!-- Date title -->
-                    <Label Grid.Row="0"
-                           Text="Scheduled Routine"
-                           TextColor="White"
-                           FontFamily="SyneBold"
-                           FontSize="18"
-                           Margin="0,0,0,12" />
+                    <!-- ═══ SECTION 1: Calendar View ═══ -->
+                    <Border StrokeThickness="1"
+                            Stroke="#FFFFFF"
+                            StrokeShape="RoundRectangle 24"
+                            Padding="16">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#5B2A9E" Offset="0.0" />
+                                <GradientStop Color="#9B7FD4" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <VerticalStackLayout Spacing="16">
+                            
+                            <!-- Month Selector Header -->
+                            <Grid ColumnDefinitions="Auto, *, Auto" VerticalOptions="Center">
+                                <!-- Previous button -->
+                                <Button Grid.Column="0" 
+                                        Text="&lt;" 
+                                        TextColor="White" 
+                                        BackgroundColor="Transparent" 
+                                        FontFamily="OpenSansSemibold"
+                                        FontSize="20"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        CornerRadius="20"
+                                        Padding="0"
+                                        Command="{Binding PreviousMonthCommand}" />
+                                
+                                <!-- Dropdown-like display selectors -->
+                                <HorizontalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="8">
+                                    <!-- Month Box -->
+                                    <Border StrokeThickness="0"
+                                            BackgroundColor="#5A38A2"
+                                            StrokeShape="RoundRectangle 12"
+                                            Padding="14,8"
+                                            VerticalOptions="Center">
+                                        <HorizontalStackLayout Spacing="8">
+                                            <Label Text="{Binding CurrentMonthName}" 
+                                                   TextColor="White" 
+                                                   FontFamily="SyneBold" 
+                                                   FontSize="16" 
+                                                   TextTransform="Uppercase"
+                                                   VerticalOptions="Center" />
+                                            <Path Data="M0,0 L4,4 L8,0"
+                                                  Stroke="White"
+                                                  StrokeThickness="2"
+                                                  Fill="Transparent"
+                                                  VerticalOptions="Center"
+                                                  Margin="0,2,0,0" />
+                                        </HorizontalStackLayout>
+                                    </Border>
+ 
+                                    <!-- Year Box -->
+                                    <Border StrokeThickness="0"
+                                            BackgroundColor="#5A38A2"
+                                            StrokeShape="RoundRectangle 12"
+                                            Padding="14,8"
+                                            VerticalOptions="Center">
+                                        <HorizontalStackLayout Spacing="8">
+                                            <Label Text="{Binding CurrentYearText}" 
+                                                   TextColor="White" 
+                                                   FontFamily="SyneBold" 
+                                                   FontSize="16" 
+                                                   TextTransform="Uppercase"
+                                                   VerticalOptions="Center" />
+                                            <Path Data="M0,0 L4,4 L8,0"
+                                                  Stroke="White"
+                                                  StrokeThickness="2"
+                                                  Fill="Transparent"
+                                                  VerticalOptions="Center"
+                                                  Margin="0,2,0,0" />
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                </HorizontalStackLayout>
+                                
+                                <!-- Next button -->
+                                <Button Grid.Column="2" 
+                                        Text="&gt;" 
+                                        TextColor="White" 
+                                        BackgroundColor="Transparent" 
+                                        FontFamily="OpenSansSemibold"
+                                        FontSize="20"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        CornerRadius="20"
+                                        Padding="0"
+                                        Command="{Binding NextMonthCommand}" />
+                            </Grid>
+ 
+                            <!-- Weekdays Row -->
+                            <Grid ColumnDefinitions="*,*,*,*,*,*,*" Margin="0,4,0,2">
+                                <Label Grid.Column="0" Text="SU" TextColor="#A88EDB" HorizontalTextAlignment="Center" FontFamily="OpenSansSemibold" FontSize="11" CharacterSpacing="2" />
+                                <Label Grid.Column="1" Text="MO" TextColor="#A88EDB" HorizontalTextAlignment="Center" FontFamily="OpenSansSemibold" FontSize="11" CharacterSpacing="2" />
+                                <Label Grid.Column="2" Text="TU" TextColor="#A88EDB" HorizontalTextAlignment="Center" FontFamily="OpenSansSemibold" FontSize="11" CharacterSpacing="2" />
+                                <Label Grid.Column="3" Text="WE" TextColor="#A88EDB" HorizontalTextAlignment="Center" FontSize="11" FontFamily="OpenSansSemibold" CharacterSpacing="2" />
+                                <Label Grid.Column="4" Text="TH" TextColor="#A88EDB" HorizontalTextAlignment="Center" FontSize="11" FontFamily="OpenSansSemibold" CharacterSpacing="2" />
+                                <Label Grid.Column="5" Text="FR" TextColor="#A88EDB" HorizontalTextAlignment="Center" FontSize="11" FontFamily="OpenSansSemibold" CharacterSpacing="2" />
+                                <Label Grid.Column="6" Text="SA" TextColor="#A88EDB" HorizontalTextAlignment="Center" FontSize="11" FontFamily="OpenSansSemibold" CharacterSpacing="2" />
+                            </Grid>
+ 
+                            <!-- Calendar Grid -->
+                            <CollectionView ItemsSource="{Binding CalendarDays}" HeightRequest="220">
+                                <CollectionView.ItemsLayout>
+                                    <GridItemsLayout Orientation="Vertical" Span="7" VerticalItemSpacing="6" HorizontalItemSpacing="6" />
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="viewmodels:CalendarDayModel">
+                                        <Border StrokeThickness="0"
+                                                HeightRequest="36"
+                                                WidthRequest="36"
+                                                StrokeShape="RoundRectangle 10"
+                                                Padding="0"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:PlannerViewModel}}, Path=SelectDayCommand}" CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="BackgroundColor" Value="#5A38A2" />
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
+                                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            
+                                            <Grid RowDefinitions="*, Auto" Padding="2">
+                                                <!-- Day Number -->
+                                                <Label Grid.Row="0"
+                                                       Text="{Binding DayNumber}"
+                                                       FontSize="14"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center">
+                                                    <Label.Triggers>
+                                                        <!-- Current Month Active Day -->
+                                                        <MultiTrigger TargetType="Label">
+                                                            <MultiTrigger.Conditions>
+                                                                <BindingCondition Binding="{Binding IsCurrentMonth}" Value="True" />
+                                                                <BindingCondition Binding="{Binding IsSelected}" Value="True" />
+                                                            </MultiTrigger.Conditions>
+                                                            <Setter Property="TextColor" Value="White" />
+                                                            <Setter Property="FontFamily" Value="SyneBold" />
+                                                        </MultiTrigger>
+                                                        <MultiTrigger TargetType="Label">
+                                                            <MultiTrigger.Conditions>
+                                                                <BindingCondition Binding="{Binding IsCurrentMonth}" Value="True" />
+                                                                <BindingCondition Binding="{Binding IsSelected}" Value="False" />
+                                                            </MultiTrigger.Conditions>
+                                                            <Setter Property="TextColor" Value="White" />
+                                                            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                                                        </MultiTrigger>
+                                                        <!-- Other Month Day -->
+                                                        <MultiTrigger TargetType="Label">
+                                                            <MultiTrigger.Conditions>
+                                                                <BindingCondition Binding="{Binding IsCurrentMonth}" Value="False" />
+                                                            </MultiTrigger.Conditions>
+                                                            <Setter Property="TextColor" Value="#C3B6ED" />
+                                                            <Setter Property="FontFamily" Value="OpenSansRegular" />
+                                                        </MultiTrigger>
+                                                        <!-- Today Highlight -->
+                                                        <MultiTrigger TargetType="Label">
+                                                            <MultiTrigger.Conditions>
+                                                                <BindingCondition Binding="{Binding IsToday}" Value="True" />
+                                                                <BindingCondition Binding="{Binding IsSelected}" Value="False" />
+                                                            </MultiTrigger.Conditions>
+                                                            <Setter Property="TextColor" Value="#E2DDF7" />
+                                                            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                                                        </MultiTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                                <!-- Dot Indicator for Exercises -->
+                                                <BoxView Grid.Row="1"
+                                                         HeightRequest="4" WidthRequest="4"
+                                                         CornerRadius="2"
+                                                         Color="#E2DDF7"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="End"
+                                                         IsVisible="{Binding HasExercises}" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
 
-                    <!-- Fallback / Empty State -->
-                    <Label Grid.Row="1"
-                           Text="No exercises scheduled."
+                    <!-- ═══ SECTION 2: Scheduled Exercises List ═══ -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="SCHEDULED ROUTINE"
+                               TextColor="White"
+                               FontFamily="SyneBold"
+                               FontSize="18"
+                               CharacterSpacing="1.5"
+                               Margin="0,4,0,4" />
+
+                        <Label Text="No exercises scheduled for this day."
                            TextColor="#888888"
                            FontFamily="OpenSansRegular"
                            FontSize="14"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"
-                           IsVisible="{Binding HasNoExercises}" />
-
-                    <!-- Exercises List -->
-                    <CollectionView Grid.Row="1" 
-                                    ItemsSource="{Binding ScheduledExercises}" 
-                                    IsVisible="{Binding HasExercises}"
-                                    Margin="0,0,0,8">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="viewmodels:PlannedWorkoutItem">
-                                <Border StrokeThickness="0"
-                                        BackgroundColor="{Binding CardBgColor}"
-                                        StrokeShape="RoundRectangle 16"
-                                        Padding="12"
-                                        Margin="0,4,0,8"
-                                        HeightRequest="90">
-                                    <Grid ColumnDefinitions="64, *, Auto" ColumnSpacing="12">
-                                        <!-- Exercise Thumbnail with matching bg color and aspect sizing -->
-                                        <Border Grid.Column="0"
-                                                StrokeThickness="0"
-                                                BackgroundColor="#1B1B1F"
-                                                StrokeShape="RoundRectangle 12"
-                                                Padding="4"
-                                                WidthRequest="64" HeightRequest="64"
-                                                VerticalOptions="Center">
-                                            <Image Source="{Binding GifUrl}"
-                                                   Aspect="AspectFit" />
-                                        </Border>
+                           IsVisible="{Binding HasNoExercises}"
+                           Margin="0,16" />
  
-                                        <!-- Details -->
-                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
-                                            <Label Text="{Binding Name}"
-                                                   TextColor="White"
-                                                   FontFamily="SyneBold"
-                                                   LineBreakMode="TailTruncation"
-                                                   MaxLines="1"
-                                                   FontSize="15" />
-                                            <HorizontalStackLayout Spacing="8">
-                                                <Border StrokeThickness="0" BackgroundColor="#1E162B" Padding="8,3" StrokeShape="RoundRectangle 8">
-                                                    <Label Text="{Binding BodyPart}" TextColor="#9B7FD4" FontSize="11" FontFamily="OpenSansSemibold" />
-                                                </Border>
-                                                <Border StrokeThickness="0" BackgroundColor="#222222" Padding="8,3" StrokeShape="RoundRectangle 8">
-                                                    <Label Text="{Binding Muscle}" TextColor="#A0A0A0" FontSize="11" FontFamily="OpenSansSemibold" />
-                                                </Border>
+                        <!-- Exercises List using BindableLayout -->
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding ScheduledExercises}" 
+                                             IsVisible="{Binding HasExercises}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="viewmodels:PlannedWorkoutItem">
+                                    <Border StrokeThickness="1.5"
+                                            Stroke="#3E3454"
+                                            StrokeShape="RoundRectangle 20"
+                                            Padding="16"
+                                            Margin="0,6,0,10"
+                                            HeightRequest="100">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsMissed}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="#3E2323" />
+                                                <Setter Property="Stroke" Value="#6A3A3A" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsMissed}" Value="False">
+                                                <Setter Property="BackgroundColor" Value="#222226" />
+                                                <Setter Property="Stroke" Value="#3E3454" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Grid ColumnDefinitions="68, *, Auto" ColumnSpacing="14">
+                                            <!-- Exercise Thumbnail with matching bg color and aspect sizing -->
+                                            <Border Grid.Column="0"
+                                                    StrokeThickness="1"
+                                                    Stroke="#9B7FD4"
+                                                    BackgroundColor="#ffffff"
+                                                    StrokeShape="RoundRectangle 12"
+                                                    Padding="6"
+                                                    WidthRequest="68" HeightRequest="68"
+                                                    VerticalOptions="Center">
+                                                <Image Source="{Binding GifUrl}"
+                                                       Aspect="AspectFit" />
+                                            </Border>
+     
+                                            <!-- Details -->
+                                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="6">
+                                                <Label Text="{Binding Name}"
+                                                       TextColor="White"
+                                                       FontFamily="SyneBold"
+                                                       FontAttributes="Bold, Italic"
+                                                       TextTransform="Uppercase"
+                                                       LineBreakMode="TailTruncation"
+                                                       MaxLines="1"
+                                                       FontSize="15" />
+                                                <HorizontalStackLayout Spacing="8">
+                                                    <Border StrokeThickness="0" BackgroundColor="#1E162B" Padding="8,3" StrokeShape="RoundRectangle 8">
+                                                        <Label Text="{Binding BodyPart, Converter={StaticResource TitleCaseConverter}}" TextColor="#9B7FD4" FontSize="11" FontFamily="OpenSansSemibold" />
+                                                    </Border>
+                                                    <Border StrokeThickness="0" BackgroundColor="#2E2E34" Padding="8,3" StrokeShape="RoundRectangle 8">
+                                                        <Label Text="{Binding Muscle, Converter={StaticResource TitleCaseConverter}}" TextColor="#D0D0D5" FontSize="11" FontFamily="OpenSansSemibold" />
+                                                    </Border>
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+     
+                                            <!-- Actions -->
+                                            <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center" IsVisible="{Binding IsNotMissed}">
+                                                <!-- Start Workout Button -->
+                                                <Button Text="Start"
+                                                        BackgroundColor="#5B2A9E"
+                                                        TextColor="White"
+                                                        FontFamily="OpenSansSemibold"
+                                                        FontSize="12"
+                                                        Padding="16,0"
+                                                        HeightRequest="38"
+                                                        CornerRadius="12"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:PlannerViewModel}}, Path=StartWorkoutCommand}"
+                                                        CommandParameter="{Binding .}" />
+     
+                                                <!-- Delete Button -->
+                                                <Button Text="✕"
+                                                        BackgroundColor="#3A1C1C"
+                                                        TextColor="#FF6B6B"
+                                                        FontFamily="OpenSansSemibold"
+                                                        FontSize="14"
+                                                        WidthRequest="38" HeightRequest="38"
+                                                        CornerRadius="12"
+                                                        Padding="0"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:PlannerViewModel}}, Path=DeleteExerciseCommand}"
+                                                        CommandParameter="{Binding .}" />
                                             </HorizontalStackLayout>
-                                        </VerticalStackLayout>
- 
-                                        <!-- Actions -->
-                                        <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center" IsVisible="{Binding IsNotMissed}">
-                                            <!-- Start Workout Button -->
-                                            <Button Text="Start"
-                                                    BackgroundColor="#5B2A9E"
-                                                    TextColor="White"
-                                                    FontFamily="OpenSansSemibold"
-                                                    FontSize="12"
-                                                    Padding="12,0"
-                                                    HeightRequest="36"
-                                                    CornerRadius="18"
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:PlannerViewModel}}, Path=StartWorkoutCommand}"
-                                                    CommandParameter="{Binding .}" />
- 
-                                            <!-- Delete Button -->
-                                            <Button Text="✕"
-                                                    BackgroundColor="#3A1C1C"
-                                                    TextColor="#FF6B6B"
-                                                    FontFamily="OpenSansSemibold"
-                                                    FontSize="14"
-                                                    WidthRequest="36" HeightRequest="36"
-                                                    CornerRadius="18"
-                                                    Padding="0"
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:PlannerViewModel}}, Path=DeleteExerciseCommand}"
-                                                    CommandParameter="{Binding .}" />
-                                        </HorizontalStackLayout>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </Grid>
- 
-                <!-- ═══ SECTION 3: Add Exercise Button ═══ -->
-                <Border Grid.Row="2"
-                        StrokeThickness="0"
-                        HeightRequest="52"
-                        StrokeShape="RoundRectangle 26"
-                        Margin="0,8,0,0"
-                        IsVisible="{Binding IsNormalMode}">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#5B2A9E" Offset="0.0" />
-                            <GradientStop Color="#9B7FD4" Offset="1.0" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding AddExerciseCommand}" />
-                    </Border.GestureRecognizers>
-                    <Label Text="Add Exercise"
-                           TextColor="White"
-                           FontFamily="SyneBold"
-                           FontSize="16"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
-                </Border>
-            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+     
+                    <!-- ═══ SECTION 3: Add Exercise Button ═══ -->
+                    <Border StrokeThickness="0"
+                            HeightRequest="52"
+                            StrokeShape="RoundRectangle 26"
+                            Margin="0,8,0,16"
+                            IsVisible="{Binding IsNormalMode}">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#5B2A9E" Offset="0.0" />
+                                <GradientStop Color="#9B7FD4" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding AddExerciseCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Add Exercise"
+                               TextColor="White"
+                               FontFamily="SyneBold"
+                               FontSize="16"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                    <!-- ═══ SECTION 4: Brand Footer ═══ -->
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center" Margin="0,24,0,16">
+                        <Image Source="logo_purple.png"
+                               HeightRequest="60"
+                               WidthRequest="60"
+                               Opacity="0.85"
+                               HorizontalOptions="Center" />
+                        <Label Text="STRENGTH  •  RESILIENCE  •  MOMENTUM"
+                               TextColor="#5A5A62"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="10"
+                               HorizontalTextAlignment="Center"
+                               CharacterSpacing="2" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
         </views:PageTemplate.PageContent>
     </views:PageTemplate>
 </ContentPage>

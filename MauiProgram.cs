@@ -22,10 +22,24 @@ namespace FitnessApp
             // Infrastructure singletons — one connection, one catalog, app lifetime.
             builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
             builder.Services.AddSingleton<IExerciseRepository, ExerciseRepository>();
+            builder.Services.AddSingleton<SessionService>(provider => 
+                new SessionService(provider.GetRequiredService<IDatabaseService>().Connection));
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
             builder.Services.AddSingleton<IScheduledExerciseRepository, ScheduledExerciseRepository>();
+            builder.Services.AddSingleton<IMealLogRepository, MealLogRepository>();
             builder.Services.AddSingleton<IPlannerStateService, PlannerStateService>();
             builder.Services.AddSingleton<INavigationService, NavigationService>();
+
+            // Supabase Client registration
+            builder.Services.AddSingleton(provider =>
+            {
+                var options = new Supabase.SupabaseOptions
+                {
+                    AutoConnectRealtime = false,
+                    AutoRefreshToken = true
+                };
+                return new Supabase.Client(SupabaseConfig.Url, SupabaseConfig.AnonKey, options);
+            });
 
             // Views and ViewModels
             builder.Services.AddTransient<LoginPage>();
@@ -36,6 +50,7 @@ namespace FitnessApp
             builder.Services.AddTransient<PlannerViewModel>();
             builder.Services.AddTransient<WorkoutsPage>();
             builder.Services.AddTransient<NutritionPage>();
+            builder.Services.AddTransient<NutritionViewModel>();
             builder.Services.AddTransient<ExerciseListPage>();
             builder.Services.AddTransient<ExerciseListViewModel>();
             builder.Services.AddTransient<ExercisePage>();
@@ -47,6 +62,10 @@ namespace FitnessApp
             builder.Services.AddTransient<ProfilePage>();
             builder.Services.AddTransient<ProfileEditPage>();
             builder.Services.AddTransient<ProfileEditViewModel>();
+            builder.Services.AddTransient<SignupPage>();
+            builder.Services.AddTransient<SignupViewModel>();
+            builder.Services.AddTransient<MealCategoryPage>();
+            builder.Services.AddTransient<MealCategoryViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();
@@ -54,20 +73,44 @@ namespace FitnessApp
 
             var app = builder.Build();
 
-            // Seed the offline catalog off the UI thread. Fire-and-forget so app
-            // startup is never blocked; failures degrade to an empty catalog rather
-            // than crashing the launch (logged for diagnosis).
+            // Seed and initialize off the UI thread. Fire-and-forget so app
+            // startup is never blocked.
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    var db = app.Services.GetRequiredService<IDatabaseService>();
-                    await db.SeedAsync();
+                    var dbService = app.Services.GetRequiredService<IDatabaseService>();
+                    await dbService.SeedAsync();
+
+                    var userRepository = app.Services.GetRequiredService<IUserRepository>();
+
+                    // Sync if online
+                    if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+                    {
+                        try
+                        {
+                            await userRepository.SyncPendingChangesAsync();
+                            await userRepository.RefreshActiveUserAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Sync failed on launch: {ex.Message}");
+                        }
+                    }
+
+                    // Restore active session
+                    var sessionService = app.Services.GetRequiredService<SessionService>();
+                    var activeUser = await sessionService.GetActiveUserAsync();
+                    if (activeUser != null)
+                    {
+                        var plannerStateService = app.Services.GetRequiredService<IPlannerStateService>();
+                        plannerStateService.CurrentUser = activeUser;
+                    }
                 }
                 catch (Exception ex)
                 {
                     var logger = app.Services.GetService<ILoggerFactory>()?.CreateLogger(nameof(MauiProgram));
-                    logger?.LogError(ex, "Offline catalog seed failed.");
+                    logger?.LogError(ex, "App launch database initialization/sync failed.");
                 }
             });
 

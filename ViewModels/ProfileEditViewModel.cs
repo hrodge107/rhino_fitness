@@ -238,6 +238,13 @@ namespace FitnessApp.ViewModels
         {
             ValidationError = string.Empty;
 
+            var isOffline = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet;
+            if (isOffline)
+            {
+                ValidationError = "Cannot save metrics while offline.";
+                return;
+            }
+
             // Final sync
             UpdateRawHeightFromInputs();
             UpdateRawWeightFromInputs();
@@ -270,31 +277,39 @@ namespace FitnessApp.ViewModels
             var user = _plannerStateService.CurrentUser;
             if (user != null)
             {
-                user.HeightUnit = HeightUnit;
-                user.WeightUnit = WeightUnit;
+                IsBusy = true;
+                try
+                {
+                    user.HeightUnit = HeightUnit;
+                    user.WeightUnit = WeightUnit;
 
-                // Save standard value representations
-                if (HeightUnit == "cm")
-                {
-                    // For CM, HeightValue stores CM
-                    user.HeightValue = double.Parse(HeightCmText);
-                }
-                else
-                {
-                    // For ft/in, HeightValue stores raw total inches
-                    user.HeightValue = _rawHeightInches;
-                }
+                    // Save standard value representations
+                    if (HeightUnit == "cm")
+                    {
+                        // For CM, HeightValue stores CM
+                        user.HeightValue = double.Parse(HeightCmText);
+                    }
+                    else
+                    {
+                        // For ft/in, HeightValue stores raw total inches
+                        user.HeightValue = _rawHeightInches;
+                    }
 
-                user.WeightValue = double.Parse(WeightValueText);
+                    user.WeightValue = double.Parse(WeightValueText);
 
-                var success = await _userRepository.UpdateUserAsync(user);
-                if (success)
-                {
-                    await NavigationService.GoBackAsync();
+                    var success = await _userRepository.UpdateUserAsync(user);
+                    if (success)
+                    {
+                        await NavigationService.GoBackAsync();
+                    }
+                    else
+                    {
+                        ValidationError = "Failed to save metrics to database.";
+                    }
                 }
-                else
+                finally
                 {
-                    ValidationError = "Failed to save metrics to database.";
+                    IsBusy = false;
                 }
             }
         }

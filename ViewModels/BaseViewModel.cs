@@ -20,6 +20,9 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private bool _hasSearch = false;
 
+        [ObservableProperty]
+        private bool _isBusy;
+
         [RelayCommand]
         protected async Task NavigateToTab(string tabRoute)
         {

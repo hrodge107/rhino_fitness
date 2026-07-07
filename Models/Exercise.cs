@@ -41,15 +41,5 @@ namespace FitnessApp.Models
         [Column("instructions")]
         public string Instructions { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Sync flag for the deferred Phase-2 Supabase layer. Seed rows are
-        /// treated as already reconciled with the origin feed, so default true.
-        /// </summary>
-        [Column("is_synced")]
-        public bool IsSynced { get; set; } = true;
-
-        /// <summary>UTC timestamp of the last local mutation; drives diffing in Phase-2 sync.</summary>
-        [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -71,6 +71,8 @@
 		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
 		<!-- MVVM source generators ([ObservableProperty], [RelayCommand]) -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="supabase-csharp" Version="0.16.2" />
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 	</ItemGroup>
 
 </Project>
