@@ -93,6 +93,7 @@
                                            FontFamily="OpenSansSemibold" />
                                     <Picker SelectedItem="{Binding SelectedCategory}"
                                             ItemsSource="{Binding Categories}"
+                                            IsEnabled="{Binding HasNotificationPermission}"
                                             TextColor="White"
                                             TitleColor="#D0D0D5"
                                             BackgroundColor="#2A2A2E"
@@ -106,6 +107,7 @@
                                            FontSize="12"
                                            FontFamily="OpenSansSemibold" />
                                     <TimePicker Time="{Binding SelectedTime}"
+                                                IsEnabled="{Binding HasNotificationPermission}"
                                                 TextColor="White"
                                                 BackgroundColor="#2A2A2E"
                                                 HeightRequest="44" />
@@ -139,9 +141,12 @@
                             
                             <CollectionView.EmptyView>
                                 <VerticalStackLayout Padding="30" HorizontalOptions="Center" Spacing="8">
-                                    <Label Text="🔔"
-                                           FontSize="32"
-                                           HorizontalOptions="Center" />
+                                    <Path Data="M12,2A3,3 0 0,0 9,5V6H7A3,3 0 0,0 4,9V17L2,19V20H22V19L20,17V9A3,3 0 0,0 17,6H15V5A3,3 0 0,0 12,2M12,22A3,3 0 0,0 15,19H9A3,3 0 0,0 12,22Z"
+                                          Fill="#88888C"
+                                          Aspect="Uniform"
+                                          WidthRequest="48"
+                                          HeightRequest="48"
+                                          HorizontalOptions="Center" />
                                     <Label Text="No active reminders set"
                                            TextColor="#D0D0D5"
                                            FontSize="14"
@@ -163,7 +168,7 @@
                                             StrokeShape="RoundRectangle 16"
                                             Padding="16">
                                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
-                                            
+                                             
                                             <!-- Bell Icon Wrapper -->
                                             <Border Grid.Column="0"
                                                     WidthRequest="40" HeightRequest="40"
@@ -171,11 +176,13 @@
                                                     BackgroundColor="#222226"
                                                     StrokeShape="RoundRectangle 20"
                                                     VerticalOptions="Center">
-                                                <Label Text="🔔"
-                                                       FontSize="18"
-                                                       TextColor="#9B7FD4"
-                                                       HorizontalOptions="Center"
-                                                       VerticalOptions="Center" />
+                                                <Path Data="M12,2A3,3 0 0,0 9,5V6H7A3,3 0 0,0 4,9V17L2,19V20H22V19L20,17V9A3,3 0 0,0 17,6H15V5A3,3 0 0,0 12,2M12,22A3,3 0 0,0 15,19H9A3,3 0 0,0 12,22Z"
+                                                      Fill="#9B7FD4"
+                                                      Aspect="Uniform"
+                                                      WidthRequest="18"
+                                                      HeightRequest="18"
+                                                      HorizontalOptions="Center"
+                                                      VerticalOptions="Center" />
                                             </Border>
 
                                             <!-- Category & Time Details -->
@@ -215,11 +222,13 @@
                                                 <Border.GestureRecognizers>
                                                     <TapGestureRecognizer Command="{Binding BindingContext.DeleteReminderCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
                                                 </Border.GestureRecognizers>
-                                                <Label Text="🗑"
-                                                       FontSize="16"
-                                                       TextColor="#FF5252"
-                                                       HorizontalOptions="Center"
-                                                       VerticalOptions="Center" />
+                                                <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"
+                                                      Fill="#FF5252"
+                                                      Aspect="Uniform"
+                                                      WidthRequest="16"
+                                                      HeightRequest="16"
+                                                      HorizontalOptions="Center"
+                                                      VerticalOptions="Center" />
                                             </Border>
 
                                         </Grid>

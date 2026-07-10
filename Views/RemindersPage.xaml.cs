@@ -26,6 +26,10 @@ namespace FitnessApp.Views
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+            if (Window != null)
+            {
+                Window.Activated += OnWindowActivated;
+            }
 
             try
             {
@@ -44,6 +48,23 @@ namespace FitnessApp.Views
                 System.Diagnostics.Debug.WriteLine($"[CRITICAL] RemindersPage OnAppearing failed: {ex}");
                 throw;
             }
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            if (Window != null)
+            {
+                Window.Activated -= OnWindowActivated;
+            }
+        }
+
+        private void OnWindowActivated(object? sender, EventArgs e)
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await _viewModel.CheckPermissionsAsync();
+            });
         }
     }
 }
