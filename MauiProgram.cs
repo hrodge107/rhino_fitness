@@ -28,8 +28,10 @@ namespace FitnessApp
             builder.Services.AddSingleton<IScheduledExerciseRepository, ScheduledExerciseRepository>();
             builder.Services.AddSingleton<IMealLogRepository, MealLogRepository>();
             builder.Services.AddSingleton<IWaterLogRepository, WaterLogRepository>();
+            builder.Services.AddSingleton<IReminderRepository, ReminderRepository>();
             builder.Services.AddSingleton<IPlannerStateService, PlannerStateService>();
             builder.Services.AddSingleton<INavigationService, NavigationService>();
+            builder.Services.AddSingleton<INotificationScheduler, NotificationScheduler>();
 
             // Supabase Client registration
             builder.Services.AddSingleton(provider =>
@@ -67,6 +69,8 @@ namespace FitnessApp
             builder.Services.AddTransient<SignupViewModel>();
             builder.Services.AddTransient<MealCategoryPage>();
             builder.Services.AddTransient<MealCategoryViewModel>();
+            builder.Services.AddTransient<RemindersPage>();
+            builder.Services.AddTransient<RemindersViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

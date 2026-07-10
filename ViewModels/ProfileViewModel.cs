@@ -505,6 +505,24 @@ namespace FitnessApp.ViewModels
         }
 
         [RelayCommand]
+        private async Task NavigateToReminders()
+        {
+            try
+            {
+                await NavigationService.GoToAsync("RemindersPage");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[CRITICAL] Navigation to RemindersPage failed: {ex}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[CRITICAL] InnerException: {ex.InnerException}");
+                }
+                throw;
+            }
+        }
+
+        [RelayCommand]
         private async Task LoadMore()
         {
             IsBusy = true;

@@ -166,6 +166,7 @@ namespace FitnessApp.Services
             await db.CreateTableAsync<ScheduledExercise>().ConfigureAwait(false);
             await db.CreateTableAsync<MealLog>().ConfigureAwait(false);
             await db.CreateTableAsync<WaterLog>().ConfigureAwait(false);
+            await db.CreateTableAsync<Reminder>().ConfigureAwait(false);
 
             await MigrateDatabaseAsync(db).ConfigureAwait(false);
 

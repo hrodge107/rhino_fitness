@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -17,6 +17,15 @@ namespace FitnessApp.WinUI
         public App()
         {
             this.InitializeComponent();
+            UnhandledException += (sender, e) =>
+            {
+                System.Diagnostics.Debug.WriteLine($"[APP CRITICAL] Unhandled Exception: {e.Exception?.Message}");
+                System.Diagnostics.Debug.WriteLine($"[APP CRITICAL] StackTrace: {e.Exception?.StackTrace}");
+                if (e.Exception?.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[APP CRITICAL] InnerException: {e.Exception.InnerException}");
+                }
+            };
         }
 
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();

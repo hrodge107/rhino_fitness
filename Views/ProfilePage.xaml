@@ -239,6 +239,42 @@
                         </Grid>
                     </VerticalStackLayout>
 
+                    <!-- ═══ Daily Reminders Section ═══ -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#222226"
+                            StrokeShape="RoundRectangle 24"
+                            Padding="20">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Daily Reminders"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="18" />
+                                <Label Text="Configure alerts for meals, water, and workouts"
+                                       TextColor="#D0D0D5"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="13" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="1"
+                                    StrokeThickness="0"
+                                    BackgroundColor="#5B2A9E"
+                                    WidthRequest="40" HeightRequest="40"
+                                    StrokeShape="RoundRectangle 20"
+                                    HorizontalOptions="End"
+                                    VerticalOptions="Center">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding NavigateToRemindersCommand}" />
+                                </Border.GestureRecognizers>
+                                <Path Data="M8.59,16.58 L13.17,12 L8.59,7.41 L10,6 L16,12 L10,18 L8.59,16.58 Z"
+                                      Fill="White"
+                                      Aspect="Uniform"
+                                      WidthRequest="16" HeightRequest="16"
+                                      HorizontalOptions="Center"
+                                      VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
                     <!-- ═══ Activity Log Section ═══ -->
                     <VerticalStackLayout Spacing="12">
                         <Label Text="Completed Activity"

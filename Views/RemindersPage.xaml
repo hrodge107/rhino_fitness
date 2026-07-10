@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:FitnessApp.Views"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             xmlns:models="clr-namespace:FitnessApp.Models"
+             x:DataType="viewmodels:RemindersViewModel"
+             x:Class="FitnessApp.Views.RemindersPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1B1B1F"
+             Title="Daily Reminders">
+
+    <views:PageTemplate PageTitle="Daily Reminders" ShowBackArrow="True" IsBusy="{Binding IsBusy}">
+        <views:PageTemplate.PageContent>
+            <ScrollView>
+                <VerticalStackLayout Spacing="20" Padding="20,10">
+
+                    <!-- ═══ Warning Permission Banner ═══ -->
+                    <Border StrokeThickness="1"
+                             Stroke="#FF5252"
+                             BackgroundColor="#222226"
+                             StrokeShape="RoundRectangle 20"
+                             Padding="20"
+                             IsVisible="{Binding ShowPermissionBanner}">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Notifications Disabled"
+                                   TextColor="#FF5252"
+                                   FontFamily="SyneBold"
+                                   FontSize="16" />
+                            <Label Text="Rhino Fitness needs notification permissions to trigger daily logs and workout reminders. Please enable them in your device settings."
+                                   TextColor="#D0D0D5"
+                                   FontFamily="OpenSansRegular"
+                                   FontSize="13" />
+                            <Button Text="Go to Settings"
+                                    Command="{Binding OpenSettingsCommand}"
+                                    TextColor="White"
+                                    BackgroundColor="#5B2A9E"
+                                    CornerRadius="12"
+                                    HeightRequest="40"
+                                    FontFamily="OpenSansSemibold"
+                                    HorizontalOptions="Start" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ═══ Status Indicator ═══ -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#222226"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="20">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="System Status"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="16" />
+                                <Label Text="Notification permissions checked automatically"
+                                       TextColor="#D0D0D5"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="12" />
+                            </VerticalStackLayout>
+                            
+                            <Border Grid.Column="1"
+                                    StrokeThickness="0"
+                                    BackgroundColor="{Binding PermissionStatusColor}"
+                                    Padding="12,6"
+                                    StrokeShape="RoundRectangle 10"
+                                    VerticalOptions="Center">
+                                <Label Text="{Binding PermissionStatusText}"
+                                       TextColor="White"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="12" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- ═══ Add Reminder Form ═══ -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#222226"
+                            StrokeShape="RoundRectangle 24"
+                            Padding="20">
+                        <VerticalStackLayout Spacing="16">
+                            <Label Text="Add New Reminder"
+                                   TextColor="White"
+                                   FontFamily="SyneBold"
+                                   FontSize="18" />
+
+                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*" RowSpacing="12" ColumnSpacing="12">
+                                <!-- Category Column -->
+                                <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
+                                    <Label Text="Category"
+                                           TextColor="#D0D0D5"
+                                           FontSize="12"
+                                           FontFamily="OpenSansSemibold" />
+                                    <Picker SelectedItem="{Binding SelectedCategory}"
+                                            ItemsSource="{Binding Categories}"
+                                            TextColor="White"
+                                            TitleColor="#D0D0D5"
+                                            BackgroundColor="#2A2A2E"
+                                            HeightRequest="44" />
+                                </VerticalStackLayout>
+
+                                <!-- Time Column -->
+                                <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4">
+                                    <Label Text="Time"
+                                           TextColor="#D0D0D5"
+                                           FontSize="12"
+                                           FontFamily="OpenSansSemibold" />
+                                    <TimePicker Time="{Binding SelectedTime}"
+                                                TextColor="White"
+                                                BackgroundColor="#2A2A2E"
+                                                HeightRequest="44" />
+                                </VerticalStackLayout>
+
+                                <!-- Save Button -->
+                                <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                        Text="Add Reminder"
+                                        Command="{Binding AddReminderCommand}"
+                                        IsEnabled="{Binding HasNotificationPermission}"
+                                        TextColor="White"
+                                        BackgroundColor="#5B2A9E"
+                                        CornerRadius="14"
+                                        HeightRequest="48"
+                                        FontFamily="OpenSansSemibold" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ═══ Active Reminders List ═══ -->
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Active Reminders"
+                               TextColor="White"
+                               FontFamily="SyneBold"
+                               FontSize="18" />
+
+                        <CollectionView ItemsSource="{Binding Reminders}">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                            </CollectionView.ItemsLayout>
+                            
+                            <CollectionView.EmptyView>
+                                <VerticalStackLayout Padding="30" HorizontalOptions="Center" Spacing="8">
+                                    <Label Text="🔔"
+                                           FontSize="32"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="No active reminders set"
+                                           TextColor="#D0D0D5"
+                                           FontSize="14"
+                                           FontFamily="OpenSansRegular"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="Add daily reminders above to stay consistent."
+                                           TextColor="#88888C"
+                                           FontSize="12"
+                                           FontFamily="OpenSansRegular"
+                                           HorizontalOptions="Center"
+                                           HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </CollectionView.EmptyView>
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:Reminder">
+                                    <Border StrokeThickness="0"
+                                            BackgroundColor="#2A2A2E"
+                                            StrokeShape="RoundRectangle 16"
+                                            Padding="16">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+                                            
+                                            <!-- Bell Icon Wrapper -->
+                                            <Border Grid.Column="0"
+                                                    WidthRequest="40" HeightRequest="40"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="#222226"
+                                                    StrokeShape="RoundRectangle 20"
+                                                    VerticalOptions="Center">
+                                                <Label Text="🔔"
+                                                       FontSize="18"
+                                                       TextColor="#9B7FD4"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center" />
+                                            </Border>
+
+                                            <!-- Category & Time Details -->
+                                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                                <Label Text="{Binding Category}"
+                                                       TextColor="White"
+                                                       FontFamily="OpenSansSemibold"
+                                                       FontSize="16" />
+                                                <HorizontalStackLayout Spacing="2">
+                                                    <Label Text="Every day at "
+                                                           TextColor="#D0D0D5"
+                                                           FontFamily="OpenSansRegular"
+                                                           FontSize="13" />
+                                                    <Label Text="{Binding Hour, StringFormat='{0:D2}'}"
+                                                           TextColor="#9B7FD4"
+                                                           FontFamily="OpenSansSemibold"
+                                                           FontSize="13" />
+                                                    <Label Text=":"
+                                                           TextColor="#9B7FD4"
+                                                           FontFamily="OpenSansSemibold"
+                                                           FontSize="13" />
+                                                    <Label Text="{Binding Minute, StringFormat='{0:D2}'}"
+                                                           TextColor="#9B7FD4"
+                                                           FontFamily="OpenSansSemibold"
+                                                           FontSize="13" />
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+
+                                            <!-- Delete Button -->
+                                            <Border Grid.Column="2"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="#222226"
+                                                    WidthRequest="40" HeightRequest="40"
+                                                    StrokeShape="RoundRectangle 20"
+                                                    HorizontalOptions="End"
+                                                    VerticalOptions="Center">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding BindingContext.DeleteReminderCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="🗑"
+                                                       FontSize="16"
+                                                       TextColor="#FF5252"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center" />
+                                            </Border>
+
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </views:PageTemplate.PageContent>
+    </views:PageTemplate>
+</ContentPage>

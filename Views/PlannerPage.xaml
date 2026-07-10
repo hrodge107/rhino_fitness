@@ -129,7 +129,7 @@
                                                 HorizontalOptions="Center"
                                                 VerticalOptions="Center">
                                             <Border.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:PlannerViewModel}}, Path=SelectDayCommand}" CommandParameter="{Binding .}" />
+                                                <TapGestureRecognizer Command="{Binding BindingContext.SelectDayCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
                                             </Border.GestureRecognizers>
                                             <Border.Triggers>
                                                 <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
@@ -284,7 +284,7 @@
                                                         Padding="16,0"
                                                         HeightRequest="38"
                                                         CornerRadius="12"
-                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:PlannerViewModel}}, Path=StartWorkoutCommand}"
+                                                        Command="{Binding BindingContext.StartWorkoutCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
                                                         CommandParameter="{Binding .}" />
      
                                                 <!-- Delete Button -->
@@ -296,7 +296,7 @@
                                                         WidthRequest="38" HeightRequest="38"
                                                         CornerRadius="12"
                                                         Padding="0"
-                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:PlannerViewModel}}, Path=DeleteExerciseCommand}"
+                                                        Command="{Binding BindingContext.DeleteExerciseCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
                                                         CommandParameter="{Binding .}" />
                                             </HorizontalStackLayout>
                                         </Grid>
