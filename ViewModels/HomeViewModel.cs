@@ -19,6 +19,8 @@ namespace FitnessApp.ViewModels
 
         private readonly IPlannerStateService _plannerStateService;
         private readonly IScheduledExerciseRepository _scheduledExerciseRepository;
+        private readonly IMealLogRepository _mealLogRepository;
+        private readonly IWaterLogRepository _waterLogRepository;
 
         [ObservableProperty]
         private int _totalExercisesCount;
@@ -38,6 +40,25 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private string _targetCaloriesText = "2,200 kcal";
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DailyCaloriesDisplay))]
+        private double _currentCalories;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DailyCaloriesDisplay))]
+        private double _calorieLimit = 2000;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DailyWaterDisplay))]
+        private double _dailyWaterAmount;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DailyWaterDisplay))]
+        private double _dailyWaterTarget = 3000;
+
+        public string DailyCaloriesDisplay => $"{CurrentCalories:F0} / {CalorieLimit:F0} kcal";
+        public string DailyWaterDisplay => $"{DailyWaterAmount:F0} / {DailyWaterTarget:F0} mL";
+
         public string Initials
         {
             get
@@ -56,10 +77,14 @@ namespace FitnessApp.ViewModels
         public HomeViewModel(
             INavigationService navigationService,
             IPlannerStateService plannerStateService,
-            IScheduledExerciseRepository scheduledExerciseRepository) : base(navigationService)
+            IScheduledExerciseRepository scheduledExerciseRepository,
+            IMealLogRepository mealLogRepository,
+            IWaterLogRepository waterLogRepository) : base(navigationService)
         {
             _plannerStateService = plannerStateService;
             _scheduledExerciseRepository = scheduledExerciseRepository;
+            _mealLogRepository = mealLogRepository;
+            _waterLogRepository = waterLogRepository;
             var today = DateTime.Now;
             CurrentDateText = today.ToString("MMMM d, dddd");
             BuildWeek(today);
@@ -111,6 +136,15 @@ namespace FitnessApp.ViewModels
             double weight = user.WeightValue > 0 ? user.WeightValue : 70;
             double calories = user.WeightUnit == "lbs" ? (weight / 2.2046) * 30 : weight * 30;
             TargetCaloriesText = $"{calories:F0} kcal";
+
+            // Load actual calories and water logs
+            var todayStr = today.ToString("yyyy-MM-dd");
+            CalorieLimit = user.CalorieLimit;
+            CurrentCalories = await _mealLogRepository.GetDailyCaloriesAsync(user.Id, todayStr);
+
+            var waterLogs = await _waterLogRepository.GetWaterLogsForDateAsync(user.Id, todayStr);
+            DailyWaterAmount = waterLogs.Sum(x => x.Amount);
+            DailyWaterTarget = Preferences.Default.Get($"WaterTarget_{user.Id}", 3000.0);
         }
 
         private void BuildWeek(DateTime today)

@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FitnessApp.Models;
 using FitnessApp.Services;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Shapes;
 
 namespace FitnessApp.ViewModels
 {
@@ -13,6 +15,8 @@ namespace FitnessApp.ViewModels
         private readonly IExerciseRepository _exerciseRepository;
         private readonly IPlannerStateService _plannerStateService;
         private readonly SessionService _sessionService;
+        private readonly Supabase.Client _supabaseClient;
+        private CancellationTokenSource? _cancellationTokenSource;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Initials))]
@@ -80,12 +84,41 @@ namespace FitnessApp.ViewModels
         public bool HasCompletedExercises => !HasNoCompletedExercises;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsOnline))]
+        [NotifyPropertyChangedFor(nameof(ShowTimeline))]
+        [NotifyPropertyChangedFor(nameof(ShowEmptyState))]
+        [NotifyPropertyChangedFor(nameof(ShowOfflineState))]
         private bool _isOffline;
 
         public bool IsOnline => !IsOffline;
 
+        public bool ShowTimeline => !IsOffline && Activities.Count > 0;
+        public bool ShowEmptyState => !IsOffline && Activities.Count == 0;
+        public bool ShowOfflineState => IsOffline;
+
         [ObservableProperty]
         private bool _loadMoreVisible;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(EmptyStateText))]
+        [NotifyPropertyChangedFor(nameof(EmptyStateSubtext))]
+        private string _selectedFilter = "All";
+
+        public string EmptyStateText => SelectedFilter switch
+        {
+            "Exercises" => "No workouts completed recently",
+            "Meal" => "No meals logged recently",
+            "Water" => "No water logged recently",
+            _ => "No activities logged recently"
+        };
+
+        public string EmptyStateSubtext => SelectedFilter switch
+        {
+            "Exercises" => "Complete scheduled workouts in your planner to log exercise activity!",
+            "Meal" => "Log your daily meals in the nutrition section to see them here!",
+            "Water" => "Log your hydration in the nutrition section to track water intake!",
+            _ => "Complete workouts or log nutrition to see your daily activity history!"
+        };
 
         public List<string> GenderOptions { get; } = new()
         {
@@ -95,9 +128,9 @@ namespace FitnessApp.ViewModels
             "Prefer not to say"
         };
 
-        public ObservableCollection<CompletedExerciseItem> CompletedExercises { get; } = new();
+        public ObservableCollection<TimelineActivityItem> Activities { get; } = new();
 
-        private int _limit = 5;
+        private int _limit = 10;
 
         public ProfileViewModel(
             INavigationService navigationService,
@@ -105,14 +138,49 @@ namespace FitnessApp.ViewModels
             IScheduledExerciseRepository scheduledExerciseRepository,
             IExerciseRepository exerciseRepository,
             IPlannerStateService plannerStateService,
-            SessionService sessionService) : base(navigationService)
+            SessionService sessionService,
+            Supabase.Client supabaseClient) : base(navigationService)
         {
             _userRepository = userRepository;
             _scheduledExerciseRepository = scheduledExerciseRepository;
             _exerciseRepository = exerciseRepository;
             _plannerStateService = plannerStateService;
             _sessionService = sessionService;
+            _supabaseClient = supabaseClient;
             ActiveTab = "Profile";
+        }
+
+        private async Task<List<SupabaseScheduledExercise>> FetchSupabaseExercisesAsync(int userId, int limit)
+        {
+            var result = await _supabaseClient.From<SupabaseScheduledExercise>()
+                .Where(x => x.UserId == userId && x.Status == "COMPLETED")
+                .Order(x => x.UpdatedAt, Postgrest.Constants.Ordering.Descending)
+                .Limit(limit)
+                .Get()
+                .ConfigureAwait(false);
+            return result.Models;
+        }
+
+        private async Task<List<SupabaseMealLog>> FetchSupabaseMealsAsync(int userId, int limit)
+        {
+            var result = await _supabaseClient.From<SupabaseMealLog>()
+                .Where(x => x.UserId == userId)
+                .Order(x => x.CreatedAt, Postgrest.Constants.Ordering.Descending)
+                .Limit(limit)
+                .Get()
+                .ConfigureAwait(false);
+            return result.Models;
+        }
+
+        private async Task<List<SupabaseWaterLog>> FetchSupabaseWaterAsync(int userId, int limit)
+        {
+            var result = await _supabaseClient.From<SupabaseWaterLog>()
+                .Where(x => x.UserId == userId)
+                .Order(x => x.CreatedAt, Postgrest.Constants.Ordering.Descending)
+                .Limit(limit)
+                .Get()
+                .ConfigureAwait(false);
+            return result.Models;
         }
 
         [RelayCommand]
@@ -226,41 +294,131 @@ namespace FitnessApp.ViewModels
             var user = _plannerStateService.CurrentUser;
             if (user == null) return;
 
-            DateTime endDate = DateTime.Today;
-            DateTime startDate = DateTime.Today.AddYears(-10);
-
-            var completed = await _scheduledExerciseRepository.GetCompletedExercisesAsync(user.Id, startDate, endDate);
-            
-            // Sort descending: most recent first
-            var sortedCompleted = completed
-                .OrderByDescending(se => se.ScheduledDate)
-                .ThenByDescending(se => se.Id)
-                .ToList();
-
-            CompletedExercises.Clear();
-            foreach (var se in sortedCompleted.Take(_limit))
+            // Connectivity Check
+            IsOffline = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet;
+            if (IsOffline)
             {
-                var exercise = await _exerciseRepository.GetByExerciseIdAsync(se.ExerciseId);
-                CompletedExercises.Add(new CompletedExerciseItem
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    Name = exercise?.Name ?? "Exercise",
-                    Category = exercise?.BodyPart ?? "Workout",
-                    Muscle = exercise?.Muscle ?? "",
-                    DateText = se.ScheduledDate.ToString("MMMM d, yyyy"),
-                    Sets = se.Sets,
-                    DurationSeconds = se.DurationSeconds
+                    Activities.Clear();
+                    HasNoCompletedExercises = false;
+                    LoadMoreVisible = false;
+                    // Notify layout state changes
+                    OnPropertyChanged(nameof(ShowTimeline));
+                    OnPropertyChanged(nameof(ShowEmptyState));
+                    OnPropertyChanged(nameof(ShowOfflineState));
                 });
+                return;
             }
 
-            HasNoCompletedExercises = CompletedExercises.Count == 0;
+            // Rapid switching cancelation token management
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+            var token = _cancellationTokenSource.Token;
 
-            bool olderExists = sortedCompleted.Count > _limit;
-            
-            // Marshal back to UI thread
-            MainThread.BeginInvokeOnMainThread(() =>
+            try
             {
-                LoadMoreVisible = olderExists;
-            });
+                var combinedList = new List<TimelineActivityItem>();
+                var geometryConverter = new Microsoft.Maui.Controls.Shapes.PathGeometryConverter();
+
+                if (SelectedFilter == "All" || SelectedFilter == "Exercises")
+                {
+                    var exercises = await FetchSupabaseExercisesAsync(user.Id, _limit);
+                    token.ThrowIfCancellationRequested();
+                    foreach (var se in exercises)
+                    {
+                        var exercise = await _exerciseRepository.GetByExerciseIdAsync(se.ExerciseId);
+                        token.ThrowIfCancellationRequested();
+                        combinedList.Add(new TimelineActivityItem
+                        {
+                            Id = $"exercise_{se.Id}",
+                            Type = "Exercise",
+                            Title = exercise?.Name ?? "Exercise",
+                            Subtitle = exercise?.BodyPart ?? "Workout",
+                            Details = $"{se.Sets} sets • {se.DurationSeconds / 60:D2}:{se.DurationSeconds % 60:D2}",
+                            Timestamp = se.UpdatedAt.Kind == DateTimeKind.Utc ? se.UpdatedAt.ToLocalTime() : se.UpdatedAt,
+                            IconData = (Geometry)geometryConverter.ConvertFromInvariantString("M12,5c-1.7,0-3,1.3-3,3v2c-2.2,0.8-4,3-4,5.5C5,18.5,7.7,21,11,21h2c3.3,0,6-2.5,6-5.5c0-2.5-1.8-4.7-4-5.5V8C15,6.3,13.7,5,12,5z M12,7c0.6,0,1,0.4,1,1v1.2c-0.3-0.1-0.7-0.2-1-0.2s-0.7,0.1-1,0.2V8C11,7.4,11.4,7,12,7z")!,
+                            ThemeColor = new SolidColorBrush(Color.FromArgb("#5B2A9E"))
+                        });
+                    }
+                }
+
+                if (SelectedFilter == "All" || SelectedFilter == "Meal")
+                {
+                    var meals = await FetchSupabaseMealsAsync(user.Id, _limit);
+                    token.ThrowIfCancellationRequested();
+                    foreach (var m in meals)
+                    {
+                        token.ThrowIfCancellationRequested();
+                        combinedList.Add(new TimelineActivityItem
+                        {
+                            Id = $"meal_{m.Id}",
+                            Type = "Meal",
+                            Title = m.FoodName,
+                            Subtitle = m.Category,
+                            Details = $"{m.Calories:F0} kcal",
+                            Timestamp = m.CreatedAt.Kind == DateTimeKind.Utc ? m.CreatedAt.ToLocalTime() : m.CreatedAt,
+                            IconData = (Geometry)geometryConverter.ConvertFromInvariantString("M11,9 H9 V2 H7 v7 H5 V2 H3 v7 c0,2.12 1.66,3.87 3.75,3.97 V22 h2.5 v-8.03 c2.09,-0.1 3.75,-1.85 3.75,-3.97 V2 Z M16,6 v8 h3v8 h2.5V2 c-3.13,0 -5.5,2.5 -5.5,4 z")!,
+                            ThemeColor = new SolidColorBrush(Color.FromArgb("#9B7FD4"))
+                        });
+                    }
+                }
+
+                if (SelectedFilter == "All" || SelectedFilter == "Water")
+                {
+                    var waters = await FetchSupabaseWaterAsync(user.Id, _limit);
+                    token.ThrowIfCancellationRequested();
+                    foreach (var w in waters)
+                    {
+                        token.ThrowIfCancellationRequested();
+                        combinedList.Add(new TimelineActivityItem
+                        {
+                            Id = $"water_{w.Id}",
+                            Type = "Water",
+                            Title = "Hydration",
+                            Subtitle = "Water Log",
+                            Details = $"{w.Amount:F0} mL",
+                            Timestamp = w.CreatedAt.Kind == DateTimeKind.Utc ? w.CreatedAt.ToLocalTime() : w.CreatedAt,
+                            IconData = (Geometry)geometryConverter.ConvertFromInvariantString("M12,2.69 C12,2.69 19,10.43 19,15 C19,18.87 15.87,22 12,22 C8.13,22 5,18.87 5,15 C5,10.43 12,2.69 12,2.69 Z")!,
+                            ThemeColor = new SolidColorBrush(Color.FromArgb("#7F9BD4"))
+                        });
+                    }
+                }
+
+                token.ThrowIfCancellationRequested();
+
+                var sorted = combinedList
+                    .OrderByDescending(a => a.Timestamp)
+                    .Take(_limit)
+                    .ToList();
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    if (token.IsCancellationRequested) return;
+
+                    Activities.Clear();
+                    foreach (var activity in sorted)
+                    {
+                        Activities.Add(activity);
+                    }
+
+                    HasNoCompletedExercises = Activities.Count == 0;
+                    LoadMoreVisible = combinedList.Count > sorted.Count;
+
+                    // Trigger property changes to update layout states
+                    OnPropertyChanged(nameof(ShowTimeline));
+                    OnPropertyChanged(nameof(ShowEmptyState));
+                    OnPropertyChanged(nameof(ShowOfflineState));
+                });
+            }
+            catch (OperationCanceledException)
+            {
+                // Silently ignore cancellation from rapid switching
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to load activities: {ex.Message}");
+            }
         }
 
         [RelayCommand]
@@ -352,13 +510,20 @@ namespace FitnessApp.ViewModels
             IsBusy = true;
             try
             {
-                _limit += 5;
+                _limit += 10;
                 await LoadCompletedExercisesAsync();
             }
             finally
             {
                 IsBusy = false;
             }
+        }
+
+        public async Task SetFilterAsync(string filter)
+        {
+            SelectedFilter = filter;
+            _limit = 10; // Reset pagination limit on tab switch
+            await LoadCompletedExercisesAsync();
         }
 
         [RelayCommand]

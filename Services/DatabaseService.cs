@@ -149,6 +149,9 @@ namespace FitnessApp.Services
                 user.SyncId = Guid.NewGuid().ToString();
                 await db.UpdateAsync(user);
             }
+
+            // Create water_logs table if not exists during migration
+            await db.CreateTableAsync<WaterLog>().ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -157,10 +160,12 @@ namespace FitnessApp.Services
             var db = Connection;
             await db.ExecuteAsync("DROP TABLE IF EXISTS exercises").ConfigureAwait(false);
             await db.ExecuteAsync("DROP TABLE IF EXISTS meal_logs").ConfigureAwait(false);
+            await db.ExecuteAsync("DROP TABLE IF EXISTS water_logs").ConfigureAwait(false);
             await db.CreateTableAsync<Exercise>().ConfigureAwait(false);
             await db.CreateTableAsync<User>().ConfigureAwait(false);
             await db.CreateTableAsync<ScheduledExercise>().ConfigureAwait(false);
             await db.CreateTableAsync<MealLog>().ConfigureAwait(false);
+            await db.CreateTableAsync<WaterLog>().ConfigureAwait(false);
 
             await MigrateDatabaseAsync(db).ConfigureAwait(false);
 

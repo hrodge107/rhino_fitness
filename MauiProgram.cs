@@ -27,6 +27,7 @@ namespace FitnessApp
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
             builder.Services.AddSingleton<IScheduledExerciseRepository, ScheduledExerciseRepository>();
             builder.Services.AddSingleton<IMealLogRepository, MealLogRepository>();
+            builder.Services.AddSingleton<IWaterLogRepository, WaterLogRepository>();
             builder.Services.AddSingleton<IPlannerStateService, PlannerStateService>();
             builder.Services.AddSingleton<INavigationService, NavigationService>();
 

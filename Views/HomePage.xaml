@@ -309,28 +309,42 @@
                             <Label Text="Nutrition"
                                    TextColor="White"
                                    FontFamily="SyneBold"
-                                   FontSize="18" />
-                            <Label Text="Track Calories"
+                                   FontSize="17" />
+                            <Label Text="Track Calories &amp; Water Intake"
                                    TextColor="#D0D0D5"
                                    FontFamily="OpenSansRegular"
-                                   FontSize="12" />
+                                   FontSize="11.5" />
                         </VerticalStackLayout>
 
-                        <HorizontalStackLayout Grid.Column="1" Spacing="12" VerticalOptions="Center">
-                            <!-- Target Calorie display -->
-                            <Label Text="{Binding TargetCaloriesText}"
-                                   TextColor="#A88EDB"
-                                   FontFamily="SyneBold"
-                                   FontSize="16"
-                                   VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                            <!-- Calorie Badge -->
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="End" VerticalOptions="Center">
+                                <Label Text="{Binding DailyCaloriesDisplay}"
+                                       TextColor="#A88EDB"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="13.5"
+                                       VerticalOptions="Center" />
+                                <Path Data="M11,9 H9 V2 H7 v7 H5 V2 H3 v7 c0,2.12 1.66,3.87 3.75,3.97 V22 h2.5 v-8.03 c2.09,-0.1 3.75,-1.85 3.75,-3.97 V2 Z M16,6 v8 h3v8 h2.5V2 c-3.13,0 -5.5,2.5 -5.5,4 z"
+                                      Fill="#9B7FD4"
+                                      Aspect="Uniform"
+                                      WidthRequest="16" HeightRequest="16"
+                                      VerticalOptions="Center" />
+                            </HorizontalStackLayout>
 
-                            <!-- Flame Icon -->
-                            <Path Data="M12,2C11.5,2 11,3 10.18,4.61C9.6,5.65 9.17,6.86 9.17,8.12C9.17,10.66 11.23,12.72 13.77,12.72C16.31,12.72 18.37,10.66 18.37,8.12C18.37,5.58 15,2 12,2Z"
-                                  Fill="#9B7FD4"
-                                  Aspect="Uniform"
-                                  WidthRequest="22" HeightRequest="22"
-                                  VerticalOptions="Center" />
-                        </HorizontalStackLayout>
+                            <!-- Water Badge -->
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="End" VerticalOptions="Center">
+                                <Label Text="{Binding DailyWaterDisplay}"
+                                       TextColor="#7F9BD4"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="13.5"
+                                       VerticalOptions="Center" />
+                                <Path Data="M12,2.69 C12,2.69 19,10.43 19,15 C19,18.87 15.87,22 12,22 C8.13,22 5,18.87 5,15 C5,10.43 12,2.69 12,2.69 Z"
+                                      Fill="#7F9BD4"
+                                      Aspect="Uniform"
+                                      WidthRequest="16" HeightRequest="16"
+                                      VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
                     </Grid>
                 </Border>
             </Grid>
