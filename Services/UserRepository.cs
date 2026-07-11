@@ -357,52 +357,42 @@ namespace FitnessApp.Services
 
             user.UpdatedAt = DateTime.UtcNow;
 
-            if (user.Id == 0)
-            {
-                user.SyncId = Guid.NewGuid().ToString();
-                user.CreatedAt = DateTime.UtcNow;
-            }
-
             try
             {
                 var profile = ToProfile(user);
-                if (user.Id != 0)
-                    profile.Id = user.Id;
-                var response = user.Id == 0
-                    ? await _supabaseClient.From<SupabaseProfile>()
+
+                if (user.Id == 0)
+                {
+                    // New user — INSERT, then assign Supabase-authoritative ID
+                    user.SyncId = Guid.NewGuid().ToString();
+                    user.CreatedAt = DateTime.UtcNow;
+                    profile = ToProfile(user);
+
+                    var response = await _supabaseClient.From<SupabaseProfile>()
                         .Insert(profile)
-                        .ConfigureAwait(false)
-                    : await _supabaseClient.From<SupabaseProfile>()
-                        .OnConflict("sync_id")
-                        .Upsert(profile)
                         .ConfigureAwait(false);
 
-                if (response.Models.Any())
+                    var created = response.Models.FirstOrDefault();
+                    if (created == null) return false;
+
+                    user.Id = created.Id ?? 0;
+                    user.IsSynced = true;
+                    await _connection.InsertOrReplaceAsync(user).ConfigureAwait(false);
+                }
+                else
                 {
-                    var cloudProfile = response.Models.First();
-                    if (user.Id == 0)
-                    {
-                        user.Id = cloudProfile.Id ?? 0;
-                    }
+                    // Existing user — direct UPDATE, no conflict resolution needed
+                    profile.Id = user.Id;
                     user.IsSynced = true;
 
-                    var existing = await _connection.Table<User>()
-                        .Where(u => u.SyncId == user.SyncId)
-                        .FirstOrDefaultAsync()
+                    await _supabaseClient.From<SupabaseProfile>()
+                        .Update(profile)
                         .ConfigureAwait(false);
 
-                    if (existing != null)
-                    {
-                        user.Id = existing.Id;
-                        await _connection.UpdateAsync(user).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await _connection.InsertAsync(user).ConfigureAwait(false);
-                    }
-
-                    return true;
+                    await _connection.InsertOrReplaceAsync(user).ConfigureAwait(false);
                 }
+
+                return true;
             }
             catch (Exception ex)
             {
@@ -411,6 +401,7 @@ namespace FitnessApp.Services
 
             return false;
         }
+
 
         public async Task SyncPendingChangesAsync()
         {

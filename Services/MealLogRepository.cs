@@ -104,7 +104,8 @@ namespace FitnessApp.Services
 
                     if (models.Any())
                     {
-                        await _connection.InsertAllAsync(models).ConfigureAwait(false);
+                        foreach (var m in models)
+                            await _connection.InsertOrReplaceAsync(m).ConfigureAwait(false);
                     }
                     return models;
                 }
