@@ -128,26 +128,17 @@
                                     </Border.GestureRecognizers>
                                     <Border.Triggers>
                                         <DataTrigger TargetType="Border" Binding="{Binding Gender}" Value="Male">
-                                            <Setter Property="Stroke" Value="#9B7FD4" />
+                                            <Setter Property="BackgroundColor" Value="#2196F3" />
+                                            <Setter Property="Stroke" Value="Transparent" />
                                         </DataTrigger>
                                     </Border.Triggers>
 
-                                    <Grid ColumnDefinitions="50,*">
-                                        <Path Grid.Column="0"
-                                              Data="M12,2 A5,5 0 0,0 7,7 A5,5 0 0,0 12,12 A5,5 0 0,0 17,7 A5,5 0 0,0 12,2 M12,14 C6.48,14 2,18.48 2,24 C2,24 2,26 4,26 L20,26 C22,26 22,24 22,24 C22,18.48 17.52,14 12,14 Z"
-                                              Fill="#9B7FD4"
-                                              HorizontalOptions="Center"
-                                              VerticalOptions="Center"
-                                              WidthRequest="30"
-                                              HeightRequest="30" />
-                                        <Label Grid.Column="1"
-                                               Text="Male"
-                                               TextColor="White"
-                                               FontFamily="SyneBold"
-                                               FontSize="18"
-                                               VerticalOptions="Center"
-                                               Margin="10,0,0,0" />
-                                    </Grid>
+                                    <Label Text="Male"
+                                           TextColor="White"
+                                           FontFamily="SyneBold"
+                                           FontSize="18"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
                                 </Border>
 
                                 <!-- Female Option -->
@@ -162,26 +153,17 @@
                                     </Border.GestureRecognizers>
                                     <Border.Triggers>
                                         <DataTrigger TargetType="Border" Binding="{Binding Gender}" Value="Female">
-                                            <Setter Property="Stroke" Value="#9B7FD4" />
+                                            <Setter Property="BackgroundColor" Value="#EC407A" />
+                                            <Setter Property="Stroke" Value="Transparent" />
                                         </DataTrigger>
                                     </Border.Triggers>
 
-                                    <Grid ColumnDefinitions="50,*">
-                                        <Path Grid.Column="0"
-                                              Data="M12,2 A4,4 0 0,0 8,6 A4,4 0 0,0 12,10 A4,4 0 0,0 16,6 A4,4 0 0,0 12,2 M12,12 C7.58,12 4,15.58 4,20 C4,20 4,22 6,22 L18,22 C20,22 20,20 20,20 C20,15.58 16.42,12 12,12 Z"
-                                              Fill="#9B7FD4"
-                                              HorizontalOptions="Center"
-                                              VerticalOptions="Center"
-                                              WidthRequest="30"
-                                              HeightRequest="30" />
-                                        <Label Grid.Column="1"
-                                               Text="Female"
-                                               TextColor="White"
-                                               FontFamily="SyneBold"
-                                               FontSize="18"
-                                               VerticalOptions="Center"
-                                               Margin="10,0,0,0" />
-                                    </Grid>
+                                    <Label Text="Female"
+                                           TextColor="White"
+                                           FontFamily="SyneBold"
+                                           FontSize="18"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
                                 </Border>
 
                                 <!-- Others Option Badge -->
@@ -233,14 +215,14 @@
                                        Margin="0,0,0,20" />
 
                                 <Border StrokeThickness="0"
-                                        BackgroundColor="#D6D6D6"
+                                        BackgroundColor="White"
                                         HeightRequest="56"
                                         StrokeShape="RoundRectangle 28"
                                         HorizontalOptions="Center"
                                         WidthRequest="200">
                                     <Entry Text="{Binding AgeText}"
                                            Placeholder="Age"
-                                           PlaceholderColor="#555555"
+                                           PlaceholderColor="#88888C"
                                            TextColor="Black"
                                            FontFamily="OpenSansSemibold"
                                            FontSize="18"
@@ -384,7 +366,16 @@
                                         StrokeShape="RoundRectangle 20"
                                         Padding="16">
                                     <VerticalStackLayout Spacing="8">
-                                        <Label Text="Daily Calorie Intake (kcal)" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                            <Path Grid.Column="0"
+                                                  Data="M11,9 H9 V2 H7 v7 H5 V2 H3 v7 c0,2.12 1.66,3.87 3.75,3.97 V22 h2.5 v-8.03 c2.09,-0.1 3.75,-1.85 3.75,-3.97 V2 Z M16,6 v8 h3v8 h2.5V2 c-3.13,0 -5.5,2.5 -5.5,4 z"
+                                                  Fill="#9B7FD4"
+                                                  WidthRequest="24"
+                                                  HeightRequest="24"
+                                                  Aspect="Uniform"
+                                                  VerticalOptions="Center" />
+                                            <Label Grid.Column="1" Text="Daily Calorie Intake (kcal)" TextColor="White" FontFamily="SyneBold" FontSize="16" VerticalOptions="Center" />
+                                        </Grid>
                                         <Label Text="Recommended baseline: 2,000 kcal for general health." TextColor="#A88EDB" FontSize="12" FontFamily="OpenSansRegular" />
                                         <Border StrokeThickness="0" BackgroundColor="#2A2A2E" HeightRequest="46" StrokeShape="RoundRectangle 10">
                                             <Entry Text="{Binding CalorieLimitText}" TextColor="White" Keyboard="Numeric" HorizontalTextAlignment="Center" VerticalOptions="Center" />
@@ -398,7 +389,16 @@
                                         StrokeShape="RoundRectangle 20"
                                         Padding="16">
                                     <VerticalStackLayout Spacing="8">
-                                        <Label Text="Daily Water Volume Target (mL)" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                            <Path Grid.Column="0"
+                                                  Data="M12,2.69 C12,2.69 19,10.43 19,15 C19,18.87 15.87,22 12,22 C8.13,22 5,18.87 5,15 C5,10.43 12,2.69 12,2.69 Z"
+                                                  Fill="#7F9BD4"
+                                                  WidthRequest="24"
+                                                  HeightRequest="24"
+                                                  Aspect="Uniform"
+                                                  VerticalOptions="Center" />
+                                            <Label Grid.Column="1" Text="Daily Water Volume Target (mL)" TextColor="White" FontFamily="SyneBold" FontSize="16" VerticalOptions="Center" />
+                                        </Grid>
                                         <Label Text="Recommended baseline: 3,000 mL (approx. 100 oz)." TextColor="#A88EDB" FontSize="12" FontFamily="OpenSansRegular" />
                                         <Border StrokeThickness="0" BackgroundColor="#2A2A2E" HeightRequest="46" StrokeShape="RoundRectangle 10">
                                             <Entry Text="{Binding WaterLimitText}" TextColor="White" Keyboard="Numeric" HorizontalTextAlignment="Center" VerticalOptions="Center" />
@@ -415,20 +415,33 @@
                                     </DataTrigger>
                                 </VerticalStackLayout.Triggers>
 
+
+<Path Data="M12,2 C6.48,2 2,6.48 2,12 C2,17.52 6.48,22 12,22 C17.52,22 22,17.52 22,12 C22,6.48 17.52,2 12,2 Z M10,17 L5,12 L6.41,10.59 L10,14.17 L17.59,6.58 L19,8 L10,17 Z"
+      Fill="#00DF89"
+      Aspect="Uniform"
+      WidthRequest="100"
+      HeightRequest="100"
+      HorizontalOptions="Center"
+      Margin="0,10" />
+
+
+
+
                                 <Label Text="You're all set!"
                                        TextColor="White"
                                        FontFamily="SyneBold"
                                        FontSize="36"
                                        HorizontalOptions="Center" />
 
-                                <Path Data="M12,2 C6.48,2 2,6.48 2,12 C2,17.52 6.48,22 12,22 C17.52,22 22,17.52 22,12 C22,6.48 17.52,2 12,2 Z M10,17 L5,12 L6.41,10.59 L10,14.17 L17.59,6.58 L19,8 L10,17 Z"
-                                      Fill="#00DF89"
-                                      WidthRequest="80"
-                                      HeightRequest="80"
-                                      HorizontalOptions="Center"
-                                      Margin="0,10" />
 
-                                <Label Text="Your profile has been created and synced with the cloud database. Press 'Let's go' to open your dashboard."
+                                <Image Source="logo.png"
+                                       HeightRequest="150"
+                                       WidthRequest="150"
+                                       HorizontalOptions="Center"
+                                       Margin="0,0,0,10" />
+
+
+                                <Label Text="Your profile has been created. Start your fitness journey today with Rhino!"
                                        TextColor="#D0D0D5"
                                        FontFamily="OpenSansRegular"
                                        FontSize="15"
@@ -451,8 +464,9 @@
                                IsVisible="{Binding ValidationError, Converter={StaticResource Key=NullEmptyToBoolConverter}}" />
 
                         <!-- Next / Let's go Button -->
-                        <Border StrokeThickness="0"
-                                BackgroundColor="#28272C"
+                        <Border StrokeThickness="1.5"
+                                Stroke="#444448"
+                                BackgroundColor="#222226"
                                 HeightRequest="56"
                                 StrokeShape="RoundRectangle 28">
                             <Border.GestureRecognizers>
@@ -460,8 +474,9 @@
                             </Border.GestureRecognizers>
                             
                             <Label Text="{Binding ContinueButtonText}"
-                                   TextColor="#D6D6D6"
+                                   TextColor="White"
                                    FontFamily="OpenSansSemibold"
+                                   FontSize="16"
                                    HorizontalOptions="Center"
                                    VerticalOptions="Center" />
                         </Border>
