@@ -12,34 +12,16 @@ namespace FitnessApp.Services
 {
     public class NotificationScheduler : INotificationScheduler
     {
-        public Task<bool> CheckPermissionsAsync()
+        public async Task<bool> CheckPermissionsAsync()
         {
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.Tiramisu)
-            {
-                var status = ContextCompat.CheckSelfPermission(Android.App.Application.Context, Android.Manifest.Permission.PostNotifications);
-                return Task.FromResult(status == Permission.Granted);
-            }
-            return Task.FromResult(true);
+            var status = await Microsoft.Maui.ApplicationModel.Permissions.CheckStatusAsync<Microsoft.Maui.ApplicationModel.Permissions.PostNotifications>();
+            return status == Microsoft.Maui.ApplicationModel.PermissionStatus.Granted;
         }
 
         public async Task<bool> RequestPermissionsAsync()
         {
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.Tiramisu)
-            {
-                var activity = Platform.CurrentActivity;
-                if (activity == null) return false;
-
-                if (ContextCompat.CheckSelfPermission(activity, Android.Manifest.Permission.PostNotifications) == Permission.Granted)
-                {
-                    return true;
-                }
-
-                activity.RequestPermissions(new[] { Android.Manifest.Permission.PostNotifications }, 101);
-                
-                await Task.Delay(500);
-                return await CheckPermissionsAsync();
-            }
-            return true;
+            var status = await Microsoft.Maui.ApplicationModel.Permissions.RequestAsync<Microsoft.Maui.ApplicationModel.Permissions.PostNotifications>();
+            return status == Microsoft.Maui.ApplicationModel.PermissionStatus.Granted;
         }
 
         public Task OpenSettingsAsync()

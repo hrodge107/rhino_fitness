@@ -75,6 +75,19 @@ namespace FitnessApp.Services
             return Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
         }
 
+        // ponytail: raw SQL UPDATE avoids loading every child row into memory
+        private async Task MigrateUserIdAsync(int oldId, int newId)
+        {
+            await _connection.ExecuteAsync(
+                "UPDATE ScheduledExercise SET UserId = ? WHERE UserId = ?", newId, oldId).ConfigureAwait(false);
+            await _connection.ExecuteAsync(
+                "UPDATE MealLog SET UserId = ? WHERE UserId = ?", newId, oldId).ConfigureAwait(false);
+            await _connection.ExecuteAsync(
+                "UPDATE WaterLog SET UserId = ? WHERE UserId = ?", newId, oldId).ConfigureAwait(false);
+            await _connection.ExecuteAsync(
+                "UPDATE Reminder SET UserId = ? WHERE UserId = ?", newId, oldId).ConfigureAwait(false);
+        }
+
         private static User ToUser(SupabaseProfile profile)
         {
             return new User
@@ -267,6 +280,7 @@ namespace FitnessApp.Services
                             updatedUser.IsSynced = true;
                             if (localBySyncId.Id != updatedUser.Id)
                             {
+                                await MigrateUserIdAsync(localBySyncId.Id, updatedUser.Id).ConfigureAwait(false);
                                 await _connection.Table<User>().Where(u => u.Id == localBySyncId.Id).DeleteAsync().ConfigureAwait(false);
                             }
                             await _connection.InsertOrReplaceAsync(updatedUser).ConfigureAwait(false);
@@ -284,6 +298,7 @@ namespace FitnessApp.Services
                             var reconciledUser = localBySyncId;
                             if (cloudProfile.Id.HasValue && reconciledUser.Id != cloudProfile.Id.Value)
                             {
+                                await MigrateUserIdAsync(reconciledUser.Id, cloudProfile.Id.Value).ConfigureAwait(false);
                                 await _connection.Table<User>().Where(u => u.Id == reconciledUser.Id).DeleteAsync().ConfigureAwait(false);
                                 reconciledUser.Id = cloudProfile.Id.Value;
                             }
@@ -295,6 +310,7 @@ namespace FitnessApp.Services
                         {
                             if (cloudProfile.Id.HasValue && localBySyncId.Id != cloudProfile.Id.Value)
                             {
+                                await MigrateUserIdAsync(localBySyncId.Id, cloudProfile.Id.Value).ConfigureAwait(false);
                                 await _connection.Table<User>().Where(u => u.Id == localBySyncId.Id).DeleteAsync().ConfigureAwait(false);
                                 localBySyncId.Id = cloudProfile.Id.Value;
                             }
@@ -311,6 +327,7 @@ namespace FitnessApp.Services
                         {
                             if (localUser.Id != newUser.Id)
                             {
+                                await MigrateUserIdAsync(localUser.Id, newUser.Id).ConfigureAwait(false);
                                 await _connection.Table<User>().Where(u => u.Id == localUser.Id).DeleteAsync().ConfigureAwait(false);
                             }
                             await _connection.InsertOrReplaceAsync(newUser).ConfigureAwait(false);
