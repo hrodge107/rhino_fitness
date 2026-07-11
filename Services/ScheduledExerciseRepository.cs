@@ -173,27 +173,19 @@ namespace FitnessApp.Services
 
         public async Task<bool> DeleteScheduledExerciseAsync(int id)
         {
-            if (!IsOnline()) return false;
+            if (!IsOnline()) throw new InvalidOperationException("App connectivity check shows offline.");
 
-            try
-            {
-                await _supabaseClient.From<SupabaseScheduledExercise>()
-                    .Where(x => x.Id == id)
-                    .Delete()
-                    .ConfigureAwait(false);
+            await _supabaseClient.From<SupabaseScheduledExercise>()
+                .Where(x => x.Id == id)
+                .Delete()
+                .ConfigureAwait(false);
 
-                await _connection.Table<ScheduledExercise>()
-                    .Where(se => se.Id == id)
-                    .DeleteAsync()
-                    .ConfigureAwait(false);
+            await _connection.Table<ScheduledExercise>()
+                .Where(se => se.Id == id)
+                .DeleteAsync()
+                .ConfigureAwait(false);
 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Failed to delete scheduled exercise from Supabase: {ex.Message}");
-                return false;
-            }
+            return true;
         }
 
         public async Task<int> UpdateMissedExercisesAsync(int userId, DateTime today)

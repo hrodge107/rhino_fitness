@@ -134,7 +134,7 @@ namespace FitnessApp.ViewModels
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Error", "Network disconnected. Could not save changes.", "OK");
+                    await Shell.Current.DisplayAlert("Error", "Could not add exercises. Please try again.", "OK");
                 }
             }
             catch (Exception ex)

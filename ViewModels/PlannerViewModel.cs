@@ -283,15 +283,27 @@ namespace FitnessApp.ViewModels
 
             if (confirm)
             {
-                var success = await _scheduledExerciseRepository.DeleteScheduledExerciseAsync(item.ScheduledExerciseId);
-                if (success)
+                try
                 {
-                    await LoadScheduledExercisesAsync();
-                    await BuildCalendarAsync(); // Refresh dots
+                    var success = await _scheduledExerciseRepository.DeleteScheduledExerciseAsync(item.ScheduledExerciseId);
+                    if (success)
+                    {
+                        await LoadScheduledExercisesAsync();
+                        await BuildCalendarAsync(); // Refresh dots
+                    }
+                    else
+                    {
+                        await Shell.Current.DisplayAlert("Error", "Could not delete exercise. Unknown error.", "OK");
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    await Shell.Current.DisplayAlert("Error", "Network disconnected. Could not save changes.", "OK");
+                    string summary = ex.Message;
+                    if (ex.InnerException != null)
+                    {
+                        summary += $" | Inner: {ex.InnerException.Message}";
+                    }
+                    await Shell.Current.DisplayAlert("Delete Debug Trace", $"{ex.GetType().Name}\nMsg: {summary}\nStack: {ex.StackTrace?.Substring(0, Math.Min(120, ex.StackTrace.Length))}", "OK");
                 }
             }
         }

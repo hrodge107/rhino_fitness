@@ -263,30 +263,43 @@ namespace FitnessApp.Services
                         if (cloudProfile.UpdatedAt > localBySyncId.UpdatedAt)
                         {
                             var updatedUser = ToUser(cloudProfile);
-                            updatedUser.Id = localBySyncId.Id;
+                            updatedUser.Id = cloudProfile.Id ?? localBySyncId.Id;
                             updatedUser.IsSynced = true;
-                            await _connection.UpdateAsync(updatedUser).ConfigureAwait(false);
+                            if (localBySyncId.Id != updatedUser.Id)
+                            {
+                                await _connection.Table<User>().Where(u => u.Id == localBySyncId.Id).DeleteAsync().ConfigureAwait(false);
+                            }
+                            await _connection.InsertOrReplaceAsync(updatedUser).ConfigureAwait(false);
                             localUser = updatedUser;
                         }
                         else if (localBySyncId.UpdatedAt > cloudProfile.UpdatedAt)
                         {
                             var profileToPush = ToProfile(localBySyncId);
+                            profileToPush.Id = cloudProfile.Id;
                             await _supabaseClient.From<SupabaseProfile>()
                                 .OnConflict("sync_id")
                                 .Upsert(profileToPush)
                                 .ConfigureAwait(false);
 
-                            localBySyncId.IsSynced = true;
-                            await _connection.UpdateAsync(localBySyncId).ConfigureAwait(false);
-                            localUser = localBySyncId;
+                            var reconciledUser = localBySyncId;
+                            if (cloudProfile.Id.HasValue && reconciledUser.Id != cloudProfile.Id.Value)
+                            {
+                                await _connection.Table<User>().Where(u => u.Id == reconciledUser.Id).DeleteAsync().ConfigureAwait(false);
+                                reconciledUser.Id = cloudProfile.Id.Value;
+                            }
+                            reconciledUser.IsSynced = true;
+                            await _connection.InsertOrReplaceAsync(reconciledUser).ConfigureAwait(false);
+                            localUser = reconciledUser;
                         }
                         else
                         {
-                            if (!localBySyncId.IsSynced)
+                            if (cloudProfile.Id.HasValue && localBySyncId.Id != cloudProfile.Id.Value)
                             {
-                                localBySyncId.IsSynced = true;
-                                await _connection.UpdateAsync(localBySyncId).ConfigureAwait(false);
+                                await _connection.Table<User>().Where(u => u.Id == localBySyncId.Id).DeleteAsync().ConfigureAwait(false);
+                                localBySyncId.Id = cloudProfile.Id.Value;
                             }
+                            localBySyncId.IsSynced = true;
+                            await _connection.InsertOrReplaceAsync(localBySyncId).ConfigureAwait(false);
                             localUser = localBySyncId;
                         }
                     }
@@ -296,12 +309,15 @@ namespace FitnessApp.Services
                         newUser.IsSynced = true;
                         if (localUser != null)
                         {
-                            newUser.Id = localUser.Id;
-                            await _connection.UpdateAsync(newUser).ConfigureAwait(false);
+                            if (localUser.Id != newUser.Id)
+                            {
+                                await _connection.Table<User>().Where(u => u.Id == localUser.Id).DeleteAsync().ConfigureAwait(false);
+                            }
+                            await _connection.InsertOrReplaceAsync(newUser).ConfigureAwait(false);
                         }
                         else
                         {
-                            await _connection.InsertAsync(newUser).ConfigureAwait(false);
+                            await _connection.InsertOrReplaceAsync(newUser).ConfigureAwait(false);
                         }
                         localUser = newUser;
                     }
