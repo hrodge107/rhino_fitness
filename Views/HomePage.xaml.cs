@@ -4,15 +4,24 @@ namespace FitnessApp.Views
 {
     public partial class HomePage : ContentPage
     {
-        public HomePage(HomeViewModel vm)
+        private readonly Services.IPlannerStateService _plannerStateService;
+
+        public HomePage(HomeViewModel vm, Services.IPlannerStateService plannerStateService)
         {
             InitializeComponent();
             BindingContext = vm;
+            _plannerStateService = plannerStateService;
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
+            if (!_plannerStateService.IsOnboardingCompleted)
+            {
+                await Shell.Current.GoToAsync("//OnboardingPage");
+                return;
+            }
+
             if (BindingContext is HomeViewModel vm)
             {
                 vm.UpdateUserName();

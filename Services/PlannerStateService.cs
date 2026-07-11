@@ -12,5 +12,7 @@ namespace FitnessApp.Services
             get => _selectedDate;
             set => _selectedDate = value.Date;
         }
+
+        public bool IsOnboardingCompleted { get; set; } = true;
     }
 }

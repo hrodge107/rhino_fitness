@@ -187,8 +187,8 @@ namespace FitnessApp.ViewModels
                 _waterLogs = await _waterLogRepository.GetWaterLogsForDateAsync(_currentUser.Id, _todayStr);
                 DailyHydrationAmount = _waterLogs.Sum(x => x.Amount);
 
-                // ponytail: load persisted target
-                DailyHydrationTarget = Preferences.Default.Get($"WaterTarget_{_currentUser.Id}", 3000.0);
+                // load persisted target
+                DailyHydrationTarget = _currentUser.WaterLimit;
             }
             catch (Exception ex)
             {
@@ -214,15 +214,23 @@ namespace FitnessApp.ViewModels
 
             if (double.TryParse(NewCalorieLimitText, out double newLimit) && newLimit > 0)
             {
-                IsEditingLimit = false;
-                CalorieLimit = newLimit;
-                ProgressDrawable.CalorieLimit = CalorieLimit;
-
                 _currentUser.CalorieLimit = newLimit;
-                await _userRepository.UpdateUserAsync(_currentUser);
+                ValidationError = string.Empty;
+                var success = await _userRepository.UpdateUserAsync(_currentUser);
 
-                // Reload data to redraw
-                await LoadDataAsync();
+                if (success)
+                {
+                    IsEditingLimit = false;
+                    CalorieLimit = newLimit;
+                    ProgressDrawable.CalorieLimit = CalorieLimit;
+                    await LoadDataAsync();
+                }
+                else
+                {
+                    ValidationError = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet
+                        ? "Network disconnected. Could not save changes."
+                        : "Failed to update calorie limit.";
+                }
             }
         }
 
@@ -230,6 +238,7 @@ namespace FitnessApp.ViewModels
         private void CancelEditLimit()
         {
             IsEditingLimit = false;
+            ValidationError = string.Empty;
         }
 
         [RelayCommand]
@@ -244,6 +253,7 @@ namespace FitnessApp.ViewModels
         {
             if (_currentUser == null) return;
 
+            ValidationError = string.Empty;
             var log = new WaterLog
             {
                 UserId = _currentUser.Id,
@@ -263,6 +273,12 @@ namespace FitnessApp.ViewModels
                 {
                     ActionLogText = $"Added {(int)amountMl} mL";
                 }
+            }
+            else
+            {
+                ValidationError = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet
+                    ? "Network disconnected. Could not save changes."
+                    : "Failed to log preset water amount.";
             }
         }
 
@@ -318,7 +334,9 @@ namespace FitnessApp.ViewModels
             }
             else
             {
-                ValidationError = "Failed to save entry.";
+                ValidationError = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet
+                    ? "Network disconnected. Could not save changes."
+                    : "Failed to save entry.";
             }
         }
 
@@ -327,6 +345,7 @@ namespace FitnessApp.ViewModels
         {
             if (_currentUser == null || !_waterLogs.Any()) return;
 
+            ValidationError = string.Empty;
             var lastLog = _waterLogs.Last();
             if (await _waterLogRepository.DeleteWaterLogAsync(lastLog.Id))
             {
@@ -340,6 +359,12 @@ namespace FitnessApp.ViewModels
                 {
                     ActionLogText = $"Undid log of {(int)lastLog.Amount} mL";
                 }
+            }
+            else
+            {
+                ValidationError = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet
+                    ? "Network disconnected. Could not save changes."
+                    : "Failed to undo last log.";
             }
         }
 
@@ -380,7 +405,7 @@ namespace FitnessApp.ViewModels
         }
 
         [RelayCommand]
-        private void SaveHydrationTarget()
+        private async Task SaveHydrationTarget()
         {
             if (!double.TryParse(NewHydrationTargetText, out double parsedVal) || parsedVal <= 0)
             {
@@ -403,7 +428,8 @@ namespace FitnessApp.ViewModels
 
             if (_currentUser != null)
             {
-                Preferences.Default.Set($"WaterTarget_{_currentUser.Id}", targetMl);
+                _currentUser.WaterLimit = targetMl;
+                await _userRepository.UpdateUserAsync(_currentUser);
             }
         }
 

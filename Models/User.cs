@@ -55,5 +55,8 @@ namespace FitnessApp.Models
 
         [Column("calorie_limit")]
         public double CalorieLimit { get; set; } = 2000;
+
+        [Column("water_limit")]
+        public double WaterLimit { get; set; } = 3000;
     }
 }

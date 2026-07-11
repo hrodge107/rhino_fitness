@@ -144,7 +144,7 @@ namespace FitnessApp.ViewModels
 
             var waterLogs = await _waterLogRepository.GetWaterLogsForDateAsync(user.Id, todayStr);
             DailyWaterAmount = waterLogs.Sum(x => x.Amount);
-            DailyWaterTarget = Preferences.Default.Get($"WaterTarget_{user.Id}", 3000.0);
+            DailyWaterTarget = user.WaterLimit;
         }
 
         private void BuildWeek(DateTime today)

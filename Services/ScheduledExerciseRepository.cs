@@ -99,6 +99,11 @@ namespace FitnessApp.Services
                         .ConfigureAwait(false);
 
                     var models = result.Models.Select(ToModel).ToList();
+                    await _connection.Table<ScheduledExercise>()
+                        .Where(x => x.UserId == userId && x.ScheduledDate >= dateOnly && x.ScheduledDate < nextDay)
+                        .DeleteAsync()
+                        .ConfigureAwait(false);
+
                     foreach (var m in models)
                     {
                         await _connection.InsertOrReplaceAsync(m).ConfigureAwait(false);
@@ -108,7 +113,6 @@ namespace FitnessApp.Services
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"[DEBUG] GetScheduledExercisesForDateAsync Supabase Error: {ex.GetType().Name} - {ex.Message}");
-                    // Fallback to local on error
                 }
             }
 
@@ -120,41 +124,47 @@ namespace FitnessApp.Services
 
         public async Task<bool> AddScheduledExercisesAsync(IEnumerable<ScheduledExercise> exercises)
         {
+            if (!IsOnline()) return false;
+
             var success = true;
+            var addedList = new List<ScheduledExercise>();
 
             foreach (var exercise in exercises)
             {
                 exercise.ScheduledDate = exercise.ScheduledDate.Date;
-                exercise.IsSynced = false;
+                exercise.IsSynced = true;
                 exercise.UpdatedAt = DateTime.UtcNow;
 
-                if (IsOnline())
+                try
                 {
-                    try
-                    {
-                        var supabaseModel = ToSupabase(exercise);
-                        var result = await _supabaseClient.From<SupabaseScheduledExercise>()
-                            .Insert(supabaseModel)
-                            .ConfigureAwait(false);
+                    var supabaseModel = ToSupabase(exercise);
+                    var result = await _supabaseClient.From<SupabaseScheduledExercise>()
+                        .Insert(supabaseModel)
+                        .ConfigureAwait(false);
 
-                        var created = result.Models.FirstOrDefault();
-                        if (created != null)
-                        {
-                            exercise.Id = created.Id;
-                            exercise.IsSynced = true;
-                        }
-                    }
-                    catch (Exception ex)
+                    var created = result.Models.FirstOrDefault();
+                    if (created != null)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Supabase AddScheduledExercises Error: {ex.Message}");
-                        // Save locally as unsynced
+                        exercise.Id = created.Id;
+                        addedList.Add(exercise);
+                    }
+                    else
+                    {
+                        success = false;
                     }
                 }
-
-                var rows = await _connection.InsertAsync(exercise).ConfigureAwait(false);
-                if (rows <= 0)
+                catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine($"Supabase AddScheduledExercises Error: {ex.Message}");
                     success = false;
+                }
+            }
+
+            if (success)
+            {
+                foreach (var item in addedList)
+                {
+                    await _connection.InsertOrReplaceAsync(item).ConfigureAwait(false);
                 }
             }
 
@@ -163,64 +173,64 @@ namespace FitnessApp.Services
 
         public async Task<bool> DeleteScheduledExerciseAsync(int id)
         {
-            if (IsOnline())
-            {
-                try
-                {
-                    await _supabaseClient.From<SupabaseScheduledExercise>()
-                        .Where(x => x.Id == id)
-                        .Delete()
-                        .ConfigureAwait(false);
-                }
-                catch
-                {
-                    // Delete locally anyway
-                }
-            }
+            if (!IsOnline()) return false;
 
-            var result = await _connection.Table<ScheduledExercise>()
-                .Where(se => se.Id == id)
-                .DeleteAsync()
-                .ConfigureAwait(false);
-            return result > 0;
+            try
+            {
+                await _supabaseClient.From<SupabaseScheduledExercise>()
+                    .Where(x => x.Id == id)
+                    .Delete()
+                    .ConfigureAwait(false);
+
+                await _connection.Table<ScheduledExercise>()
+                    .Where(se => se.Id == id)
+                    .DeleteAsync()
+                    .ConfigureAwait(false);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to delete scheduled exercise from Supabase: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task<int> UpdateMissedExercisesAsync(int userId, DateTime today)
         {
+            if (!IsOnline()) return 0;
+
             var todayOnly = today.Date;
-            var missed = await _connection.Table<ScheduledExercise>()
-                .Where(se => se.UserId == userId && se.Status == "PENDING" && se.ScheduledDate < todayOnly)
-                .ToListAsync()
-                .ConfigureAwait(false);
 
-            if (missed.Count > 0)
+            try
             {
-                foreach (var exercise in missed)
+                var result = await _supabaseClient.From<SupabaseScheduledExercise>()
+                    .Where(x => x.UserId == userId && x.Status == "PENDING" && x.ScheduledDate < todayOnly)
+                    .Get()
+                    .ConfigureAwait(false);
+
+                var models = result.Models.Select(ToModel).ToList();
+                if (models.Count > 0)
                 {
-                    exercise.Status = "MISSED";
-                    exercise.IsSynced = false;
-                    exercise.UpdatedAt = DateTime.UtcNow;
-
-                    if (IsOnline())
+                    foreach (var exercise in models)
                     {
-                        try
-                        {
-                            var supabaseModel = ToSupabase(exercise);
-                            await _supabaseClient.From<SupabaseScheduledExercise>()
-                                .Update(supabaseModel)
-                                .ConfigureAwait(false);
-                            exercise.IsSynced = true;
-                        }
-                        catch
-                        {
-                            // Keep local unsynced flag
-                        }
-                    }
+                        exercise.Status = "MISSED";
+                        exercise.UpdatedAt = DateTime.UtcNow;
+                        var supabaseModel = ToSupabase(exercise);
+                        await _supabaseClient.From<SupabaseScheduledExercise>()
+                            .Update(supabaseModel)
+                            .ConfigureAwait(false);
 
-                    await _connection.UpdateAsync(exercise).ConfigureAwait(false);
+                        await _connection.InsertOrReplaceAsync(exercise).ConfigureAwait(false);
+                    }
                 }
+                return models.Count;
             }
-            return missed.Count;
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to update missed exercises: {ex.Message}");
+                return 0;
+            }
         }
 
         public async Task<List<ScheduledExercise>> GetCompletedExercisesAsync(int userId, DateTime startDate, DateTime endDate)
@@ -238,15 +248,20 @@ namespace FitnessApp.Services
                         .ConfigureAwait(false);
 
                     var models = result.Models.Select(ToModel).ToList();
+                    await _connection.Table<ScheduledExercise>()
+                        .Where(se => se.UserId == userId && se.Status == "COMPLETED" && se.ScheduledDate >= start && se.ScheduledDate <= end)
+                        .DeleteAsync()
+                        .ConfigureAwait(false);
+
                     foreach (var m in models)
                     {
                         await _connection.InsertOrReplaceAsync(m).ConfigureAwait(false);
                     }
                     return models;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Fallback to local on error
+                    System.Diagnostics.Debug.WriteLine($"GetCompletedExercisesAsync Supabase Error: {ex.Message}");
                 }
             }
 
@@ -276,9 +291,9 @@ namespace FitnessApp.Services
                         return mapped;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Fallback to local on error
+                    System.Diagnostics.Debug.WriteLine($"GetByIdAsync Supabase Error: {ex.Message}");
                 }
             }
 
@@ -290,32 +305,33 @@ namespace FitnessApp.Services
 
         public async Task<bool> UpdateScheduledExerciseAsync(ScheduledExercise exercise)
         {
-            exercise.IsSynced = false;
+            if (!IsOnline()) return false;
+
+            exercise.IsSynced = true;
             exercise.UpdatedAt = DateTime.UtcNow;
 
-            if (IsOnline())
+            try
             {
-                try
+                var supabaseModel = ToSupabase(exercise);
+                var response = await _supabaseClient.From<SupabaseScheduledExercise>()
+                    .Update(supabaseModel)
+                    .ConfigureAwait(false);
+                
+                if (response.Models.Any())
                 {
-                    var supabaseModel = ToSupabase(exercise);
-                    await _supabaseClient.From<SupabaseScheduledExercise>()
-                        .Update(supabaseModel)
-                        .ConfigureAwait(false);
-                    exercise.IsSynced = true;
-                }
-                catch
-                {
-                    // Remain unsynced, save locally
+                    await _connection.InsertOrReplaceAsync(exercise).ConfigureAwait(false);
+                    return true;
                 }
             }
-
-            var resultDb = await _connection.UpdateAsync(exercise).ConfigureAwait(false);
-            return resultDb > 0;
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Supabase UpdateScheduledExercise Error: {ex.Message}");
+            }
+            return false;
         }
 
         public async Task<bool> HasOlderCompletedExercisesAsync(int userId, DateTime startDate)
         {
-            // ponytail: simple check logic
             if (IsOnline())
             {
                 try
@@ -328,9 +344,9 @@ namespace FitnessApp.Services
 
                     if (result.Models.Any()) return true;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Fallback to local
+                    System.Diagnostics.Debug.WriteLine($"HasOlderCompletedExercisesAsync Supabase Error: {ex.Message}");
                 }
             }
 
@@ -357,6 +373,11 @@ namespace FitnessApp.Services
                         .ConfigureAwait(false);
 
                     var models = result.Models.Select(ToModel).ToList();
+                    await _connection.Table<ScheduledExercise>()
+                        .Where(se => se.UserId == userId && se.ScheduledDate >= start && se.ScheduledDate <= end)
+                        .DeleteAsync()
+                        .ConfigureAwait(false);
+
                     foreach (var m in models)
                     {
                         await _connection.InsertOrReplaceAsync(m).ConfigureAwait(false);
@@ -366,7 +387,6 @@ namespace FitnessApp.Services
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"[DEBUG] GetScheduledExercisesForRangeAsync Supabase Error: {ex.GetType().Name} - {ex.Message}");
-                    // Fallback to local on error
                 }
             }
 

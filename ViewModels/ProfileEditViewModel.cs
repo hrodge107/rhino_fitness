@@ -241,7 +241,7 @@ namespace FitnessApp.ViewModels
             var isOffline = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet;
             if (isOffline)
             {
-                ValidationError = "Cannot save metrics while offline.";
+                ValidationError = "Network disconnected. Could not save changes.";
                 return;
             }
 
@@ -304,7 +304,7 @@ namespace FitnessApp.ViewModels
                     }
                     else
                     {
-                        ValidationError = "Failed to save metrics to database.";
+                        ValidationError = "Network disconnected. Could not save changes.";
                     }
                 }
                 finally

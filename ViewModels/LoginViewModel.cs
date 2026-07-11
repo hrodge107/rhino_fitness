@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FitnessApp.Services;
+using Microsoft.Maui.Networking;
 
 namespace FitnessApp.ViewModels
 {
@@ -16,7 +17,8 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private string _password = string.Empty;
 
-
+        [ObservableProperty]
+        private bool _isOffline;
 
         public LoginViewModel(
             INavigationService navigationService,
@@ -27,11 +29,25 @@ namespace FitnessApp.ViewModels
             _userRepository = userRepository;
             _plannerStateService = plannerStateService;
             _sessionService = sessionService;
+
+            UpdateConnectivity();
+            Connectivity.Current.ConnectivityChanged += (s, e) => UpdateConnectivity();
+        }
+
+        private void UpdateConnectivity()
+        {
+            IsOffline = Connectivity.Current.NetworkAccess != NetworkAccess.Internet;
         }
 
         [RelayCommand]
         private async Task SignIn()
         {
+            if (IsOffline)
+            {
+                await Shell.Current.DisplayAlert("Error", "No internet connection. Please connect and try again.", "OK");
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
             {
                 await Shell.Current.DisplayAlert("Error", "Please enter username and password.", "OK");
@@ -45,6 +61,7 @@ namespace FitnessApp.ViewModels
                 if (user != null)
                 {
                     _plannerStateService.CurrentUser = user;
+                    _plannerStateService.IsOnboardingCompleted = true;
                     // Navigate to home
                     await NavigationService.GoToAsync("//HomePage");
                 }
@@ -68,7 +85,14 @@ namespace FitnessApp.ViewModels
             var activeUser = await _sessionService.GetActiveUserAsync();
             if (activeUser != null)
             {
+                if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+                {
+                    await _sessionService.ClearSessionAsync();
+                    await Shell.Current.DisplayAlert("Connection Required", "An internet connection is required to restore your session.", "OK");
+                    return;
+                }
                 _plannerStateService.CurrentUser = activeUser;
+                _plannerStateService.IsOnboardingCompleted = true;
                 await NavigationService.GoToAsync("//HomePage");
             }
         }

@@ -21,6 +21,7 @@ namespace FitnessApp
             Routing.RegisterRoute("ProfilePage", typeof(Views.ProfilePage));
             Routing.RegisterRoute("ProfileEditPage", typeof(Views.ProfileEditPage));
             Routing.RegisterRoute("SignupPage", typeof(Views.SignupPage));
+            Routing.RegisterRoute("OnboardingPage", typeof(Views.OnboardingPage));
             Routing.RegisterRoute("MealCategoryPage", typeof(Views.MealCategoryPage));
             Routing.RegisterRoute("RemindersPage", typeof(Views.RemindersPage));
         }

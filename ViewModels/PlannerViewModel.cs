@@ -283,9 +283,16 @@ namespace FitnessApp.ViewModels
 
             if (confirm)
             {
-                await _scheduledExerciseRepository.DeleteScheduledExerciseAsync(item.ScheduledExerciseId);
-                await LoadScheduledExercisesAsync();
-                await BuildCalendarAsync(); // Refresh dots
+                var success = await _scheduledExerciseRepository.DeleteScheduledExerciseAsync(item.ScheduledExerciseId);
+                if (success)
+                {
+                    await LoadScheduledExercisesAsync();
+                    await BuildCalendarAsync(); // Refresh dots
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Error", "Network disconnected. Could not save changes.", "OK");
+                }
             }
         }
     }

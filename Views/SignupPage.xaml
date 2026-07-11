@@ -136,6 +136,35 @@
 
                     </VerticalStackLayout>
                 </ScrollView>
+
+                <!-- Informational Overlay for Offline Mode -->
+                <Grid BackgroundColor="#D9000000"
+                      IsVisible="{Binding IsOffline}"
+                      InputTransparent="False">
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#1B1B1F"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center"
+                            Margin="40"
+                            Padding="24"
+                            StrokeShape="RoundRectangle 16"
+                            WidthRequest="300">
+                        <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                            <Label Text="No Internet Connection"
+                                   TextColor="White"
+                                   FontSize="20"
+                                   FontFamily="SyneBold"
+                                   HorizontalOptions="Center" />
+                            <Label Text="An active internet connection is required to sign up or initialize your session."
+                                   TextColor="#D6D6D6"
+                                   FontSize="14"
+                                   FontFamily="OpenSansRegular"
+                                   HorizontalTextAlignment="Center"
+                                   HorizontalOptions="Center" />
+                            <ActivityIndicator IsRunning="True" Color="#9B7FD4" HeightRequest="40" WidthRequest="40" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
             </Grid>
         </views:PageTemplate.PageContent>
     </views:PageTemplate>

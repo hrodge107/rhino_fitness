@@ -6,5 +6,6 @@ namespace FitnessApp.Services
     {
         User? CurrentUser { get; set; }
         DateTime SelectedDate { get; set; }
+        bool IsOnboardingCompleted { get; set; }
     }
 }

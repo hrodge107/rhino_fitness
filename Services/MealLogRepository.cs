@@ -87,24 +87,43 @@ namespace FitnessApp.Services
 
         public async Task<List<MealLog>> GetMealLogsForDateAsync(int userId, string date)
         {
-            try
+            if (IsOnline())
             {
-                var result = await _supabaseClient.From<SupabaseMealLog>()
-                    .Where(x => x.UserId == userId && x.LogDate == date)
-                    .Get()
-                    .ConfigureAwait(false);
+                try
+                {
+                    var result = await _supabaseClient.From<SupabaseMealLog>()
+                        .Where(x => x.UserId == userId && x.LogDate == date)
+                        .Get()
+                        .ConfigureAwait(false);
 
-                return result.Models.Select(ToModel).ToList();
+                    var models = result.Models.Select(ToModel).ToList();
+                    await _connection.Table<MealLog>()
+                        .Where(x => x.UserId == userId && x.LogDate == date)
+                        .DeleteAsync()
+                        .ConfigureAwait(false);
+
+                    if (models.Any())
+                    {
+                        await _connection.InsertAllAsync(models).ConfigureAwait(false);
+                    }
+                    return models;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to fetch meal logs from Supabase: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Failed to fetch meal logs from Supabase: {ex.Message}");
-                return new List<MealLog>();
-            }
+
+            return await _connection.Table<MealLog>()
+                .Where(x => x.UserId == userId && x.LogDate == date)
+                .ToListAsync()
+                .ConfigureAwait(false);
         }
 
         public async Task<bool> AddMealLogAsync(MealLog log)
         {
+            if (!IsOnline()) return false;
+
             log.CreatedAt = DateTime.UtcNow;
             log.UpdatedAt = DateTime.UtcNow;
             log.IsSynced = true;
@@ -117,6 +136,7 @@ namespace FitnessApp.Services
                 if (created != null)
                 {
                     log.Id = created.Id;
+                    await _connection.InsertOrReplaceAsync(log).ConfigureAwait(false);
                     return true;
                 }
             }
@@ -129,33 +149,42 @@ namespace FitnessApp.Services
 
         public async Task<bool> UpdateMealLogAsync(MealLog log)
         {
+            if (!IsOnline()) return false;
+
             log.UpdatedAt = DateTime.UtcNow;
 
             try
             {
                 var sLog = ToSupabase(log);
                 var response = await _supabaseClient.From<SupabaseMealLog>().Update(sLog).ConfigureAwait(false);
-                return response.Models.Any();
+                if (response.Models.Any())
+                {
+                    await _connection.InsertOrReplaceAsync(log).ConfigureAwait(false);
+                    return true;
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Failed to update meal log on Supabase: {ex.Message}");
-                return false;
             }
+            return false;
         }
 
         public async Task<bool> DeleteMealLogAsync(int id)
         {
+            if (!IsOnline()) return false;
+
             try
             {
                 await _supabaseClient.From<SupabaseMealLog>().Where(x => x.Id == id).Delete().ConfigureAwait(false);
+                await _connection.Table<MealLog>().Where(x => x.Id == id).DeleteAsync().ConfigureAwait(false);
                 return true;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Failed to delete meal log from Supabase: {ex.Message}");
-                return false;
             }
+            return false;
         }
 
         public async Task<double> GetDailyCaloriesAsync(int userId, string date)

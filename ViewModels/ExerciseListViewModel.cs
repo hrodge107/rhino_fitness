@@ -126,9 +126,16 @@ namespace FitnessApp.ViewModels
             IsBusy = true;
             try
             {
-                await _scheduledExerciseRepository.AddScheduledExercisesAsync(selected);
-                // Absolute Shell navigation to PlannerPage to prevent duplicate additions
-                await NavigationService.GoToAsync("//PlannerPage");
+                var success = await _scheduledExerciseRepository.AddScheduledExercisesAsync(selected);
+                if (success)
+                {
+                    // Absolute Shell navigation to PlannerPage to prevent duplicate additions
+                    await NavigationService.GoToAsync("//PlannerPage");
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Error", "Network disconnected. Could not save changes.", "OK");
+                }
             }
             catch (Exception ex)
             {

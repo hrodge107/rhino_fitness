@@ -9,7 +9,7 @@ namespace FitnessApp.Services
     public class SupabaseProfile : BaseModel
     {
         [Postgrest.Attributes.PrimaryKey("id", false)]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [Postgrest.Attributes.Column("email")]
         public string Email { get; set; } = string.Empty;
@@ -52,6 +52,9 @@ namespace FitnessApp.Services
 
         [Postgrest.Attributes.Column("calorie_limit")]
         public double CalorieLimit { get; set; } = 2000;
+
+        [Postgrest.Attributes.Column("water_limit")]
+        public double WaterLimit { get; set; } = 3000;
     }
 
     public class UserRepository : IUserRepository
@@ -76,7 +79,7 @@ namespace FitnessApp.Services
         {
             return new User
             {
-                Id = profile.Id,
+                Id = profile.Id ?? 0,
                 Email = profile.Email,
                 Name = profile.Name,
                 Password = profile.Password,
@@ -90,7 +93,8 @@ namespace FitnessApp.Services
                 UpdatedAt = profile.UpdatedAt,
                 SyncId = profile.SyncId,
                 CreatedAt = profile.CreatedAt,
-                CalorieLimit = profile.CalorieLimit
+                CalorieLimit = profile.CalorieLimit,
+                WaterLimit = profile.WaterLimit
             };
         }
 
@@ -98,7 +102,6 @@ namespace FitnessApp.Services
         {
             return new SupabaseProfile
             {
-                Id = user.Id,
                 Email = user.Email,
                 Name = user.Name,
                 Password = user.Password,
@@ -112,7 +115,8 @@ namespace FitnessApp.Services
                 UpdatedAt = user.UpdatedAt,
                 SyncId = user.SyncId,
                 CreatedAt = user.CreatedAt,
-                CalorieLimit = user.CalorieLimit
+                CalorieLimit = user.CalorieLimit,
+                WaterLimit = user.WaterLimit
             };
         }
 
@@ -316,6 +320,8 @@ namespace FitnessApp.Services
 
         public async Task<bool> SaveUserAsync(User user)
         {
+            if (!IsOnline()) return false;
+
             user.UpdatedAt = DateTime.UtcNow;
 
             if (user.Id == 0)
@@ -324,16 +330,27 @@ namespace FitnessApp.Services
                 user.CreatedAt = DateTime.UtcNow;
             }
 
-            if (IsOnline())
+            try
             {
-                try
-                {
-                    var profile = ToProfile(user);
-                    await _supabaseClient.From<SupabaseProfile>()
+                var profile = ToProfile(user);
+                if (user.Id != 0)
+                    profile.Id = user.Id;
+                var response = user.Id == 0
+                    ? await _supabaseClient.From<SupabaseProfile>()
+                        .Insert(profile)
+                        .ConfigureAwait(false)
+                    : await _supabaseClient.From<SupabaseProfile>()
                         .OnConflict("sync_id")
                         .Upsert(profile)
                         .ConfigureAwait(false);
 
+                if (response.Models.Any())
+                {
+                    var cloudProfile = response.Models.First();
+                    if (user.Id == 0)
+                    {
+                        user.Id = cloudProfile.Id ?? 0;
+                    }
                     user.IsSynced = true;
 
                     var existing = await _connection.Table<User>()
@@ -353,31 +370,13 @@ namespace FitnessApp.Services
 
                     return true;
                 }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Supabase SaveUser Error: {ex.Message}");
-                    // Fallback to offline save
-                }
             }
-
-            user.IsSynced = false;
-
-            var existingOffline = await _connection.Table<User>()
-                .Where(u => u.SyncId == user.SyncId)
-                .FirstOrDefaultAsync()
-                .ConfigureAwait(false);
-
-            if (existingOffline != null)
+            catch (Exception ex)
             {
-                user.Id = existingOffline.Id;
-                await _connection.UpdateAsync(user).ConfigureAwait(false);
-            }
-            else
-            {
-                await _connection.InsertAsync(user).ConfigureAwait(false);
+                System.Diagnostics.Debug.WriteLine($"Supabase SaveUser Error: {ex.Message}");
             }
 
-            return true;
+            return false;
         }
 
         public async Task SyncPendingChangesAsync()

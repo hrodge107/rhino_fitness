@@ -54,7 +54,7 @@
                                TextColor="#FF4D4D"
                                FontSize="12"
                                FontFamily="OpenSansRegular"
-                               IsVisible="{Binding ValidationError, Converter={StaticResource StringNotEmptyToBoolConverter}}" />
+                               IsVisible="{Binding ValidationError, Converter={StaticResource NullEmptyToBoolConverter}}" />
 
                         <!-- Add Button -->
                         <Button Text="Add to Meal Log"

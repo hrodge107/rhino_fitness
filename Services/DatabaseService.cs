@@ -62,6 +62,9 @@ namespace FitnessApp.Services
             try { await db.ExecuteAsync("ALTER TABLE users ADD COLUMN calorie_limit REAL DEFAULT 2000"); }
             catch { /* column already exists */ }
 
+            try { await db.ExecuteAsync("ALTER TABLE users ADD COLUMN water_limit REAL DEFAULT 3000"); }
+            catch { /* column already exists */ }
+
             try { await db.ExecuteAsync("ALTER TABLE scheduled_exercises ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"); }
             catch { /* column already exists */ }
 

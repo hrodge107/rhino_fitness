@@ -67,6 +67,8 @@ namespace FitnessApp
             builder.Services.AddTransient<ProfileEditViewModel>();
             builder.Services.AddTransient<SignupPage>();
             builder.Services.AddTransient<SignupViewModel>();
+            builder.Services.AddTransient<OnboardingPage>();
+            builder.Services.AddTransient<OnboardingViewModel>();
             builder.Services.AddTransient<MealCategoryPage>();
             builder.Services.AddTransient<MealCategoryViewModel>();
             builder.Services.AddTransient<RemindersPage>();

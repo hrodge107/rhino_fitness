@@ -15,6 +15,11 @@
                   Route="LoginPage"
                   FlyoutItemIsVisible="False" />
 
+    <!-- Onboarding — not shown in flyout -->
+    <ShellContent ContentTemplate="{DataTemplate views:OnboardingPage}"
+                  Route="OnboardingPage"
+                  FlyoutItemIsVisible="False" />
+
     <!-- Flyout nav items -->
     <FlyoutItem Title="Home" Route="HomePage">
         <ShellContent ContentTemplate="{DataTemplate views:HomePage}" />

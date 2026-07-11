@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FitnessApp.Models;
 using FitnessApp.Services;
+using Microsoft.Maui.Networking;
 
 namespace FitnessApp.ViewModels
 {
@@ -25,6 +26,9 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private string _validationError = string.Empty;
 
+        [ObservableProperty]
+        private bool _isOffline;
+
         public SignupViewModel(
             INavigationService navigationService,
             IUserRepository userRepository,
@@ -32,12 +36,26 @@ namespace FitnessApp.ViewModels
         {
             _userRepository = userRepository;
             _plannerStateService = plannerStateService;
+
+            UpdateConnectivity();
+            Connectivity.Current.ConnectivityChanged += (s, e) => UpdateConnectivity();
+        }
+
+        private void UpdateConnectivity()
+        {
+            IsOffline = Connectivity.Current.NetworkAccess != NetworkAccess.Internet;
         }
 
         [RelayCommand]
         private async Task SignUp()
         {
             ValidationError = string.Empty;
+
+            if (IsOffline)
+            {
+                ValidationError = "No internet connection. Please connect and try again.";
+                return;
+            }
 
             if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Email) ||
                 string.IsNullOrWhiteSpace(Password) || string.IsNullOrWhiteSpace(ConfirmPassword))
@@ -100,7 +118,8 @@ namespace FitnessApp.ViewModels
                 if (created)
                 {
                     _plannerStateService.CurrentUser = newUser;
-                    await NavigationService.GoToAsync("//HomePage");
+                    _plannerStateService.IsOnboardingCompleted = false;
+                    await NavigationService.GoToAsync("//OnboardingPage");
                 }
                 else
                 {

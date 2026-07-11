@@ -143,7 +143,9 @@ namespace FitnessApp.ViewModels
             }
             else
             {
-                ValidationError = "Failed to save log entry.";
+                ValidationError = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet
+                    ? "Network disconnected. Could not save changes."
+                    : "Failed to save log entry.";
             }
         }
 
@@ -152,10 +154,17 @@ namespace FitnessApp.ViewModels
         {
             if (log == null) return;
 
+            ValidationError = string.Empty;
             var success = await _mealLogRepository.DeleteMealLogAsync(log.Id);
             if (success)
             {
                 await LoadLogsAsync();
+            }
+            else
+            {
+                ValidationError = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess != Microsoft.Maui.Networking.NetworkAccess.Internet
+                    ? "Network disconnected. Could not save changes."
+                    : "Failed to delete log entry.";
             }
         }
     }

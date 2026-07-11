@@ -17,6 +17,17 @@ namespace FitnessApp.Services
             await _db.ExecuteAsync("UPDATE users SET is_active = 0").ConfigureAwait(false);
             user.IsActive = true;
             await _db.UpdateAsync(user).ConfigureAwait(false);
+            await WipeUserCachesAsync(user.Id).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Wipes the local SQLite caches for user logs.
+        /// </summary>
+        public async Task WipeUserCachesAsync(int userId)
+        {
+            await _db.ExecuteAsync("DELETE FROM meal_logs WHERE user_id = ?", userId).ConfigureAwait(false);
+            await _db.ExecuteAsync("DELETE FROM water_logs WHERE user_id = ?", userId).ConfigureAwait(false);
+            await _db.ExecuteAsync("DELETE FROM scheduled_exercises WHERE user_id = ?", userId).ConfigureAwait(false);
         }
 
         /// <summary>

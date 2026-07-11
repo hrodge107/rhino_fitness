@@ -268,9 +268,6 @@ namespace FitnessApp.ViewModels
             bool confirm = await Shell.Current.DisplayAlert("Complete Exercise", "Are you sure you want to finish this session?", "Yes", "No");
             if (!confirm) return;
 
-            _elapsedTimer.Stop();
-            _restTimer.Stop();
-
             if (_scheduledExercise != null)
             {
                 IsBusy = true;
@@ -280,17 +277,27 @@ namespace FitnessApp.ViewModels
                     _scheduledExercise.Sets = CompletedSets;
                     _scheduledExercise.DurationSeconds = _elapsedSeconds;
                     _scheduledExercise.UpdatedAt = DateTime.UtcNow;
-                    await _scheduledExerciseRepository.UpdateScheduledExerciseAsync(_scheduledExercise);
+                    
+                    var success = await _scheduledExerciseRepository.UpdateScheduledExerciseAsync(_scheduledExercise);
+                    if (!success)
+                    {
+                        await Shell.Current.DisplayAlert("Error", "Network disconnected. Could not save changes.", "OK");
+                        return;
+                    }
                 }
                 catch (Exception ex)
                 {
                     await Shell.Current.DisplayAlert("Error", $"Could not save workout status: {ex.Message}", "OK");
+                    return;
                 }
                 finally
                 {
                     IsBusy = false;
                 }
             }
+
+            _elapsedTimer.Stop();
+            _restTimer.Stop();
 
             // Return to PlannerPage absolutely to prevent re-submissions
             await NavigationService.GoToAsync("//PlannerPage");

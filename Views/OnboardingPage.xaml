@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:FitnessApp.Views"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             x:DataType="viewmodels:OnboardingViewModel"
+             x:Class="FitnessApp.Views.OnboardingPage"
+             Shell.NavBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled"
+             BackgroundColor="#7c4ef6">
+
+    <views:PageTemplate ShowBackArrow="False" ShowFooter="False" IsBusy="{Binding IsBusy}">
+        <views:PageTemplate.PageContent>
+            <Grid>
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#7c4ef6" Offset="0.0" />
+                        <GradientStop Color="#2c1464" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+
+                <Grid RowDefinitions="Auto,*,Auto" Padding="24">
+                    <!-- ═══ Top Nav & Step Counter ═══ -->
+                    <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,10,0,20">
+                        <Button Grid.Column="0"
+                                Text="Back"
+                                Command="{Binding GoBackStepCommand}"
+                                IsVisible="{Binding CurrentStep, Converter={StaticResource Key=NullEmptyToBoolConverter}}"
+                                TextColor="White"
+                                BackgroundColor="Transparent"
+                                BorderColor="White"
+                                BorderWidth="1"
+                                CornerRadius="8"
+                                Padding="12,4"
+                                HeightRequest="32">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding CurrentStep}" Value="1">
+                                    <Setter Property="IsVisible" Value="False" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+
+                        <Label Grid.Column="1"
+                               Text="{Binding CurrentStep, StringFormat='Step {0} of 6'}"
+                               TextColor="#D6D6D6"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="14"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Grid>
+
+                    <!-- ═══ Main Wizard Views ═══ -->
+                    <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+                        <Grid>
+                            <!-- STEP 1: Welcome & Disclaimer -->
+                            <VerticalStackLayout Spacing="20" VerticalOptions="Center" Margin="0,20,0,0" IsVisible="False">
+                                <VerticalStackLayout.Triggers>
+                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="1">
+                                        <Setter Property="IsVisible" Value="True" />
+                                    </DataTrigger>
+                                </VerticalStackLayout.Triggers>
+
+                                <Image Source="logo.png"
+                                       HeightRequest="150"
+                                       WidthRequest="150"
+                                       HorizontalOptions="Center"
+                                       Margin="0,0,0,20" />
+
+                                <Label Text="Welcome to Rhino Fitness!"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="28"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center" />
+
+                                <Label Text="Let's build your personalized fitness and nutrition plan in just a few quick steps."
+                                       TextColor="#D0D0D5"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="16"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       Margin="0,0,0,20" />
+
+                                <Border StrokeThickness="0"
+                                        BackgroundColor="#222226"
+                                        StrokeShape="RoundRectangle 16"
+                                        Padding="16"
+                                        Margin="0,20,0,0">
+                                    <Label Text="All data collected during setup can be fully edited later in your profile settings."
+                                           TextColor="#A88EDB"
+                                           FontFamily="OpenSansSemibold"
+                                           FontSize="13"
+                                           HorizontalOptions="Center"
+                                           HorizontalTextAlignment="Center" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- STEP 2: Gender Selection -->
+                            <VerticalStackLayout Spacing="20" VerticalOptions="Center" IsVisible="False">
+                                <VerticalStackLayout.Triggers>
+                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="2">
+                                        <Setter Property="IsVisible" Value="True" />
+                                    </DataTrigger>
+                                </VerticalStackLayout.Triggers>
+
+                                <Label Text="Select Gender"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="24"
+                                       HorizontalOptions="Center" />
+
+                                <Label Text="Choose the option that matches you."
+                                       TextColor="#D0D0D5"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="14"
+                                       HorizontalOptions="Center"
+                                       Margin="0,0,0,20" />
+
+                                <!-- Male Option -->
+                                <Border StrokeThickness="2"
+                                        Stroke="Transparent"
+                                        HeightRequest="80"
+                                        StrokeShape="RoundRectangle 20"
+                                        BackgroundColor="#222226"
+                                        Padding="20,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectGenderCommand}" CommandParameter="Male" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Gender}" Value="Male">
+                                            <Setter Property="Stroke" Value="#9B7FD4" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+
+                                    <Grid ColumnDefinitions="50,*">
+                                        <Path Grid.Column="0"
+                                              Data="M12,2 A5,5 0 0,0 7,7 A5,5 0 0,0 12,12 A5,5 0 0,0 17,7 A5,5 0 0,0 12,2 M12,14 C6.48,14 2,18.48 2,24 C2,24 2,26 4,26 L20,26 C22,26 22,24 22,24 C22,18.48 17.52,14 12,14 Z"
+                                              Fill="#9B7FD4"
+                                              HorizontalOptions="Center"
+                                              VerticalOptions="Center"
+                                              WidthRequest="30"
+                                              HeightRequest="30" />
+                                        <Label Grid.Column="1"
+                                               Text="Male"
+                                               TextColor="White"
+                                               FontFamily="SyneBold"
+                                               FontSize="18"
+                                               VerticalOptions="Center"
+                                               Margin="10,0,0,0" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Female Option -->
+                                <Border StrokeThickness="2"
+                                        Stroke="Transparent"
+                                        HeightRequest="80"
+                                        StrokeShape="RoundRectangle 20"
+                                        BackgroundColor="#222226"
+                                        Padding="20,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectGenderCommand}" CommandParameter="Female" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Gender}" Value="Female">
+                                            <Setter Property="Stroke" Value="#9B7FD4" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+
+                                    <Grid ColumnDefinitions="50,*">
+                                        <Path Grid.Column="0"
+                                              Data="M12,2 A4,4 0 0,0 8,6 A4,4 0 0,0 12,10 A4,4 0 0,0 16,6 A4,4 0 0,0 12,2 M12,12 C7.58,12 4,15.58 4,20 C4,20 4,22 6,22 L18,22 C20,22 20,20 20,20 C20,15.58 16.42,12 12,12 Z"
+                                              Fill="#9B7FD4"
+                                              HorizontalOptions="Center"
+                                              VerticalOptions="Center"
+                                              WidthRequest="30"
+                                              HeightRequest="30" />
+                                        <Label Grid.Column="1"
+                                               Text="Female"
+                                               TextColor="White"
+                                               FontFamily="SyneBold"
+                                               FontSize="18"
+                                               VerticalOptions="Center"
+                                               Margin="10,0,0,0" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Others Option Badge -->
+                                <Border StrokeThickness="2"
+                                        Stroke="Transparent"
+                                        HeightRequest="50"
+                                        StrokeShape="RoundRectangle 12"
+                                        BackgroundColor="#222226"
+                                        Padding="15,5"
+                                        HorizontalOptions="Center"
+                                        WidthRequest="150">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectGenderCommand}" CommandParameter="Others" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Gender}" Value="Others">
+                                            <Setter Property="Stroke" Value="#9B7FD4" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    
+                                    <Label Text="Others"
+                                           TextColor="White"
+                                           FontFamily="OpenSansSemibold"
+                                           FontSize="14"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- STEP 3: Age Input -->
+                            <VerticalStackLayout Spacing="20" VerticalOptions="Center" IsVisible="False">
+                                <VerticalStackLayout.Triggers>
+                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="3">
+                                        <Setter Property="IsVisible" Value="True" />
+                                    </DataTrigger>
+                                </VerticalStackLayout.Triggers>
+
+                                <Label Text="Enter Your Age"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="24"
+                                       HorizontalOptions="Center" />
+
+                                <Label Text=""
+                                       TextColor="#D0D0D5"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="14"
+                                       HorizontalOptions="Center"
+                                       Margin="0,0,0,20" />
+
+                                <Border StrokeThickness="0"
+                                        BackgroundColor="#D6D6D6"
+                                        HeightRequest="56"
+                                        StrokeShape="RoundRectangle 28"
+                                        HorizontalOptions="Center"
+                                        WidthRequest="200">
+                                    <Entry Text="{Binding AgeText}"
+                                           Placeholder="Age"
+                                           PlaceholderColor="#555555"
+                                           TextColor="Black"
+                                           FontFamily="OpenSansSemibold"
+                                           FontSize="18"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalOptions="Center"
+                                           Keyboard="Numeric" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- STEP 4: Physical Specs (BMI, Height, Weight) -->
+                            <VerticalStackLayout Spacing="16" VerticalOptions="Center" IsVisible="False">
+                                <VerticalStackLayout.Triggers>
+                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="4">
+                                        <Setter Property="IsVisible" Value="True" />
+                                    </DataTrigger>
+                                </VerticalStackLayout.Triggers>
+
+                                <Label Text="Physical Metrics"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="24"
+                                       HorizontalOptions="Center" />
+
+                                <!-- Height Card -->
+                                <Border StrokeThickness="0"
+                                        BackgroundColor="#222226"
+                                        StrokeShape="RoundRectangle 20"
+                                        Padding="16">
+                                    <VerticalStackLayout Spacing="10">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label Text="Height" TextColor="White" FontFamily="SyneBold" FontSize="16" VerticalOptions="Center" />
+                                            <Button Grid.Column="1"
+                                                    Text="{Binding HeightUnit}"
+                                                    Command="{Binding ToggleHeightUnitCommand}"
+                                                    TextColor="White"
+                                                    BackgroundColor="#5B2A9E"
+                                                    FontFamily="OpenSansSemibold"
+                                                    CornerRadius="8"
+                                                    HeightRequest="28"
+                                                    Padding="8,0" />
+                                        </Grid>
+
+                                        <!-- ft/in inputs -->
+                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding IsHeightFtIn}">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                                <Label Text="Feet" TextColor="#D0D0D5" FontSize="11" FontFamily="OpenSansSemibold" />
+                                                <Entry Text="{Binding HeightFeetText}"
+                                                       TextColor="White"
+                                                       BackgroundColor="#2A2A2E"
+                                                       Keyboard="Numeric"
+                                                       TextChanged="OnHeightTextChanged" />
+                                            </VerticalStackLayout>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                <Label Text="Inches" TextColor="#D0D0D5" FontSize="11" FontFamily="OpenSansSemibold" />
+                                                <Entry Text="{Binding HeightInchesText}"
+                                                       TextColor="White"
+                                                       BackgroundColor="#2A2A2E"
+                                                       Keyboard="Numeric"
+                                                       TextChanged="OnHeightTextChanged" />
+                                            </VerticalStackLayout>
+                                        </Grid>
+
+                                        <!-- cm input -->
+                                        <VerticalStackLayout Spacing="2" IsVisible="{Binding IsHeightCm}">
+                                            <Label Text="Centimeters" TextColor="#D0D0D5" FontSize="11" FontFamily="OpenSansSemibold" />
+                                            <Entry Text="{Binding HeightCmText}"
+                                                   TextColor="White"
+                                                   BackgroundColor="#2A2A2E"
+                                                   Keyboard="Numeric"
+                                                   TextChanged="OnHeightTextChanged" />
+                                        </VerticalStackLayout>
+
+                                        <Label Text="{Binding HeightMirrorText}" TextColor="#A88EDB" FontSize="13" FontFamily="OpenSansRegular" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Weight Card -->
+                                <Border StrokeThickness="0"
+                                        BackgroundColor="#222226"
+                                        StrokeShape="RoundRectangle 20"
+                                        Padding="16">
+                                    <VerticalStackLayout Spacing="10">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label Text="Weight" TextColor="White" FontFamily="SyneBold" FontSize="16" VerticalOptions="Center" />
+                                            <Button Grid.Column="1"
+                                                    Text="{Binding WeightUnit}"
+                                                    Command="{Binding ToggleWeightUnitCommand}"
+                                                    TextColor="White"
+                                                    BackgroundColor="#5B2A9E"
+                                                    FontFamily="OpenSansSemibold"
+                                                    CornerRadius="8"
+                                                    HeightRequest="28"
+                                                    Padding="8,0" />
+                                        </Grid>
+
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label Text="Value" TextColor="#D0D0D5" FontSize="11" FontFamily="OpenSansSemibold" />
+                                            <Entry Text="{Binding WeightValueText}"
+                                                   TextColor="White"
+                                                   BackgroundColor="#2A2A2E"
+                                                   Keyboard="Numeric"
+                                                   TextChanged="OnWeightTextChanged" />
+                                        </VerticalStackLayout>
+
+                                        <Label Text="{Binding WeightMirrorText}" TextColor="#A88EDB" FontSize="13" FontFamily="OpenSansRegular" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- BMI Result Display -->
+                                <Border StrokeThickness="0"
+                                        BackgroundColor="{Binding BmiBgColor}"
+                                        StrokeShape="RoundRectangle 16"
+                                        Padding="16"
+                                        HorizontalOptions="Center"
+                                        WidthRequest="220">
+                                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                        <Label Text="Computed BMI" TextColor="#D0D0D5" FontSize="12" FontFamily="OpenSansSemibold" HorizontalOptions="Center" />
+                                        <Label Text="{Binding BmiText}" TextColor="White" FontSize="24" FontFamily="SyneBold" HorizontalOptions="Center" />
+                                        <Label Text="{Binding BmiStatus}" TextColor="White" FontSize="13" FontFamily="OpenSansSemibold" HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- STEP 5: Daily Targets -->
+                            <VerticalStackLayout Spacing="20" VerticalOptions="Center" IsVisible="False">
+                                <VerticalStackLayout.Triggers>
+                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="5">
+                                        <Setter Property="IsVisible" Value="True" />
+                                    </DataTrigger>
+                                </VerticalStackLayout.Triggers>
+
+                                <Label Text="Daily Health Targets"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="24"
+                                       HorizontalOptions="Center" />
+
+                                <!-- Calorie Target Card -->
+                                <Border StrokeThickness="0"
+                                        BackgroundColor="#222226"
+                                        StrokeShape="RoundRectangle 20"
+                                        Padding="16">
+                                    <VerticalStackLayout Spacing="8">
+                                        <Label Text="Daily Calorie Intake (kcal)" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="Recommended baseline: 2,000 kcal for general health." TextColor="#A88EDB" FontSize="12" FontFamily="OpenSansRegular" />
+                                        <Border StrokeThickness="0" BackgroundColor="#2A2A2E" HeightRequest="46" StrokeShape="RoundRectangle 10">
+                                            <Entry Text="{Binding CalorieLimitText}" TextColor="White" Keyboard="Numeric" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Water Target Card -->
+                                <Border StrokeThickness="0"
+                                        BackgroundColor="#222226"
+                                        StrokeShape="RoundRectangle 20"
+                                        Padding="16">
+                                    <VerticalStackLayout Spacing="8">
+                                        <Label Text="Daily Water Volume Target (mL)" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="Recommended baseline: 3,000 mL (approx. 100 oz)." TextColor="#A88EDB" FontSize="12" FontFamily="OpenSansRegular" />
+                                        <Border StrokeThickness="0" BackgroundColor="#2A2A2E" HeightRequest="46" StrokeShape="RoundRectangle 10">
+                                            <Entry Text="{Binding WaterLimitText}" TextColor="White" Keyboard="Numeric" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- STEP 6: Flow Completion -->
+                            <VerticalStackLayout Spacing="24" VerticalOptions="Center" Margin="0,30,0,0" IsVisible="False">
+                                <VerticalStackLayout.Triggers>
+                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="6">
+                                        <Setter Property="IsVisible" Value="True" />
+                                    </DataTrigger>
+                                </VerticalStackLayout.Triggers>
+
+                                <Label Text="You're all set!"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="36"
+                                       HorizontalOptions="Center" />
+
+                                <Path Data="M12,2 C6.48,2 2,6.48 2,12 C2,17.52 6.48,22 12,22 C17.52,22 22,17.52 22,12 C22,6.48 17.52,2 12,2 Z M10,17 L5,12 L6.41,10.59 L10,14.17 L17.59,6.58 L19,8 L10,17 Z"
+                                      Fill="#00DF89"
+                                      WidthRequest="80"
+                                      HeightRequest="80"
+                                      HorizontalOptions="Center"
+                                      Margin="0,10" />
+
+                                <Label Text="Your profile has been created and synced with the cloud database. Press 'Let's go' to open your dashboard."
+                                       TextColor="#D0D0D5"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="15"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       Padding="20,0" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </ScrollView>
+
+                    <!-- ═══ Action Footer ═══ -->
+                    <VerticalStackLayout Grid.Row="2" Spacing="12" VerticalOptions="End">
+                        <!-- Validation Error Display -->
+                        <Label Text="{Binding ValidationError}"
+                               TextColor="#FF5252"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="13"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               IsVisible="{Binding ValidationError, Converter={StaticResource Key=NullEmptyToBoolConverter}}" />
+
+                        <!-- Next / Let's go Button -->
+                        <Border StrokeThickness="0"
+                                BackgroundColor="#28272C"
+                                HeightRequest="56"
+                                StrokeShape="RoundRectangle 28">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoNextCommand}" />
+                            </Border.GestureRecognizers>
+                            
+                            <Label Text="{Binding ContinueButtonText}"
+                                   TextColor="#D6D6D6"
+                                   FontFamily="OpenSansSemibold"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+            </Grid>
+        </views:PageTemplate.PageContent>
+    </views:PageTemplate>
+</ContentPage>
