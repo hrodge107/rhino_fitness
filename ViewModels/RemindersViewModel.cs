@@ -43,6 +43,47 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private TimeSpan _selectedTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsWeeklyPattern))]
+        [NotifyPropertyChangedFor(nameof(IsCustomIntervalPattern))]
+        [NotifyPropertyChangedFor(nameof(DailyBgColor))]
+        [NotifyPropertyChangedFor(nameof(WeeklyBgColor))]
+        [NotifyPropertyChangedFor(nameof(CustomIntervalBgColor))]
+        private string _selectedRecurrenceType = "daily"; // "daily", "weekly", "custom_interval"
+
+        [ObservableProperty]
+        private int _intervalValue = 1;
+
+        [ObservableProperty]
+        private string _intervalUnit = "days"; // "days", "weeks"
+
+        [ObservableProperty]
+        private DateTime _startDate = DateTime.Today;
+
+        [ObservableProperty]
+        private DateTime _endDate = DateTime.Today.AddDays(7);
+
+        [ObservableProperty]
+        private TimeSpan _endTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
+
+        public bool IsWeeklyPattern => SelectedRecurrenceType == "weekly";
+        public bool IsCustomIntervalPattern => SelectedRecurrenceType == "custom_interval";
+
+        public string DailyBgColor => SelectedRecurrenceType == "daily" ? "#5B2A9E" : "#2A2A2E";
+        public string WeeklyBgColor => SelectedRecurrenceType == "weekly" ? "#5B2A9E" : "#2A2A2E";
+        public string CustomIntervalBgColor => SelectedRecurrenceType == "custom_interval" ? "#5B2A9E" : "#2A2A2E";
+
+        public ObservableCollection<DayOfWeekChip> WeekDays { get; } = new()
+        {
+            new DayOfWeekChip(DayOfWeek.Monday, "Mon", true),
+            new DayOfWeekChip(DayOfWeek.Tuesday, "Tue", false),
+            new DayOfWeekChip(DayOfWeek.Wednesday, "Wed", true),
+            new DayOfWeekChip(DayOfWeek.Thursday, "Thu", false),
+            new DayOfWeekChip(DayOfWeek.Friday, "Fri", true),
+            new DayOfWeekChip(DayOfWeek.Saturday, "Sat", false),
+            new DayOfWeekChip(DayOfWeek.Sunday, "Sun", false)
+        };
+
         public ObservableCollection<Reminder> Reminders { get; } = new();
 
         public RemindersViewModel(
@@ -55,6 +96,21 @@ namespace FitnessApp.ViewModels
             _notificationScheduler = notificationScheduler;
             _reminderRepository = reminderRepository;
             _plannerStateService = plannerStateService;
+        }
+
+        [RelayCommand]
+        private void SelectRecurrenceType(string type)
+        {
+            SelectedRecurrenceType = type;
+        }
+
+        [RelayCommand]
+        private void ToggleDay(DayOfWeekChip chip)
+        {
+            if (chip != null)
+            {
+                chip.IsSelected = !chip.IsSelected;
+            }
         }
 
         [RelayCommand]
@@ -109,12 +165,41 @@ namespace FitnessApp.ViewModels
 
             if (string.IsNullOrWhiteSpace(SelectedCategory)) return;
 
+            string? daysCsv = null;
+            DateTime? finalEndDate = null;
+
+            if (SelectedRecurrenceType == "weekly")
+            {
+                var selectedDays = WeekDays.Where(d => d.IsSelected).Select(d => d.DisplayName).ToList();
+                if (!selectedDays.Any())
+                {
+                    await Shell.Current.DisplayAlert("Select Days", "Please select at least one day of the week for weekly recurrence.", "OK");
+                    return;
+                }
+                daysCsv = string.Join(", ", selectedDays);
+            }
+            else if (SelectedRecurrenceType == "custom_interval")
+            {
+                finalEndDate = EndDate.Date.Add(EndTime);
+                if (finalEndDate <= DateTime.Now)
+                {
+                    await Shell.Current.DisplayAlert("Required End Date", "Custom Interval schedules require a future end date and time.", "OK");
+                    return;
+                }
+            }
+
             var newReminder = new Reminder
             {
                 UserId = user.Id,
                 Category = SelectedCategory,
                 Hour = SelectedTime.Hours,
-                Minute = SelectedTime.Minutes
+                Minute = SelectedTime.Minutes,
+                RecurrenceType = SelectedRecurrenceType,
+                DaysOfWeek = daysCsv,
+                IntervalValue = Math.Max(1, IntervalValue),
+                IntervalUnit = string.IsNullOrWhiteSpace(IntervalUnit) ? "days" : IntervalUnit,
+                StartDate = StartDate.Date.Add(SelectedTime),
+                EndDate = finalEndDate
             };
 
             IsBusy = true;
@@ -125,10 +210,6 @@ namespace FitnessApp.ViewModels
                 {
                     await _notificationScheduler.ScheduleReminderAsync(newReminder);
                     await LoadRemindersAsync();
-                }
-                else
-                {
-                    await Shell.Current.DisplayAlert("Duplicate", "A reminder for this category and time already exists.", "OK");
                 }
             }
             finally

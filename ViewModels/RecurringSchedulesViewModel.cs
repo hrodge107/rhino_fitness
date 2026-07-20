@@ -63,15 +63,15 @@ namespace FitnessApp.ViewModels
 
                 foreach (var s in rawSchedules)
                 {
-                    // Resolve exercise names
+                    // exercise names
                     var exIds = s.ExerciseIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                     var names = exIds.Select(id => catalogDict.TryGetValue(id, out var name) ? name : id).ToList();
                     string exerciseNamesText = string.Join(", ", names);
 
-                    // Build Pattern Description
+                    // Pattern Description
                     string patternDesc = FormatPattern(s);
 
-                    // Build Duration Description
+                    // Duration Description
                     string durationDesc = FormatDuration(s);
 
                     displayItems.Add(new RecurringScheduleDisplayItem

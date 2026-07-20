@@ -17,28 +17,32 @@ namespace FitnessApp.Services
 
         public async Task<List<Reminder>> GetRemindersForUserAsync(int userId)
         {
-            return await _connection.Table<Reminder>()
+            var reminders = await _connection.Table<Reminder>()
                 .Where(r => r.UserId == userId)
                 .OrderBy(r => r.Hour)
                 .ThenBy(r => r.Minute)
                 .ToListAsync();
+
+            var now = DateTime.Now;
+            var expiredReminders = reminders.Where(r => 
+                string.Equals(r.RecurrenceType, "custom_interval", StringComparison.OrdinalIgnoreCase) && 
+                r.EndDate.HasValue && 
+                r.EndDate.Value < now).ToList();
+
+            if (expiredReminders.Any())
+            {
+                foreach (var expired in expiredReminders)
+                {
+                    await _connection.DeleteAsync<Reminder>(expired.Id);
+                    reminders.Remove(expired);
+                }
+            }
+
+            return reminders;
         }
 
         public async Task<bool> AddReminderAsync(Reminder reminder)
         {
-            // Check duplicate
-            var duplicate = await _connection.Table<Reminder>()
-                .Where(r => r.UserId == reminder.UserId &&
-                            r.Category == reminder.Category &&
-                            r.Hour == reminder.Hour &&
-                            r.Minute == reminder.Minute)
-                .FirstOrDefaultAsync();
-
-            if (duplicate != null)
-            {
-                return false;
-            }
-
             reminder.CreatedAt = DateTime.UtcNow;
             var result = await _connection.InsertAsync(reminder);
             return result > 0;

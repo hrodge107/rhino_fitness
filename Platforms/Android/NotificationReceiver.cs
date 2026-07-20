@@ -49,6 +49,35 @@ namespace FitnessApp.Services
                 .SetPriority(NotificationCompat.PriorityHigh);
 
             notificationManager?.Notify(reminderId, notificationBuilder.Build());
+
+            if (reminderId > 0)
+            {
+                var pendingResult = GoAsync();
+                System.Threading.Tasks.Task.Run(async () =>
+                {
+                    try
+                    {
+                        var dbPath = System.IO.Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, "fitnessapp.db3");
+                        if (System.IO.File.Exists(dbPath))
+                        {
+                            var connection = new SQLite.SQLiteAsyncConnection(dbPath, SQLite.SQLiteOpenFlags.ReadWrite | SQLite.SQLiteOpenFlags.SharedCache, storeDateTimeAsTicks: false);
+                            var reminder = await connection.Table<FitnessApp.Models.Reminder>().Where(r => r.Id == reminderId).FirstOrDefaultAsync().ConfigureAwait(false);
+                            if (reminder != null)
+                            {
+                                NotificationScheduler.ScheduleNotification(context, reminder);
+                            }
+                        }
+                    }
+                    catch (System.Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"NotificationReceiver failed to reschedule: {ex.Message}");
+                    }
+                    finally
+                    {
+                        pendingResult?.Finish();
+                    }
+                });
+            }
         }
     }
 }

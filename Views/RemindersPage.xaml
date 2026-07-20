@@ -4,6 +4,7 @@
              xmlns:views="clr-namespace:FitnessApp.Views"
              xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
              xmlns:models="clr-namespace:FitnessApp.Models"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              x:DataType="viewmodels:RemindersViewModel"
              x:Class="FitnessApp.Views.RemindersPage"
              Shell.NavBarIsVisible="False"
@@ -112,18 +113,155 @@
                                                 BackgroundColor="#2A2A2E"
                                                 HeightRequest="44" />
                                 </VerticalStackLayout>
-
-                                <!-- Save Button -->
-                                <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                        Text="Add Reminder"
-                                        Command="{Binding AddReminderCommand}"
-                                        IsEnabled="{Binding HasNotificationPermission}"
-                                        TextColor="White"
-                                        BackgroundColor="#5B2A9E"
-                                        CornerRadius="14"
-                                        HeightRequest="48"
-                                        FontFamily="OpenSansSemibold" />
                             </Grid>
+
+                            <!-- Recurrence Pattern Selection Card -->
+                            <Border BackgroundColor="#1B1B1F"
+                                    StrokeThickness="1"
+                                    Stroke="#3A3A40"
+                                    StrokeShape="RoundRectangle 16"
+                                    Padding="14">
+                                <VerticalStackLayout Spacing="12">
+                                    <Label Text="RECURRENCE TYPE"
+                                           TextColor="#9B7FD4"
+                                           FontFamily="OpenSansSemibold"
+                                           FontSize="11"
+                                           CharacterSpacing="1" />
+
+                                    <!-- Pattern Selection Buttons -->
+                                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                                        <Button Grid.Column="0"
+                                                Text="Daily"
+                                                Command="{Binding SelectRecurrenceTypeCommand}"
+                                                CommandParameter="daily"
+                                                BackgroundColor="{Binding DailyBgColor}"
+                                                TextColor="White"
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="12"
+                                                CornerRadius="10"
+                                                Padding="0"
+                                                HeightRequest="38" />
+
+                                        <Button Grid.Column="1"
+                                                Text="Weekly"
+                                                Command="{Binding SelectRecurrenceTypeCommand}"
+                                                CommandParameter="weekly"
+                                                BackgroundColor="{Binding WeeklyBgColor}"
+                                                TextColor="White"
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="12"
+                                                CornerRadius="10"
+                                                Padding="0"
+                                                HeightRequest="38" />
+
+                                        <Button Grid.Column="2"
+                                                Text="Custom Interval"
+                                                Command="{Binding SelectRecurrenceTypeCommand}"
+                                                CommandParameter="custom_interval"
+                                                BackgroundColor="{Binding CustomIntervalBgColor}"
+                                                TextColor="White"
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="11"
+                                                CornerRadius="10"
+                                                Padding="0"
+                                                HeightRequest="38" />
+                                    </Grid>
+
+                                    <!-- Weekly Days Selection (Visible when Pattern == 'weekly') -->
+                                    <VerticalStackLayout Spacing="8" IsVisible="{Binding IsWeeklyPattern}" Margin="0,4,0,0">
+                                        <Label Text="SELECT DAYS"
+                                               TextColor="#9B7FD4"
+                                               FontFamily="OpenSansSemibold"
+                                               FontSize="11"
+                                               CharacterSpacing="1" />
+                                        <CollectionView ItemsSource="{Binding WeekDays}"
+                                                        HeightRequest="42">
+                                            <CollectionView.ItemsLayout>
+                                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+                                            </CollectionView.ItemsLayout>
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate x:DataType="viewmodels:DayOfWeekChip">
+                                                    <Button Text="{Binding DisplayName}"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:RemindersViewModel}}, Path=ToggleDayCommand}"
+                                                            CommandParameter="{Binding .}"
+                                                            BackgroundColor="{Binding ChipBgColor}"
+                                                            TextColor="White"
+                                                            BorderColor="{Binding ChipBorderColor}"
+                                                            BorderWidth="1"
+                                                            CornerRadius="10"
+                                                            FontFamily="OpenSansSemibold"
+                                                            FontSize="12"
+                                                            Padding="0"
+                                                            WidthRequest="42"
+                                                            HeightRequest="38" />
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
+                                    </VerticalStackLayout>
+
+                                    <!-- Custom Interval Inputs (Visible when Pattern == 'custom_interval') -->
+                                    <VerticalStackLayout Spacing="10" IsVisible="{Binding IsCustomIntervalPattern}" Margin="0,4,0,0">
+                                        <Label Text="REPEAT INTERVAL"
+                                               TextColor="#9B7FD4"
+                                               FontFamily="OpenSansSemibold"
+                                               FontSize="11"
+                                               CharacterSpacing="1" />
+                                        <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                                            <Entry Grid.Column="0"
+                                                   Text="{Binding IntervalValue}"
+                                                   Keyboard="Numeric"
+                                                   TextColor="White"
+                                                   BackgroundColor="#2A2A2E"
+                                                   FontFamily="OpenSansSemibold"
+                                                   FontSize="14"
+                                                   HeightRequest="40" />
+                                            <Picker Grid.Column="1"
+                                                    SelectedItem="{Binding IntervalUnit}"
+                                                    TextColor="White"
+                                                    BackgroundColor="#2A2A2E"
+                                                    FontFamily="OpenSansSemibold"
+                                                    FontSize="14"
+                                                    HeightRequest="40">
+                                                <Picker.ItemsSource>
+                                                    <x:Array Type="{x:Type x:String}">
+                                                        <x:String>days</x:String>
+                                                        <x:String>weeks</x:String>
+                                                    </x:Array>
+                                                </Picker.ItemsSource>
+                                            </Picker>
+                                        </Grid>
+
+                                        <Label Text="REQUIRED END DATE &amp; TIME"
+                                               TextColor="#9B7FD4"
+                                               FontFamily="OpenSansSemibold"
+                                               FontSize="11"
+                                               CharacterSpacing="1" />
+                                        <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                                            <DatePicker Grid.Column="0"
+                                                        Date="{Binding EndDate}"
+                                                        TextColor="White"
+                                                        BackgroundColor="#2A2A2E"
+                                                        MinimumDate="{x:Static sys:DateTime.Today}"
+                                                        HeightRequest="40" />
+                                            <TimePicker Grid.Column="1"
+                                                        Time="{Binding EndTime}"
+                                                        TextColor="White"
+                                                        BackgroundColor="#2A2A2E"
+                                                        HeightRequest="40" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <!-- Save Button -->
+                            <Button Text="Add Reminder"
+                                    Command="{Binding AddReminderCommand}"
+                                    IsEnabled="{Binding HasNotificationPermission}"
+                                    TextColor="White"
+                                    BackgroundColor="#5B2A9E"
+                                    CornerRadius="14"
+                                    HeightRequest="48"
+                                    FontFamily="OpenSansSemibold" />
                         </VerticalStackLayout>
                     </Border>
 
@@ -152,7 +290,7 @@
                                            FontSize="14"
                                            FontFamily="OpenSansRegular"
                                            HorizontalOptions="Center" />
-                                    <Label Text="Add daily reminders above to stay consistent."
+                                    <Label Text="Add reminders above to stay consistent."
                                            TextColor="#88888C"
                                            FontSize="12"
                                            FontFamily="OpenSansRegular"
@@ -185,30 +323,16 @@
                                                       VerticalOptions="Center" />
                                             </Border>
 
-                                            <!-- Category & Time Details -->
+                                            <!-- Category & Recurrence Details -->
                                             <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
                                                 <Label Text="{Binding Category}"
                                                        TextColor="White"
                                                        FontFamily="OpenSansSemibold"
                                                        FontSize="16" />
-                                                <HorizontalStackLayout Spacing="2">
-                                                    <Label Text="Every day at "
-                                                           TextColor="#D0D0D5"
-                                                           FontFamily="OpenSansRegular"
-                                                           FontSize="13" />
-                                                    <Label Text="{Binding Hour, StringFormat='{0:D2}'}"
-                                                           TextColor="#9B7FD4"
-                                                           FontFamily="OpenSansSemibold"
-                                                           FontSize="13" />
-                                                    <Label Text=":"
-                                                           TextColor="#9B7FD4"
-                                                           FontFamily="OpenSansSemibold"
-                                                           FontSize="13" />
-                                                    <Label Text="{Binding Minute, StringFormat='{0:D2}'}"
-                                                           TextColor="#9B7FD4"
-                                                           FontFamily="OpenSansSemibold"
-                                                           FontSize="13" />
-                                                </HorizontalStackLayout>
+                                                <Label Text="{Binding RecurrenceSummaryText}"
+                                                       TextColor="#9B7FD4"
+                                                       FontFamily="OpenSansRegular"
+                                                       FontSize="13" />
                                             </VerticalStackLayout>
 
                                             <!-- Delete Button -->

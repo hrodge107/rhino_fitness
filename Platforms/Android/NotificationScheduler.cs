@@ -74,23 +74,128 @@ namespace FitnessApp.Services
 
             var alarmManager = context.GetSystemService(Context.AlarmService) as AlarmManager;
 
-            var calendar = Java.Util.Calendar.Instance;
-            if (calendar == null) return;
-            calendar.TimeInMillis = Java.Lang.JavaSystem.CurrentTimeMillis();
-            calendar.Set(Java.Util.CalendarField.HourOfDay, reminder.Hour);
-            calendar.Set(Java.Util.CalendarField.Minute, reminder.Minute);
-            calendar.Set(Java.Util.CalendarField.Second, 0);
+            var nextRun = GetNextRunTime(reminder);
+            if (!nextRun.HasValue) return;
 
-            if (calendar.TimeInMillis <= Java.Lang.JavaSystem.CurrentTimeMillis())
+            var targetCal = Java.Util.Calendar.Instance;
+            if (targetCal == null) return;
+            targetCal.Set(nextRun.Value.Year, nextRun.Value.Month - 1, nextRun.Value.Day, nextRun.Value.Hour, nextRun.Value.Minute, 0);
+            targetCal.Set(Java.Util.CalendarField.Millisecond, 0);
+
+            if (alarmManager != null)
             {
-                calendar.Add(Java.Util.CalendarField.DayOfMonth, 1);
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.S && !alarmManager.CanScheduleExactAlarms())
+                {
+                    alarmManager.SetAndAllowWhileIdle(AlarmType.RtcWakeup, targetCal.TimeInMillis, pendingIntent);
+                }
+                else
+                {
+                    alarmManager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, targetCal.TimeInMillis, pendingIntent);
+                }
             }
+        }
 
-            alarmManager?.SetRepeating(
-                AlarmType.RtcWakeup,
-                calendar.TimeInMillis,
-                AlarmManager.IntervalDay,
-                pendingIntent);
+        private static DateTime? GetNextRunTime(Reminder reminder)
+        {
+            var now = DateTime.Now;
+
+            if (string.Equals(reminder.RecurrenceType, "custom_interval", StringComparison.OrdinalIgnoreCase))
+            {
+                if (reminder.EndDate.HasValue && reminder.EndDate.Value < now)
+                {
+                    return null; // Expired
+                }
+
+                DateTime start = reminder.StartDate ?? now.Date;
+                DateTime nextRun = new DateTime(start.Year, start.Month, start.Day, reminder.Hour, reminder.Minute, 0);
+
+                while (nextRun <= now)
+                {
+                    if (string.Equals(reminder.IntervalUnit, "weeks", StringComparison.OrdinalIgnoreCase))
+                        nextRun = nextRun.AddDays(7 * Math.Max(1, reminder.IntervalValue));
+                    else
+                        nextRun = nextRun.AddDays(Math.Max(1, reminder.IntervalValue));
+                }
+
+                if (reminder.EndDate.HasValue && nextRun > reminder.EndDate.Value)
+                {
+                    return null; // Next run past end date
+                }
+
+                return nextRun;
+            }
+            else if (string.Equals(reminder.RecurrenceType, "weekly", StringComparison.OrdinalIgnoreCase))
+            {
+                var targetDays = ParseDaysOfWeek(reminder.DaysOfWeek);
+                DateTime nextRun = new DateTime(now.Year, now.Month, now.Day, reminder.Hour, reminder.Minute, 0);
+                if (nextRun <= now)
+                {
+                    nextRun = nextRun.AddDays(1);
+                }
+
+                if (targetDays.Count > 0)
+                {
+                    int attempts = 0;
+                    while (!targetDays.Contains(nextRun.DayOfWeek) && attempts < 14)
+                    {
+                        nextRun = nextRun.AddDays(1);
+                        attempts++;
+                    }
+                }
+
+                return nextRun;
+            }
+            else // "daily" or default
+            {
+                DateTime nextRun = new DateTime(now.Year, now.Month, now.Day, reminder.Hour, reminder.Minute, 0);
+                if (nextRun <= now)
+                {
+                    nextRun = nextRun.AddDays(1);
+                }
+                return nextRun;
+            }
+        }
+
+        private static System.Collections.Generic.HashSet<DayOfWeek> ParseDaysOfWeek(string? daysOfWeekStr)
+        {
+            var result = new System.Collections.Generic.HashSet<DayOfWeek>();
+            if (string.IsNullOrWhiteSpace(daysOfWeekStr)) return result;
+
+            var parts = daysOfWeekStr.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            foreach (var part in parts)
+            {
+                if (Enum.TryParse<DayOfWeek>(part, true, out var dow))
+                {
+                    result.Add(dow);
+                }
+                else if (int.TryParse(part, out var num))
+                {
+                    if (num >= 0 && num <= 6)
+                    {
+                        result.Add((DayOfWeek)num);
+                    }
+                    else if (num == 7)
+                    {
+                        result.Add(DayOfWeek.Sunday);
+                    }
+                }
+                else
+                {
+                    var match = part.ToLowerInvariant() switch
+                    {
+                        "sun" or "sunday" => DayOfWeek.Sunday,
+                        "mon" or "monday" => DayOfWeek.Monday,
+                        "tue" or "tues" or "tuesday" => DayOfWeek.Tuesday,
+                        "wed" or "wednesday" => DayOfWeek.Wednesday,
+                        "thu" or "thur" or "thurs" or "thursday" => DayOfWeek.Thursday,
+                        "fri" or "friday" => DayOfWeek.Friday,
+                        "sat" or "saturday" => DayOfWeek.Saturday,
+                        _ => (DayOfWeek?)null
+                    };
+                    if (match.HasValue) result.Add(match.Value);
+                }
+            }
+            return result;
         }
 
         public static void CancelNotification(Context context, Reminder reminder)
