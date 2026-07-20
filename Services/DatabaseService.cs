@@ -68,6 +68,9 @@ namespace FitnessApp.Services
             try { await db.ExecuteAsync("ALTER TABLE scheduled_exercises ADD COLUMN duration_seconds INTEGER DEFAULT 0"); }
             catch { /* column already exists */ }
 
+            try { await db.ExecuteAsync("ALTER TABLE scheduled_exercises ADD COLUMN recurring_schedule_id INTEGER"); }
+            catch { /* column already exists */ }
+
             // Migrate user ticks to ISO dates
             try
             {
@@ -164,6 +167,7 @@ namespace FitnessApp.Services
             await db.CreateTableAsync<MealLog>().ConfigureAwait(false);
             await db.CreateTableAsync<WaterLog>().ConfigureAwait(false);
             await db.CreateTableAsync<Reminder>().ConfigureAwait(false);
+            await db.CreateTableAsync<RecurringSchedule>().ConfigureAwait(false);
 
             await MigrateDatabaseAsync(db).ConfigureAwait(false);
 

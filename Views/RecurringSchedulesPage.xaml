@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:FitnessApp.Views"
+             xmlns:viewmodels="clr-namespace:FitnessApp.ViewModels"
+             x:DataType="viewmodels:RecurringSchedulesViewModel"
+             x:Class="FitnessApp.Views.RecurringSchedulesPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1B1B1F"
+             Title="Recurring Schedules">
+
+    <views:PageTemplate PageTitle="Recurring Schedules" ShowBackArrow="True">
+        <views:PageTemplate.PageContent>
+            <Grid RowDefinitions="*">
+                
+                <!-- Loading -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="#9B7FD4"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Center" />
+
+                <!-- Empty State -->
+                <VerticalStackLayout IsVisible="{Binding HasNoSchedules}"
+                                     VerticalOptions="Center"
+                                     HorizontalOptions="Center"
+                                     Spacing="12"
+                                     Margin="20">
+                    <Label Text="🔄" FontSize="48" HorizontalOptions="Center" />
+                    <Label Text="No Active Recurring Schedules"
+                           TextColor="White"
+                           FontFamily="SyneBold"
+                           FontSize="18"
+                           HorizontalOptions="Center" />
+                    <Label Text="When you add exercises with recurrence enabled, they will appear here."
+                           TextColor="#D0D0D5"
+                           FontFamily="OpenSansRegular"
+                           FontSize="14"
+                           HorizontalTextAlignment="Center"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <!-- List of Active Recurring Schedules -->
+                <CollectionView ItemsSource="{Binding Schedules}"
+                                IsVisible="{Binding HasSchedules}"
+                                Margin="20,16">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="16" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="viewmodels:RecurringScheduleDisplayItem">
+                            <Border StrokeThickness="1"
+                                    Stroke="#3A3A40"
+                                    BackgroundColor="#222226"
+                                    StrokeShape="RoundRectangle 20"
+                                    Padding="20">
+                                <VerticalStackLayout Spacing="12">
+                                    <!-- Exercise Names -->
+                                    <Label Text="{Binding ExerciseNames}"
+                                           TextColor="White"
+                                           FontFamily="SyneBold"
+                                           FontSize="18"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="2" />
+
+                                    <BoxView HeightRequest="1" Color="#3A3A40" />
+
+                                    <!-- Schedule Info Grid -->
+                                    <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto" RowSpacing="8" ColumnSpacing="12">
+                                        <!-- Pattern -->
+                                        <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
+                                            <Label Text="PATTERN" TextColor="#9B7FD4" FontFamily="OpenSansSemibold" FontSize="11" />
+                                            <Label Text="{Binding PatternDescription}" TextColor="White" FontFamily="OpenSansRegular" FontSize="14" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Duration -->
+                                        <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2">
+                                            <Label Text="DURATION" TextColor="#9B7FD4" FontFamily="OpenSansSemibold" FontSize="11" />
+                                            <Label Text="{Binding DurationDescription}" TextColor="White" FontFamily="OpenSansRegular" FontSize="14" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Created Date -->
+                                        <VerticalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="2">
+                                            <Label Text="{Binding CreatedAtText}" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="12" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+
+                                    <!-- Action Button -->
+                                    <Button Text="Cancel Schedule"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:RecurringSchedulesViewModel}}, Path=CancelScheduleCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#3E2323"
+                                            TextColor="#FF6B6B"
+                                            FontFamily="OpenSansSemibold"
+                                            FontSize="14"
+                                            CornerRadius="12"
+                                            HeightRequest="42"
+                                            Margin="0,4,0,0" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </views:PageTemplate.PageContent>
+    </views:PageTemplate>
+</ContentPage>

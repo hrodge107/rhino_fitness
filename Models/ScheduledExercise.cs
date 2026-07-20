@@ -33,6 +33,9 @@ namespace FitnessApp.Models
         [Column("is_synced")]
         public bool IsSynced { get; set; } = false;
 
+        [Column("recurring_schedule_id")]
+        public int? RecurringScheduleId { get; set; }
+
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

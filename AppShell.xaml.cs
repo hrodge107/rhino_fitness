@@ -24,6 +24,7 @@ namespace FitnessApp
             Routing.RegisterRoute("OnboardingPage", typeof(Views.OnboardingPage));
             Routing.RegisterRoute("MealCategoryPage", typeof(Views.MealCategoryPage));
             Routing.RegisterRoute("RemindersPage", typeof(Views.RemindersPage));
+            Routing.RegisterRoute("RecurringSchedulesPage", typeof(Views.RecurringSchedulesPage));
         }
 
         private async Task ExecuteLogoutAsync()

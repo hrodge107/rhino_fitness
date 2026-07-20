@@ -34,6 +34,9 @@ namespace FitnessApp.Services
 
         [Postgrest.Attributes.Column("duration_seconds")]
         public int DurationSeconds { get; set; }
+
+        [Postgrest.Attributes.Column("recurring_schedule_id")]
+        public int? RecurringScheduleId { get; set; }
     }
 
     public class ScheduledExerciseRepository : IScheduledExerciseRepository
@@ -64,7 +67,8 @@ namespace FitnessApp.Services
                 IsSynced = se.IsSynced,
                 UpdatedAt = se.UpdatedAt,
                 Sets = se.Sets,
-                DurationSeconds = se.DurationSeconds
+                DurationSeconds = se.DurationSeconds,
+                RecurringScheduleId = se.RecurringScheduleId
             };
         }
 
@@ -80,7 +84,8 @@ namespace FitnessApp.Services
                 IsSynced = true,
                 UpdatedAt = DateTime.UtcNow,
                 Sets = se.Sets,
-                DurationSeconds = se.DurationSeconds
+                DurationSeconds = se.DurationSeconds,
+                RecurringScheduleId = se.RecurringScheduleId
             };
         }
 

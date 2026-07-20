@@ -202,12 +202,33 @@
 
                     <!-- ═══ SECTION 2: Scheduled Exercises List ═══ -->
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="SCHEDULED ROUTINE"
-                               TextColor="White"
-                               FontFamily="SyneBold"
-                               FontSize="18"
-                               CharacterSpacing="1.5"
-                               Margin="0,4,0,4" />
+                        <Grid ColumnDefinitions="*, Auto" Margin="0,4,0,4">
+                            <Label Grid.Column="0"
+                                   Text="SCHEDULED ROUTINE"
+                                   TextColor="White"
+                                   FontFamily="SyneBold"
+                                   FontSize="18"
+                                   CharacterSpacing="1.5"
+                                   VerticalOptions="Center" />
+                            <Border Grid.Column="1"
+                                    StrokeThickness="1"
+                                    Stroke="#5B2A9E"
+                                    BackgroundColor="#222226"
+                                    StrokeShape="RoundRectangle 12"
+                                    Padding="10,6">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ManageRecurringSchedulesCommand}" />
+                                </Border.GestureRecognizers>
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <Label Text="🔄" FontSize="12" VerticalOptions="Center" />
+                                    <Label Text="Manage Recurring"
+                                           TextColor="#9B7FD4"
+                                           FontFamily="OpenSansSemibold"
+                                           FontSize="12"
+                                           VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Border>
+                        </Grid>
 
                         <!-- Status Filter Pill -->
                         <Border StrokeThickness="1"
@@ -223,7 +244,7 @@
                                     TextColor="White"
                                     FontFamily="OpenSansSemibold"
                                     FontSize="13"
-                                    Title="Filter"
+
                                     TitleColor="#888888" />
                         </Border>
 
@@ -292,6 +313,9 @@
                                                     </Border>
                                                     <Border StrokeThickness="0" BackgroundColor="#2E2E34" Padding="8,3" StrokeShape="RoundRectangle 8">
                                                         <Label Text="{Binding Muscle, Converter={StaticResource TitleCaseConverter}}" TextColor="#D0D0D5" FontSize="11" FontFamily="OpenSansSemibold" />
+                                                    </Border>
+                                                    <Border StrokeThickness="0" BackgroundColor="#5B2A9E" Padding="6,3" StrokeShape="RoundRectangle 8" IsVisible="{Binding IsRecurring}">
+                                                        <Label Text="🔄 Recurring" TextColor="White" FontSize="10" FontFamily="OpenSansSemibold" VerticalOptions="Center" />
                                                     </Border>
                                                 </HorizontalStackLayout>
                                             </VerticalStackLayout>

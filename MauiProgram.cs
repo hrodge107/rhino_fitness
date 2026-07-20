@@ -26,6 +26,7 @@ namespace FitnessApp
                 new SessionService(provider.GetRequiredService<IDatabaseService>().Connection));
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
             builder.Services.AddSingleton<IScheduledExerciseRepository, ScheduledExerciseRepository>();
+            builder.Services.AddSingleton<IRecurringScheduleRepository, RecurringScheduleRepository>();
             builder.Services.AddSingleton<IMealLogRepository, MealLogRepository>();
             builder.Services.AddSingleton<IWaterLogRepository, WaterLogRepository>();
             builder.Services.AddSingleton<IReminderRepository, ReminderRepository>();
@@ -73,6 +74,8 @@ namespace FitnessApp
             builder.Services.AddTransient<MealCategoryViewModel>();
             builder.Services.AddTransient<RemindersPage>();
             builder.Services.AddTransient<RemindersViewModel>();
+            builder.Services.AddTransient<RecurringSchedulesPage>();
+            builder.Services.AddTransient<RecurringSchedulesViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

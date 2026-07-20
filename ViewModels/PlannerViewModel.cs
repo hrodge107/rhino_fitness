@@ -25,6 +25,8 @@ namespace FitnessApp.ViewModels
         public string BodyPart { get; set; } = string.Empty;
         public string Muscle { get; set; } = string.Empty;
         public string Status { get; set; } = "PENDING";
+        public bool IsRecurring { get; set; }
+        public int? RecurringScheduleId { get; set; }
 
         public bool IsMissed => Status == "MISSED";
         public bool IsPending => Status == "PENDING";
@@ -38,6 +40,7 @@ namespace FitnessApp.ViewModels
     {
         private readonly IScheduledExerciseRepository _scheduledExerciseRepository;
         private readonly IExerciseRepository _exerciseRepository;
+        private readonly IRecurringScheduleRepository _recurringScheduleRepository;
         private readonly IPlannerStateService _plannerStateService;
 
         // Cache 42-day range populated by BuildCalendarAsync
@@ -98,10 +101,12 @@ namespace FitnessApp.ViewModels
             INavigationService navigationService,
             IScheduledExerciseRepository scheduledExerciseRepository,
             IExerciseRepository exerciseRepository,
+            IRecurringScheduleRepository recurringScheduleRepository,
             IPlannerStateService plannerStateService) : base(navigationService)
         {
             _scheduledExerciseRepository = scheduledExerciseRepository;
             _exerciseRepository          = exerciseRepository;
+            _recurringScheduleRepository = recurringScheduleRepository;
             _plannerStateService         = plannerStateService;
 
             SelectedDate = _plannerStateService.SelectedDate;
@@ -117,6 +122,7 @@ namespace FitnessApp.ViewModels
             try
             {
                 await _scheduledExerciseRepository.UpdateMissedExercisesAsync(UserId, DateTime.Today);
+                await _recurringScheduleRepository.ExtendWindowAsync(UserId);
                 UpdateFilterOptions(SelectedDate);
                 await BuildCalendarAsync();      // populates _cachedRangeData
                 await LoadScheduledExercisesAsync(); // consumes _cachedRangeData
@@ -194,7 +200,9 @@ namespace FitnessApp.ViewModels
                               GifUrl              = c.GifUrl,
                               BodyPart            = c.BodyPart,
                               Muscle              = c.Muscle,
-                              Status              = s.Status
+                              Status              = s.Status,
+                              IsRecurring         = s.RecurringScheduleId.HasValue,
+                              RecurringScheduleId = s.RecurringScheduleId
                           }).ToList();
 
             _allCurrentExercises = joined;
@@ -304,6 +312,12 @@ namespace FitnessApp.ViewModels
         }
 
         [RelayCommand]
+        private async Task ManageRecurringSchedules()
+        {
+            await NavigationService.GoToAsync("RecurringSchedulesPage");
+        }
+
+        [RelayCommand]
         private async Task StartWorkout(PlannedWorkoutItem item)
         {
             if (item == null) return;
@@ -315,35 +329,76 @@ namespace FitnessApp.ViewModels
         {
             if (item == null) return;
 
-            bool confirm = await Shell.Current.DisplayAlert(
-                "Delete Scheduled Exercise",
-                $"Are you sure you want to remove {item.Name} from your schedule?",
-                "Yes", "No");
-
-            if (confirm)
+            if (item.IsRecurring)
             {
+                string action = await Shell.Current.DisplayActionSheet(
+                    "Delete Recurring Exercise",
+                    "Cancel",
+                    null,
+                    "This occurrence only",
+                    "This and following occurrences",
+                    "All occurrences");
+
+                if (string.IsNullOrEmpty(action) || action == "Cancel") return;
+
+                string scope = action switch
+                {
+                    "This occurrence only" => "this_only",
+                    "This and following occurrences" => "this_and_following",
+                    "All occurrences" => "all",
+                    _ => "this_only"
+                };
+
                 try
                 {
-                    var success = await _scheduledExerciseRepository
-                        .DeleteScheduledExerciseAsync(item.ScheduledExerciseId);
-
+                    var success = await _recurringScheduleRepository.DeleteInstanceAsync(item.ScheduledExerciseId, scope);
                     if (success)
                     {
-                        // Rebuild calendar cache and reload
                         await BuildCalendarAsync();
                         await LoadScheduledExercisesAsync();
                     }
                     else
                     {
-                        await Shell.Current.DisplayAlert("Error",
-                            "Could not delete exercise. Please try again.", "OK");
+                        await Shell.Current.DisplayAlert("Error", "Could not delete exercise. Please try again.", "OK");
                     }
                 }
                 catch (Exception ex)
                 {
-                    // Friendly error message without stack trace
-                    await Shell.Current.DisplayAlert("Error",
-                        $"Could not delete exercise: {ex.Message}", "OK");
+                    await Shell.Current.DisplayAlert("Error", $"Could not delete exercise: {ex.Message}", "OK");
+                }
+            }
+            else
+            {
+                bool confirm = await Shell.Current.DisplayAlert(
+                    "Delete Scheduled Exercise",
+                    $"Are you sure you want to remove {item.Name} from your schedule?",
+                    "Yes", "No");
+
+                if (confirm)
+                {
+                    try
+                    {
+                        var success = await _scheduledExerciseRepository
+                            .DeleteScheduledExerciseAsync(item.ScheduledExerciseId);
+
+                        if (success)
+                        {
+                            // Rebuild calendar cache and reload
+                            await BuildCalendarAsync();
+                            await LoadScheduledExercisesAsync();
+                        }
+                        else
+                        {
+                            await Shell.Current.DisplayAlert("Error",
+                                "Could not delete exercise. Please try again.", "OK");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Friendly error message without stack trace
+                        await Shell.Current.DisplayAlert("Error",
+                            $"Could not delete exercise: {ex.Message}", "OK");
+                    }
                 }
             }
         }
