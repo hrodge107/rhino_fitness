@@ -12,7 +12,7 @@ namespace FitnessApp.Services
     [IntentFilter(new[] { Intent.ActionBootCompleted })]
     public class BootReceiver : BroadcastReceiver
     {
-        public override void OnReceive(Context context, Intent intent)
+        public override void OnReceive(Context? context, Intent? intent)
         {
             if (context == null || intent == null) return;
             if (intent.Action != Intent.ActionBootCompleted) return;

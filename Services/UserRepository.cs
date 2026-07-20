@@ -55,6 +55,12 @@ namespace FitnessApp.Services
 
         [Postgrest.Attributes.Column("water_limit")]
         public double WaterLimit { get; set; } = 3000;
+
+        [Postgrest.Attributes.Column("goal")]
+        public string Goal { get; set; } = "Maintain";
+
+        [Postgrest.Attributes.Column("activity_level")]
+        public string ActivityLevel { get; set; } = "Moderately Active";
     }
 
     public class UserRepository : IUserRepository
@@ -107,7 +113,9 @@ namespace FitnessApp.Services
                 SyncId = profile.SyncId,
                 CreatedAt = profile.CreatedAt,
                 CalorieLimit = profile.CalorieLimit,
-                WaterLimit = profile.WaterLimit
+                WaterLimit = profile.WaterLimit,
+                Goal = string.IsNullOrEmpty(profile.Goal) ? "Maintain" : profile.Goal,
+                ActivityLevel = string.IsNullOrEmpty(profile.ActivityLevel) ? "Moderately Active" : profile.ActivityLevel
             };
         }
 
@@ -129,7 +137,9 @@ namespace FitnessApp.Services
                 SyncId = user.SyncId,
                 CreatedAt = user.CreatedAt,
                 CalorieLimit = user.CalorieLimit,
-                WaterLimit = user.WaterLimit
+                WaterLimit = user.WaterLimit,
+                Goal = string.IsNullOrEmpty(user.Goal) ? "Maintain" : user.Goal,
+                ActivityLevel = string.IsNullOrEmpty(user.ActivityLevel) ? "Moderately Active" : user.ActivityLevel
             };
         }
 

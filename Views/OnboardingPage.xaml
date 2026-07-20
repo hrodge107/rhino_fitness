@@ -41,7 +41,7 @@
                         </Button>
 
                         <Label Grid.Column="1"
-                               Text="{Binding CurrentStep, StringFormat='Step {0} of 6'}"
+                               Text="{Binding CurrentStep, StringFormat='Step {0} of 8'}"
                                TextColor="#D6D6D6"
                                FontFamily="OpenSansSemibold"
                                FontSize="14"
@@ -232,10 +232,113 @@
                                 </Border>
                             </VerticalStackLayout>
 
-                            <!-- STEP 4: Physical Specs (BMI, Height, Weight) -->
+                            <!-- STEP 4: Activity Level Selection -->
                             <VerticalStackLayout Spacing="16" VerticalOptions="Center" IsVisible="False">
                                 <VerticalStackLayout.Triggers>
                                     <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="4">
+                                        <Setter Property="IsVisible" Value="True" />
+                                    </DataTrigger>
+                                </VerticalStackLayout.Triggers>
+
+                                <Label Text="Select Activity Level"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="24"
+                                       HorizontalOptions="Center" />
+
+                                <Label Text="Choose the level that best describes your weekly routine."
+                                       TextColor="#D0D0D5"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="14"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       Margin="0,0,0,10" />
+
+                                <!-- Sedentary -->
+                                <Border StrokeThickness="2"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="#222226"
+                                        Padding="16,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectActivityLevelCommand}" CommandParameter="Sedentary" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding ActivityLevel}" Value="Sedentary">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Sedentary" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="Little or no regular exercise" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="12" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Lightly Active -->
+                                <Border StrokeThickness="2"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="#222226"
+                                        Padding="16,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectActivityLevelCommand}" CommandParameter="Lightly Active" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding ActivityLevel}" Value="Lightly Active">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Lightly Active" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="Light exercise / sports 1–3 days per week" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="12" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Moderately Active -->
+                                <Border StrokeThickness="2"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="#222226"
+                                        Padding="16,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectActivityLevelCommand}" CommandParameter="Moderately Active" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding ActivityLevel}" Value="Moderately Active">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Moderately Active" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="Moderate exercise / sports 3–5 days per week" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="12" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Very Active -->
+                                <Border StrokeThickness="2"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="#222226"
+                                        Padding="16,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectActivityLevelCommand}" CommandParameter="Very Active" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding ActivityLevel}" Value="Very Active">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Very Active" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="Hard exercise / sports 6–7 days per week" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="12" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- STEP 5: Physical Specs (BMI, Height, Weight) -->
+                            <VerticalStackLayout Spacing="16" VerticalOptions="Center" IsVisible="False">
+                                <VerticalStackLayout.Triggers>
+                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="5">
                                         <Setter Property="IsVisible" Value="True" />
                                     </DataTrigger>
                                 </VerticalStackLayout.Triggers>
@@ -346,10 +449,113 @@
                                 </Border>
                             </VerticalStackLayout>
 
-                            <!-- STEP 5: Daily Targets -->
+                            <!-- STEP 6: Goal Selection -->
+                            <VerticalStackLayout Spacing="16" VerticalOptions="Center" IsVisible="False">
+                                <VerticalStackLayout.Triggers>
+                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="6">
+                                        <Setter Property="IsVisible" Value="True" />
+                                    </DataTrigger>
+                                </VerticalStackLayout.Triggers>
+
+                                <Label Text="Select Your Primary Goal"
+                                       TextColor="White"
+                                       FontFamily="SyneBold"
+                                       FontSize="24"
+                                       HorizontalOptions="Center" />
+
+                                <Label Text="We'll tailor your daily energy target to match your plan."
+                                       TextColor="#D0D0D5"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="14"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       Margin="0,0,0,10" />
+
+                                <!-- Lose Weight -->
+                                <Border StrokeThickness="2"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="#222226"
+                                        Padding="16,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="Lose Weight" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Goal}" Value="Lose Weight">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Lose Weight" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="Moderate deficit (~0.5 kg/week pace)" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="12" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Maintain -->
+                                <Border StrokeThickness="2"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="#222226"
+                                        Padding="16,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="Maintain" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Goal}" Value="Maintain">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Maintain Weight" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="Maintain your current body weight" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="12" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Gain Weight -->
+                                <Border StrokeThickness="2"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="#222226"
+                                        Padding="16,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="Gain Weight" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Goal}" Value="Gain Weight">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Gain Weight" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="Moderate surplus (~0.5 kg/week pace)" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="12" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Just Track -->
+                                <Border StrokeThickness="2"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="#222226"
+                                        Padding="16,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="Just Track" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Goal}" Value="Just Track">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Just Track" TextColor="White" FontFamily="SyneBold" FontSize="16" />
+                                        <Label Text="Log meals and hydration without weight targets" TextColor="#D0D0D5" FontFamily="OpenSansRegular" FontSize="12" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- STEP 7: Daily Targets -->
                             <VerticalStackLayout Spacing="20" VerticalOptions="Center" IsVisible="False">
                                 <VerticalStackLayout.Triggers>
-                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="5">
+                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="7">
                                         <Setter Property="IsVisible" Value="True" />
                                     </DataTrigger>
                                 </VerticalStackLayout.Triggers>
@@ -359,6 +565,13 @@
                                        FontFamily="SyneBold"
                                        FontSize="24"
                                        HorizontalOptions="Center" />
+
+                                <Label Text="Based on your info (editable below)"
+                                       TextColor="#A88EDB"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="13"
+                                       HorizontalOptions="Center"
+                                       Margin="0,0,0,10" />
 
                                 <!-- Calorie Target Card -->
                                 <Border StrokeThickness="0"
@@ -376,7 +589,7 @@
                                                   VerticalOptions="Center" />
                                             <Label Grid.Column="1" Text="Daily Calorie Intake (kcal)" TextColor="White" FontFamily="SyneBold" FontSize="16" VerticalOptions="Center" />
                                         </Grid>
-                                        <Label Text="Recommended baseline: 2,000 kcal for general health." TextColor="#A88EDB" FontSize="12" FontFamily="OpenSansRegular" />
+                                        <Label Text="Suggested baseline calculated from BMR, activity, and goal." TextColor="#A88EDB" FontSize="12" FontFamily="OpenSansRegular" />
                                         <Border StrokeThickness="0" BackgroundColor="#2A2A2E" HeightRequest="46" StrokeShape="RoundRectangle 10">
                                             <Entry Text="{Binding CalorieLimitText}" TextColor="White" Keyboard="Numeric" HorizontalTextAlignment="Center" VerticalOptions="Center" />
                                         </Border>
@@ -399,7 +612,7 @@
                                                   VerticalOptions="Center" />
                                             <Label Grid.Column="1" Text="Daily Water Volume Target (mL)" TextColor="White" FontFamily="SyneBold" FontSize="16" VerticalOptions="Center" />
                                         </Grid>
-                                        <Label Text="Recommended baseline: 3,000 mL (approx. 100 oz)." TextColor="#A88EDB" FontSize="12" FontFamily="OpenSansRegular" />
+                                        <Label Text="Suggested baseline calculated from body weight." TextColor="#A88EDB" FontSize="12" FontFamily="OpenSansRegular" />
                                         <Border StrokeThickness="0" BackgroundColor="#2A2A2E" HeightRequest="46" StrokeShape="RoundRectangle 10">
                                             <Entry Text="{Binding WaterLimitText}" TextColor="White" Keyboard="Numeric" HorizontalTextAlignment="Center" VerticalOptions="Center" />
                                         </Border>
@@ -407,10 +620,10 @@
                                 </Border>
                             </VerticalStackLayout>
 
-                            <!-- STEP 6: Flow Completion -->
+                            <!-- STEP 8: Flow Completion -->
                             <VerticalStackLayout Spacing="24" VerticalOptions="Center" Margin="0,30,0,0" IsVisible="False">
                                 <VerticalStackLayout.Triggers>
-                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="6">
+                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding CurrentStep}" Value="8">
                                         <Setter Property="IsVisible" Value="True" />
                                     </DataTrigger>
                                 </VerticalStackLayout.Triggers>

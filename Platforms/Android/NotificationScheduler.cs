@@ -70,9 +70,12 @@ namespace FitnessApp.Services
                 intent,
                 PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
 
-            var alarmManager = (AlarmManager)context.GetSystemService(Context.AlarmService);
+            if (pendingIntent == null) return;
+
+            var alarmManager = context.GetSystemService(Context.AlarmService) as AlarmManager;
 
             var calendar = Java.Util.Calendar.Instance;
+            if (calendar == null) return;
             calendar.TimeInMillis = Java.Lang.JavaSystem.CurrentTimeMillis();
             calendar.Set(Java.Util.CalendarField.HourOfDay, reminder.Hour);
             calendar.Set(Java.Util.CalendarField.Minute, reminder.Minute);
@@ -101,7 +104,9 @@ namespace FitnessApp.Services
                 intent,
                 PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
 
-            var alarmManager = (AlarmManager)context.GetSystemService(Context.AlarmService);
+            if (pendingIntent == null) return;
+
+            var alarmManager = context.GetSystemService(Context.AlarmService) as AlarmManager;
             alarmManager?.Cancel(pendingIntent);
         }
 

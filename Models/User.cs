@@ -58,5 +58,11 @@ namespace FitnessApp.Models
 
         [Column("water_limit")]
         public double WaterLimit { get; set; } = 3000;
+
+        [Column("goal")]
+        public string Goal { get; set; } = "Maintain";
+
+        [Column("activity_level")]
+        public string ActivityLevel { get; set; } = "Moderately Active";
     }
 }

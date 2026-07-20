@@ -74,7 +74,7 @@ namespace FitnessApp.ViewModels
         private void Database_OnSeedCompleted(object? sender, EventArgs e)
         {
             _database.OnSeedCompleted -= Database_OnSeedCompleted;
-            // The seed event fires on a background thread. Marshal to main thread to safely update UI state.
+            // Marshal seed callback to UI thread
             MainThread.BeginInvokeOnMainThread(async () =>
             {
                 await LoadExercisesAsync();
@@ -145,7 +145,7 @@ namespace FitnessApp.ViewModels
             }
             catch (OperationCanceledException)
             {
-                // Swallowed: cancellation is expected when search query or filter changes rapidly.
+                // Swallowed: cancellation expected on rapid filter typing
             }
             catch (Exception ex)
             {
@@ -155,8 +155,7 @@ namespace FitnessApp.ViewModels
             }
             finally
             {
-                // Only reset IsBusy if this task wasn't cancelled. If cancelled,
-                // another concurrent loading task will manage the Busy state.
+                // Don't clear IsBusy if cancelled; concurrent task will handle it
                 if (!cancellationToken.IsCancellationRequested)
                 {
                     IsBusy = false;
@@ -197,7 +196,7 @@ namespace FitnessApp.ViewModels
             if (ActiveFilterCategory == category) return;
             ActiveFilterCategory = category;
 
-            // Clear filters so they are re-queried for the new category
+            // Reset filters for new category
             CategoryFilters.Clear();
             await LoadExercisesAsync();
         }

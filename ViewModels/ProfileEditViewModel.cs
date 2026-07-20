@@ -35,6 +35,13 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private string _weightValueText = "75.0";
 
+        // Goal & Activity Level
+        [ObservableProperty]
+        private string _activityLevel = "Moderately Active";
+
+        [ObservableProperty]
+        private string _goal = "Maintain";
+
         // Subtitle previews
         [ObservableProperty]
         private string _heightMirrorText = string.Empty;
@@ -65,6 +72,8 @@ namespace FitnessApp.ViewModels
             {
                 HeightUnit = user.HeightUnit;
                 WeightUnit = user.WeightUnit;
+                ActivityLevel = string.IsNullOrEmpty(user.ActivityLevel) ? "Moderately Active" : user.ActivityLevel;
+                Goal = string.IsNullOrEmpty(user.Goal) ? "Maintain" : user.Goal;
 
                 // Load height state
                 if (user.HeightUnit == "cm")
@@ -95,6 +104,18 @@ namespace FitnessApp.ViewModels
 
                 UpdatePreviews();
             }
+        }
+
+        [RelayCommand]
+        private void SelectActivityLevel(string selectedLevel)
+        {
+            ActivityLevel = selectedLevel;
+        }
+
+        [RelayCommand]
+        private void SelectGoal(string selectedGoal)
+        {
+            Goal = selectedGoal;
         }
 
         [RelayCommand]
@@ -282,6 +303,8 @@ namespace FitnessApp.ViewModels
                 {
                     user.HeightUnit = HeightUnit;
                     user.WeightUnit = WeightUnit;
+                    user.ActivityLevel = ActivityLevel;
+                    user.Goal = Goal;
 
                     // Save standard value representations
                     if (HeightUnit == "cm")
@@ -296,6 +319,15 @@ namespace FitnessApp.ViewModels
                     }
 
                     user.WeightValue = double.Parse(WeightValueText);
+
+                    // Recalculate targets based on updated metrics, activity, and goal
+                    double heightCm = _rawHeightInches * 2.54;
+                    double weightKg = _rawWeightKg;
+                    int age = user.Age > 0 ? user.Age : 25;
+                    double bmr = NutritionCalculator.CalculateBmr(weightKg, heightCm, age, user.Gender);
+                    double tdee = NutritionCalculator.CalculateTdee(bmr, ActivityLevel);
+                    user.CalorieLimit = NutritionCalculator.CalculateCalories(tdee, Goal);
+                    user.WaterLimit = NutritionCalculator.CalculateWater(weightKg);
 
                     var success = await _userRepository.UpdateUserAsync(user);
                     if (success)

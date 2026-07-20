@@ -2,11 +2,7 @@ using FitnessApp.Models;
 
 namespace FitnessApp.Services
 {
-    /// <summary>
-    /// Read seam over the local exercise catalog. ViewModels depend on this
-    /// abstraction, not on <c>SQLiteConnection</c>, so the Phase-2 sync layer
-    /// can slot in behind it without touching consumers (DIP / Layered).
-    /// </summary>
+    /// <summary>Read interface for local exercise catalog.</summary>
     public interface IExerciseRepository
     {
         /// <summary>Returns every exercise in the catalog, ordered alphabetically.</summary>

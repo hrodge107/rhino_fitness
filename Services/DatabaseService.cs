@@ -4,15 +4,10 @@ using SQLite;
 
 namespace FitnessApp.Services
 {
-    /// <summary>
-    /// Singleton <see cref="IDatabaseService"/> implementation. Opens one
-    /// async SQLite connection for the app lifetime and seeds the exercise
-    /// catalog transactionally from the packaged JSON asset.
-    /// </summary>
+    /// <summary>Singleton db connection and seed engine.</summary>
     public class DatabaseService : IDatabaseService
     {
-        // Lazy-init: the connection is built on first access so the constructor
-        // stays cheap and exception-free for DI.
+        // Init connection lazily to keep CTOR cheap
         private readonly Lazy<SQLiteAsyncConnection> _connection;
         private readonly JsonSerializerOptions _jsonOptions = new()
         {
@@ -23,7 +18,7 @@ namespace FitnessApp.Services
         {
             _connection = new Lazy<SQLiteAsyncConnection>(() =>
             {
-                // bundle_e_sqlite3 provides the native engine; initialize once per process.
+                // Setup native SQLite engine
                 SQLitePCL.Batteries_V2.Init();
 
                 var path = Path.Combine(FileSystem.AppDataDirectory, "fitnessapp.db3");
@@ -32,8 +27,7 @@ namespace FitnessApp.Services
                     SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache,
                     storeDateTimeAsTicks: false);
 
-                // Foreign-key enforcement is off by default in SQLite; flip it on for the
-                // normalized workout graph (Workout → WorkoutSet → Exercise) coming later.
+                // Enable FK constraints
                 _ = conn.ExecuteAsync("PRAGMA foreign_keys = ON;");
                 return conn;
             }, isThreadSafe: true);
@@ -74,7 +68,7 @@ namespace FitnessApp.Services
             try { await db.ExecuteAsync("ALTER TABLE scheduled_exercises ADD COLUMN duration_seconds INTEGER DEFAULT 0"); }
             catch { /* column already exists */ }
 
-            // Convert ticks stored as dates in users
+            // Migrate user ticks to ISO dates
             try
             {
                 var usersRaw = await db.QueryAsync<RawUserDates>("SELECT id, created_at as CreatedAt, updated_at as UpdatedAt FROM users");
@@ -106,7 +100,7 @@ namespace FitnessApp.Services
                 System.Diagnostics.Debug.WriteLine($"Failed user DateTime migration: {ex.Message}");
             }
 
-            // Convert ticks stored as dates in scheduled_exercises
+            // Migrate exercise ticks to ISO dates
             try
             {
                 var schedRaw = await db.QueryAsync<RawScheduledDates>("SELECT id, scheduled_date as ScheduledDate, updated_at as UpdatedAt, created_at as CreatedAt FROM scheduled_exercises");
@@ -144,7 +138,7 @@ namespace FitnessApp.Services
                 System.Diagnostics.Debug.WriteLine($"Failed scheduled_exercises DateTime migration: {ex.Message}");
             }
 
-            // Backfill sync_id for existing rows that have NULL
+            // Backfill missing sync_ids
             var usersWithoutSyncId = await db.QueryAsync<User>(
                 "SELECT * FROM users WHERE sync_id IS NULL OR sync_id = ''");
             foreach (var user in usersWithoutSyncId)
@@ -153,7 +147,7 @@ namespace FitnessApp.Services
                 await db.UpdateAsync(user);
             }
 
-            // Create water_logs table if not exists during migration
+            // Ensure water_logs table
             await db.CreateTableAsync<WaterLog>().ConfigureAwait(false);
         }
 
@@ -174,8 +168,7 @@ namespace FitnessApp.Services
             await MigrateDatabaseAsync(db).ConfigureAwait(false);
 
 
-            // Open the packaged MauiAsset and deserialize on a background thread.
-            // LogicalName resolves to the relative path ("exercises.json") per the csproj ItemGroup.
+            // Load packaged exercises catalog JSON
             await using var stream = await FileSystem.OpenAppPackageFileAsync("exercises.json").ConfigureAwait(false);
             var exercises = await JsonSerializer
                 .DeserializeAsync<List<Exercise>>(stream, _jsonOptions)
@@ -186,12 +179,10 @@ namespace FitnessApp.Services
                 return;
             }
 
-            // Bulk-insert inside a single transaction for atomicity and speed — a partial
-            // seed would leave the catalog corrupt.
+            // Transactional bulk insert to avoid partial seeds
             await db.RunInTransactionAsync(syncConn =>
             {
-                // SQLiteAsyncConnection.RunInTransactionAsync hands us a synchronous connection;
-                // use the bulk insert API on it to keep this O(n) in round-trips.
+                // Batch inserts on sync connection for speed
                 var total = 0;
                 foreach (var batch in Chunk(exercises, 500))
                 {
@@ -203,7 +194,7 @@ namespace FitnessApp.Services
             OnSeedCompleted?.Invoke(this, EventArgs.Empty);
         }
 
-        /// <summary>Lazy chunker — keeps each bulk-insert batch DB-friendly (hundreds, not thousands).</summary>
+        /// <summary>Chunk generator for DB batching.</summary>
         private static IEnumerable<List<T>> Chunk<T>(List<T> source, int size)
         {
             for (var i = 0; i < source.Count; i += size)

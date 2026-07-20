@@ -3,11 +3,7 @@ using SQLite;
 
 namespace FitnessApp.Services
 {
-    /// <summary>
-    /// <see cref="IExerciseRepository"/> implementation backed by the embedded
-    /// SQLite store. All predicates are pushed to the database via translatable
-    /// expressions — never materialized and filtered in memory (offline-data-standards).
-    /// </summary>
+    /// <summary>SQLite implementation of exercise repository pushing queries to DB.</summary>
     public class ExerciseRepository : IExerciseRepository
     {
         private readonly SQLiteAsyncConnection _connection;
@@ -24,7 +20,7 @@ namespace FitnessApp.Services
 
         public ExerciseRepository(IDatabaseService database)
         {
-            // Depend on the abstraction, not the concrete DatabaseService (DIP).
+            // DIP: depend on DB abstraction
             _connection = database.Connection;
         }
 
@@ -57,8 +53,7 @@ namespace FitnessApp.Services
                 return await GetAllAsync().ConfigureAwait(false);
             }
 
-            // sqlite-net translates ToLower/Contains to lower()/LIKE, so the
-            // case-insensitive filter runs in the DB, not in memory.
+            // Case-insensitive match pushed to SQLite
             return await _connection.Table<Exercise>()
                 .Where(e => e.Name.ToLower().Contains(term))
                 .OrderBy(e => e.Name)

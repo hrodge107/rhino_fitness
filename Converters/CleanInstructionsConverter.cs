@@ -4,10 +4,7 @@ using Microsoft.Maui.Controls;
 
 namespace FitnessApp.Converters
 {
-    /// <summary>
-    /// Strips step-number prefixes (e.g., "Step:1", "Step 1:", "Step1:") from instructions
-    /// and formats them into a clean continuous paragraph for card previews.
-    /// </summary>
+    /// <summary>Strips step prefixes and merges newlines for previews.</summary>
     public class CleanInstructionsConverter : IValueConverter
     {
         private static readonly Regex StepPrefixRegex = new(
@@ -21,13 +18,13 @@ namespace FitnessApp.Converters
                 return string.Empty;
             }
 
-            // Remove all Step prefixes
+            // Nuke step prefixes
             var cleaned = StepPrefixRegex.Replace(instructions, string.Empty);
 
-            // Replace newlines with spaces to form a continuous paragraph preview in the catalog
+            // Make it one paragraph
             cleaned = cleaned.Replace("\r\n", " ").Replace("\n", " ");
 
-            // Clean up any extra spacing
+            // Collapse whitespace
             cleaned = Regex.Replace(cleaned, @"\s+", " ").Trim();
 
             return cleaned;

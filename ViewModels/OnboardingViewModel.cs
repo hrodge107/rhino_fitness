@@ -11,7 +11,7 @@ namespace FitnessApp.ViewModels
         private readonly IUserRepository _userRepository;
         private readonly IPlannerStateService _plannerStateService;
 
-        // Step number: 1 to 6
+        // Step number: 1 to 8
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ContinueButtonText))]
         private int _currentStep = 1;
@@ -24,7 +24,11 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private string _ageText = string.Empty;
 
-        // Step 4: Height & Weight
+        // Step 4: Activity Level
+        [ObservableProperty]
+        private string _activityLevel = "Moderately Active"; // "Sedentary", "Lightly Active", "Moderately Active", "Very Active"
+
+        // Step 5: Height & Weight
         private double _rawHeightInches;
         private double _rawWeightKg;
 
@@ -52,7 +56,7 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private string _weightMirrorText = string.Empty;
 
-        // Step 4: BMI Display
+        // Step 5: BMI Display
         [ObservableProperty]
         private string _bmiText = "--";
 
@@ -62,7 +66,11 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private string _bmiBgColor = "#2A2A2E";
 
-        // Step 5: Targets
+        // Step 6: Goal
+        [ObservableProperty]
+        private string _goal = "Maintain"; // "Lose Weight", "Maintain", "Gain Weight", "Just Track"
+
+        // Step 7: Targets
         [ObservableProperty]
         private string _calorieLimitText = "2000";
 
@@ -72,7 +80,7 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private string _validationError = string.Empty;
 
-        public string ContinueButtonText => CurrentStep == 6 ? "Let's go" : "Continue";
+        public string ContinueButtonText => CurrentStep == 8 ? "Let's go" : "Continue";
 
         public bool IsHeightFtIn => HeightUnit == "ft/in";
         public bool IsHeightCm => HeightUnit == "cm";
@@ -97,6 +105,20 @@ namespace FitnessApp.ViewModels
         private void SelectGender(string selectedGender)
         {
             Gender = selectedGender;
+            ValidationError = string.Empty;
+        }
+
+        [RelayCommand]
+        private void SelectActivityLevel(string selectedLevel)
+        {
+            ActivityLevel = selectedLevel;
+            ValidationError = string.Empty;
+        }
+
+        [RelayCommand]
+        private void SelectGoal(string selectedGoal)
+        {
+            Goal = selectedGoal;
             ValidationError = string.Empty;
         }
 
@@ -287,6 +309,29 @@ namespace FitnessApp.ViewModels
             }
         }
 
+        public void RecalculateSuggestedTargets()
+        {
+            UpdateRawHeightFromInputs();
+            UpdateRawWeightFromInputs();
+
+            double heightCm = HeightUnit == "cm" ? (_rawHeightInches * 2.54) : (_rawHeightInches * 2.54);
+            if (HeightUnit == "cm" && double.TryParse(HeightCmText, out double parsedCm) && parsedCm > 0)
+            {
+                heightCm = parsedCm;
+            }
+
+            double weightKg = _rawWeightKg;
+            int.TryParse(AgeText, out int age);
+
+            double bmr = NutritionCalculator.CalculateBmr(weightKg, heightCm, age, Gender);
+            double tdee = NutritionCalculator.CalculateTdee(bmr, ActivityLevel);
+            double calories = NutritionCalculator.CalculateCalories(tdee, Goal);
+            double water = NutritionCalculator.CalculateWater(weightKg);
+
+            CalorieLimitText = calories.ToString("0.##");
+            WaterLimitText = water.ToString("0.##");
+        }
+
         [RelayCommand]
         private async Task GoNext()
         {
@@ -316,6 +361,15 @@ namespace FitnessApp.ViewModels
             }
             else if (CurrentStep == 4)
             {
+                if (string.IsNullOrEmpty(ActivityLevel))
+                {
+                    ValidationError = "Please select an activity level option to proceed.";
+                    return;
+                }
+                CurrentStep = 5;
+            }
+            else if (CurrentStep == 5)
+            {
                 UpdateRawHeightFromInputs();
                 UpdateRawWeightFromInputs();
 
@@ -343,9 +397,19 @@ namespace FitnessApp.ViewModels
                     return;
                 }
 
-                CurrentStep = 5;
+                CurrentStep = 6;
             }
-            else if (CurrentStep == 5)
+            else if (CurrentStep == 6)
+            {
+                if (string.IsNullOrEmpty(Goal))
+                {
+                    ValidationError = "Please select a goal option to proceed.";
+                    return;
+                }
+                RecalculateSuggestedTargets();
+                CurrentStep = 7;
+            }
+            else if (CurrentStep == 7)
             {
                 if (!double.TryParse(CalorieLimitText, out double calVal) || calVal <= 500 || calVal > 10000)
                 {
@@ -359,9 +423,9 @@ namespace FitnessApp.ViewModels
                     return;
                 }
 
-                CurrentStep = 6;
+                CurrentStep = 8;
             }
-            else if (CurrentStep == 6)
+            else if (CurrentStep == 8)
             {
                 await CompleteOnboarding();
             }
@@ -401,6 +465,8 @@ namespace FitnessApp.ViewModels
             {
                 user.Gender = Gender;
                 user.Age = int.Parse(AgeText);
+                user.ActivityLevel = ActivityLevel;
+                user.Goal = Goal;
                 user.HeightUnit = HeightUnit;
                 user.WeightUnit = WeightUnit;
 

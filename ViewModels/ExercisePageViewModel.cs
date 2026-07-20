@@ -60,12 +60,12 @@ namespace FitnessApp.ViewModels
             _scheduledExerciseRepository = scheduledExerciseRepository;
             _exerciseRepository = exerciseRepository;
 
-            // Overall session elapsed timer
+            // Session timer
             _elapsedTimer = Application.Current!.Dispatcher.CreateTimer();
             _elapsedTimer.Interval = TimeSpan.FromSeconds(1);
             _elapsedTimer.Tick += ElapsedTimer_Tick;
 
-            // Rest countdown timer
+            // Rest timer
             _restTimer = Application.Current!.Dispatcher.CreateTimer();
             _restTimer.Interval = TimeSpan.FromSeconds(1);
             _restTimer.Tick += RestTimer_Tick;
@@ -136,12 +136,9 @@ namespace FitnessApp.ViewModels
             IsBusy = true;
             try
             {
-                int userId = 1; // Default/active user
+                int userId = 1; // active user
                 var scheduled = await _scheduledExerciseRepository.GetScheduledExercisesForDateAsync(userId, DateTime.Today);
-                // Search specifically for this scheduled exercise id
-                // But wait: GetScheduledExercisesForDateAsync returns for target date. Let's just find the scheduled exercise in database.
-                // Since our repository only has GetScheduledExercisesForDateAsync, we can query it for all time or check all.
-                // ponytail: load via repository to support sync
+                // Query via repo to support sync
                 _scheduledExercise = await _scheduledExerciseRepository.GetByIdAsync(_scheduledExerciseId);
 
                 if (_scheduledExercise != null)
@@ -169,7 +166,7 @@ namespace FitnessApp.ViewModels
             ElapsedTimerText = "00:00";
             _elapsedTimer.Start();
 
-            // Set up initial rest display
+            // Setup rest duration
             _restSecondsLeft = TargetRestDuration;
             RestTimerText = FormatTime(_restSecondsLeft);
         }
@@ -194,7 +191,7 @@ namespace FitnessApp.ViewModels
         {
             if (IsResting)
             {
-                // Pause if already resting
+                // Toggle resting state
                 _restTimer.Stop();
                 IsResting = false;
             }
@@ -216,7 +213,7 @@ namespace FitnessApp.ViewModels
             if (int.TryParse(amountStr, out int amount))
             {
                 int newDuration = TargetRestDuration + amount;
-                if (newDuration < 5) newDuration = 5; // minimum 5 seconds
+                if (newDuration < 5) newDuration = 5; // min 5s
                 TargetRestDuration = newDuration;
 
                 if (!IsResting)
@@ -264,7 +261,7 @@ namespace FitnessApp.ViewModels
         [RelayCommand]
         private async Task FinishSession()
         {
-            // ponytail: confirm before finishing exercise
+            // Confirm completion
             bool confirm = await Shell.Current.DisplayAlert("Complete Exercise", "Are you sure you want to finish this session?", "Yes", "No");
             if (!confirm) return;
 
@@ -299,7 +296,7 @@ namespace FitnessApp.ViewModels
             _elapsedTimer.Stop();
             _restTimer.Stop();
 
-            // Return to PlannerPage absolutely to prevent re-submissions
+            // Prevent re-submissions
             await NavigationService.GoToAsync("//PlannerPage");
         }
 
@@ -326,7 +323,7 @@ namespace FitnessApp.ViewModels
             {
                 _restTimer.Stop();
                 IsResting = false;
-                // ponytail: alert rest timer finished
+                // Alert finished
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
                     await Shell.Current.DisplayAlert("Rest Finished", "Time to start your next set!", "OK");

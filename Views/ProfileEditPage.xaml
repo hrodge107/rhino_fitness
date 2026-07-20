@@ -125,6 +125,132 @@
                         </VerticalStackLayout>
                     </Border>
 
+                    <!-- ═══ Activity Level Editing Card ═══ -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#222226"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="20">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Activity Level"
+                                   TextColor="White"
+                                   FontFamily="SyneBold"
+                                   FontSize="18" />
+
+                            <VerticalStackLayout Spacing="8">
+                                <Border StrokeThickness="1" Stroke="Transparent" StrokeShape="RoundRectangle 12" BackgroundColor="#2A2A2E" Padding="12,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectActivityLevelCommand}" CommandParameter="Sedentary" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding ActivityLevel}" Value="Sedentary">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="Sedentary (Little or no exercise)" TextColor="White" FontFamily="OpenSansSemibold" FontSize="14" />
+                                </Border>
+
+                                <Border StrokeThickness="1" Stroke="Transparent" StrokeShape="RoundRectangle 12" BackgroundColor="#2A2A2E" Padding="12,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectActivityLevelCommand}" CommandParameter="Lightly Active" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding ActivityLevel}" Value="Lightly Active">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="Lightly Active (1–3 days/week)" TextColor="White" FontFamily="OpenSansSemibold" FontSize="14" />
+                                </Border>
+
+                                <Border StrokeThickness="1" Stroke="Transparent" StrokeShape="RoundRectangle 12" BackgroundColor="#2A2A2E" Padding="12,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectActivityLevelCommand}" CommandParameter="Moderately Active" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding ActivityLevel}" Value="Moderately Active">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="Moderately Active (3–5 days/week)" TextColor="White" FontFamily="OpenSansSemibold" FontSize="14" />
+                                </Border>
+
+                                <Border StrokeThickness="1" Stroke="Transparent" StrokeShape="RoundRectangle 12" BackgroundColor="#2A2A2E" Padding="12,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectActivityLevelCommand}" CommandParameter="Very Active" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding ActivityLevel}" Value="Very Active">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="Very Active (6–7 days/week)" TextColor="White" FontFamily="OpenSansSemibold" FontSize="14" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ═══ Goal Editing Card ═══ -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#222226"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="20">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Primary Goal"
+                                   TextColor="White"
+                                   FontFamily="SyneBold"
+                                   FontSize="18" />
+
+                            <VerticalStackLayout Spacing="8">
+                                <Border StrokeThickness="1" Stroke="Transparent" StrokeShape="RoundRectangle 12" BackgroundColor="#2A2A2E" Padding="12,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="Lose Weight" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Goal}" Value="Lose Weight">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="Lose Weight (-500 kcal/day)" TextColor="White" FontFamily="OpenSansSemibold" FontSize="14" />
+                                </Border>
+
+                                <Border StrokeThickness="1" Stroke="Transparent" StrokeShape="RoundRectangle 12" BackgroundColor="#2A2A2E" Padding="12,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="Maintain" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Goal}" Value="Maintain">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="Maintain Weight (TDEE)" TextColor="White" FontFamily="OpenSansSemibold" FontSize="14" />
+                                </Border>
+
+                                <Border StrokeThickness="1" Stroke="Transparent" StrokeShape="RoundRectangle 12" BackgroundColor="#2A2A2E" Padding="12,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="Gain Weight" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Goal}" Value="Gain Weight">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="Gain Weight (+500 kcal/day)" TextColor="White" FontFamily="OpenSansSemibold" FontSize="14" />
+                                </Border>
+
+                                <Border StrokeThickness="1" Stroke="Transparent" StrokeShape="RoundRectangle 12" BackgroundColor="#2A2A2E" Padding="12,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectGoalCommand}" CommandParameter="Just Track" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Goal}" Value="Just Track">
+                                            <Setter Property="BackgroundColor" Value="#5B2A9E" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="Just Track (TDEE baseline)" TextColor="White" FontFamily="OpenSansSemibold" FontSize="14" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
                     <!-- Validation Error -->
                     <Label Text="{Binding ValidationError}"
                            TextColor="#E53935"

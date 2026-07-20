@@ -27,7 +27,10 @@ namespace FitnessApp.ViewModels
         public string Status { get; set; } = "PENDING";
 
         public bool IsMissed => Status == "MISSED";
-        public bool IsNotMissed => Status == "PENDING";
+        public bool IsPending => Status == "PENDING";
+        public bool IsCompleted => Status == "COMPLETED";
+        public bool IsNotMissed => !IsMissed && !IsCompleted;
+        public bool IsActionable => IsPending;
         public string CardBgColor => IsMissed ? "#3A2020" : "#2A2A2E";
     }
 
@@ -37,17 +40,19 @@ namespace FitnessApp.ViewModels
         private readonly IExerciseRepository _exerciseRepository;
         private readonly IPlannerStateService _plannerStateService;
 
-        // Rev 2: cached 42-day range; populated by BuildCalendarAsync, consumed by LoadScheduledExercisesAsync.
+        // Cache 42-day range populated by BuildCalendarAsync
         private List<ScheduledExercise> _cachedRangeData = new();
+        private List<PlannedWorkoutItem> _allCurrentExercises = new();
 
-        // Rev 5: status string constants — single source of truth.
+        // Status constants
         private static class ExerciseStatus
         {
             public const string Pending = "PENDING";
             public const string Missed  = "MISSED";
+            public const string Completed = "COMPLETED";
         }
 
-        // Rev 1: throws instead of silently loading data for user ID 1.
+        // Throw if not authenticated
         private int UserId => _plannerStateService.CurrentUser?.Id
             ?? throw new InvalidOperationException("No authenticated user.");
 
@@ -74,6 +79,18 @@ namespace FitnessApp.ViewModels
         [ObservableProperty]
         private bool _hasExercises;
 
+        [ObservableProperty]
+        private ObservableCollection<string> _filterOptions = new();
+
+        [ObservableProperty]
+        private string _selectedFilter = "All";
+
+        partial void OnSelectedFilterChanged(string value)
+        {
+            if (value == null) return;
+            ApplyFilterAndSort();
+        }
+
         public ObservableCollection<CalendarDayModel>   CalendarDays       { get; } = new();
         public ObservableCollection<PlannedWorkoutItem> ScheduledExercises { get; } = new();
 
@@ -96,10 +113,11 @@ namespace FitnessApp.ViewModels
             SelectedDate = _plannerStateService.SelectedDate;
             IsNormalMode = SelectedDate.Date >= DateTime.Today;
 
-            // Rev 4: surface failures to the user instead of crashing silently.
+            // Load exercises, report errors to UI
             try
             {
                 await _scheduledExerciseRepository.UpdateMissedExercisesAsync(UserId, DateTime.Today);
+                UpdateFilterOptions(SelectedDate);
                 await BuildCalendarAsync();      // populates _cachedRangeData
                 await LoadScheduledExercisesAsync(); // consumes _cachedRangeData
             }
@@ -114,11 +132,11 @@ namespace FitnessApp.ViewModels
         private async Task BuildCalendarAsync()
         {
             var firstDayOfMonth = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
-            int offset    = (int)firstDayOfMonth.DayOfWeek; // Sunday = 0
+            int offset    = (int)firstDayOfMonth.DayOfWeek;
             var startDate = firstDayOfMonth.AddDays(-offset);
             var endDate   = startDate.AddDays(42);
 
-            // Rev 2: single range query; result is cached for LoadScheduledExercisesAsync.
+            // Single range query cached for load
             _cachedRangeData = await _scheduledExerciseRepository
                 .GetScheduledExercisesForRangeAsync(UserId, startDate, endDate);
 
@@ -129,7 +147,7 @@ namespace FitnessApp.ViewModels
                 var day     = startDate.AddDays(i);
                 var dayDate = day.Date;
 
-                // Rev 5: centralized filter via IsVisibleForDate.
+                // Filter via IsVisibleForDate
                 var hasWorkouts = _cachedRangeData
                     .Where(se => se.ScheduledDate.Date == dayDate)
                     .Any(se => IsVisibleForDate(se, dayDate));
@@ -154,12 +172,12 @@ namespace FitnessApp.ViewModels
 
         private async Task LoadScheduledExercisesAsync()
         {
-            // Rev 2: use in-memory cache when available; avoids a redundant network round-trip.
+            // Use in-memory cache if possible
             var rawScheduled = _cachedRangeData.Count > 0
                 ? _cachedRangeData.Where(se => se.ScheduledDate.Date == SelectedDate.Date).ToList()
                 : await _scheduledExerciseRepository.GetScheduledExercisesForDateAsync(UserId, SelectedDate);
 
-            // Rev 5: single call to centralized filter.
+            // Filter exercises
             var scheduled = rawScheduled
                 .Where(se => IsVisibleForDate(se, SelectedDate))
                 .ToList();
@@ -179,10 +197,27 @@ namespace FitnessApp.ViewModels
                               Status              = s.Status
                           }).ToList();
 
+            _allCurrentExercises = joined;
+            ApplyFilterAndSort();
+        }
+
+        private void ApplyFilterAndSort()
+        {
+            var filtered = _allCurrentExercises.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(SelectedFilter) && !string.Equals(SelectedFilter, "All", StringComparison.OrdinalIgnoreCase))
+            {
+                filtered = filtered.Where(x => string.Equals(x.Status, SelectedFilter, StringComparison.OrdinalIgnoreCase));
+            }
+
+            var sorted = filtered
+                .OrderBy(x => x.IsCompleted ? 1 : 0)
+                .ToList();
+
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 ScheduledExercises.Clear();
-                foreach (var item in joined)
+                foreach (var item in sorted)
                     ScheduledExercises.Add(item);
 
                 HasNoExercises = ScheduledExercises.Count == 0;
@@ -190,11 +225,38 @@ namespace FitnessApp.ViewModels
             });
         }
 
-        // Rev 5: single source of truth for visibility logic.
+        private void UpdateFilterOptions(DateTime date)
+        {
+            var options = new List<string> { "All" };
+            if (date.Date < DateTime.Today)
+            {
+                options.Add("Completed");
+                options.Add("Missed");
+            }
+            else
+            {
+                options.Add("Pending");
+                options.Add("Completed");
+            }
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                FilterOptions.Clear();
+                foreach (var opt in options)
+                    FilterOptions.Add(opt);
+
+#pragma warning disable MVVMTK0034
+                _selectedFilter = "All";
+#pragma warning restore MVVMTK0034
+                OnPropertyChanged(nameof(SelectedFilter));
+            });
+        }
+
+        // Centralized visibility logic
         private static bool IsVisibleForDate(ScheduledExercise se, DateTime date)
             => date.Date < DateTime.Today
-                ? se.Status == ExerciseStatus.Missed || se.Status == ExerciseStatus.Pending
-                : se.Status == ExerciseStatus.Pending;
+                ? se.Status == ExerciseStatus.Missed || se.Status == ExerciseStatus.Pending || se.Status == ExerciseStatus.Completed
+                : se.Status == ExerciseStatus.Pending || se.Status == ExerciseStatus.Completed;
 
         [RelayCommand]
         private async Task SelectDay(CalendarDayModel day)
@@ -205,16 +267,10 @@ namespace FitnessApp.ViewModels
             _plannerStateService.SelectedDate = SelectedDate;
             IsNormalMode = SelectedDate.Date >= DateTime.Today;
 
-            if (SelectedDate.Date < DateTime.Today)
-            {
-                await Shell.Current.DisplayAlert("You selected a Previous Date",
-                    "Exercises you have missed are listed here", "OK");
-            }
-
             foreach (var calDay in CalendarDays)
                 calDay.IsSelected = calDay.Date.Date == SelectedDate.Date;
 
-            // Trigger visual refresh of collection on Main UI Thread
+            // Refresh collection on UI thread
             var temp = CalendarDays.ToList();
             MainThread.BeginInvokeOnMainThread(() =>
             {
@@ -223,6 +279,7 @@ namespace FitnessApp.ViewModels
                     CalendarDays.Add(d);
             });
 
+            UpdateFilterOptions(SelectedDate);
             await LoadScheduledExercisesAsync();
         }
 
@@ -272,7 +329,7 @@ namespace FitnessApp.ViewModels
 
                     if (success)
                     {
-                        // Rev 2: Build first to refresh cache, then Load uses the fresh cache.
+                        // Rebuild calendar cache and reload
                         await BuildCalendarAsync();
                         await LoadScheduledExercisesAsync();
                     }
@@ -284,7 +341,7 @@ namespace FitnessApp.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    // Rev 6: no raw stack trace shown to users.
+                    // Friendly error message without stack trace
                     await Shell.Current.DisplayAlert("Error",
                         $"Could not delete exercise: {ex.Message}", "OK");
                 }

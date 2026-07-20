@@ -209,6 +209,24 @@
                                CharacterSpacing="1.5"
                                Margin="0,4,0,4" />
 
+                        <!-- Status Filter Pill -->
+                        <Border StrokeThickness="1"
+                                Stroke="#3E3454"
+                                BackgroundColor="#222226"
+                                StrokeShape="RoundRectangle 14"
+                                Padding="12,0"
+                                HorizontalOptions="Start"
+                                HeightRequest="38"
+                                Margin="0,4,0,8">
+                            <Picker ItemsSource="{Binding FilterOptions}"
+                                    SelectedItem="{Binding SelectedFilter}"
+                                    TextColor="White"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="13"
+                                    Title="Filter"
+                                    TitleColor="#888888" />
+                        </Border>
+
                         <Label Text="No exercises scheduled for this day."
                            TextColor="#888888"
                            FontFamily="OpenSansRegular"
@@ -225,6 +243,7 @@
                                 <DataTemplate x:DataType="viewmodels:PlannedWorkoutItem">
                                     <Border StrokeThickness="1.5"
                                             Stroke="#3E3454"
+                                            BackgroundColor="#222226"
                                             StrokeShape="RoundRectangle 20"
                                             Padding="16"
                                             Margin="0,6,0,10"
@@ -234,9 +253,13 @@
                                                 <Setter Property="BackgroundColor" Value="#3E2323" />
                                                 <Setter Property="Stroke" Value="#6A3A3A" />
                                             </DataTrigger>
-                                            <DataTrigger TargetType="Border" Binding="{Binding IsMissed}" Value="False">
-                                                <Setter Property="BackgroundColor" Value="#222226" />
-                                                <Setter Property="Stroke" Value="#3E3454" />
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsCompleted}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="#233E23" />
+                                                <Setter Property="Stroke" Value="#3A6A3A" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsPending}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="#3E3823" />
+                                                <Setter Property="Stroke" Value="#6A6A3A" />
                                             </DataTrigger>
                                         </Border.Triggers>
                                         <Grid ColumnDefinitions="68, *, Auto" ColumnSpacing="14">
@@ -274,7 +297,7 @@
                                             </VerticalStackLayout>
      
                                             <!-- Actions -->
-                                            <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center" IsVisible="{Binding IsNotMissed}">
+                                            <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center" IsVisible="{Binding IsActionable}">
                                                 <!-- Start Workout Button -->
                                                 <Button Text="Start"
                                                         BackgroundColor="#5B2A9E"
@@ -286,7 +309,7 @@
                                                         CornerRadius="12"
                                                         Command="{Binding BindingContext.StartWorkoutCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
                                                         CommandParameter="{Binding .}" />
-     
+      
                                                 <!-- Delete Button -->
                                                 <Button Text="✕"
                                                         BackgroundColor="#3A1C1C"
@@ -299,6 +322,16 @@
                                                         Command="{Binding BindingContext.DeleteExerciseCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
                                                         CommandParameter="{Binding .}" />
                                             </HorizontalStackLayout>
+
+                                            <!-- Completed Done Label -->
+                                            <Label Grid.Column="2"
+                                                   Text="✓ Done"
+                                                   TextColor="#4CAF50"
+                                                   FontFamily="OpenSansSemibold"
+                                                   FontSize="14"
+                                                   VerticalOptions="Center"
+                                                   HorizontalOptions="Center"
+                                                   IsVisible="{Binding IsCompleted}" />
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

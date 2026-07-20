@@ -7,7 +7,7 @@ namespace FitnessApp.Services
     [BroadcastReceiver(Enabled = true, Exported = false)]
     public class NotificationReceiver : BroadcastReceiver
     {
-        public override void OnReceive(Context context, Intent intent)
+        public override void OnReceive(Context? context, Intent? intent)
         {
             if (context == null || intent == null) return;
 
@@ -16,7 +16,7 @@ namespace FitnessApp.Services
             var reminderId = intent.GetIntExtra("reminder_id", 0);
 
             var channelId = "fitness_reminders_channel";
-            var notificationManager = (NotificationManager)context.GetSystemService(Context.NotificationService);
+            var notificationManager = context.GetSystemService(Context.NotificationService) as NotificationManager;
 
             if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
             {
@@ -27,13 +27,14 @@ namespace FitnessApp.Services
                 notificationManager?.CreateNotificationChannel(channel);
             }
 
+            if (context.PackageName == null) return;
             var launchIntent = context.PackageManager?.GetLaunchIntentForPackage(context.PackageName);
             if (launchIntent == null) return;
             
             launchIntent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.SingleTop);
             var pendingIntent = PendingIntent.GetActivity(context, reminderId, launchIntent, PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
 
-            var iconId = context.Resources.GetIdentifier("appicon", "mipmap", context.PackageName);
+            var iconId = context.Resources?.GetIdentifier("appicon", "mipmap", context.PackageName) ?? 0;
             if (iconId == 0)
             {
                 iconId = Android.Resource.Drawable.SymDefAppIcon;
