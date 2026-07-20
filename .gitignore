@@ -33,3 +33,8 @@ docs/
 scripts/
 
 Services/SupabaseConfig.cs
+
+# Log files
+*.log
+msbuild.log
+build.log
